@@ -1,0 +1,130 @@
+@import 'tailwindcss';
+
+/* =============================================================
+   Vazifalar — dizayn tokenlari
+   Brend ranglari Logo/PNG fayllaridan piksel darajasida olingan:
+     #003933 — logo belgisi va yozuvi
+     #00BC55 — belgining markazidagi romb
+     #1D1D1B — "ilm maskani" quyi yozuvi
+   ============================================================= */
+
+@theme {
+  /* Brend */
+  --color-brand-primary: #003933;
+  --color-brand-primary-hover: #00524a;
+  --color-brand-primary-light: #0f655b;
+  --color-brand-accent: #00bc55;
+  --color-brand-accent-hover: #00a549;
+  --color-brand-soft: #e8f3ef;
+  --color-brand-ink: #1d1d1b;
+
+  /* Holat ranglari — brenddan qat'i nazar o'zgarmaydi */
+  --color-status-progress: #fef3c7;
+  --color-status-progress-line: #f59e0b;
+  --color-status-progress-text: #92400e;
+
+  /* Muhimlik */
+  --color-priority-1: #dc2626;
+  --color-priority-2: #ea580c;
+  --color-priority-3: #2563eb;
+  --color-priority-4: #9ca3af;
+
+  /* Shrift */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Minimal teginish o'lchami */
+  --spacing-touch: 2.75rem; /* 44px */
+}
+
+/* -------------------------------------------------------------
+   Yuza ranglari — yorug' va qorong'i mavzu (qorong'i: 6-bosqich)
+   ------------------------------------------------------------- */
+:root {
+  --surface: #ffffff;
+  --surface-muted: #f6f8f7;
+  --surface-sunken: #eef2f1;
+  --border-subtle: #e3e8e7;
+  --text-strong: #1d1d1b;
+  --text-muted: #6b7280;
+  --text-faint: #9ca3af;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-border-subtle: var(--border-subtle);
+  --color-text-strong: var(--text-strong);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+}
+
+/* -------------------------------------------------------------
+   Asos
+   ------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--surface-muted);
+    color: var(--text-strong);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    /* Telefonda pastki menyu ostidagi xavfsiz zona */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Barcha bosiladigan elementlar kamida 44px */
+  button,
+  [role='button'],
+  a[data-touch],
+  input[type='submit'] {
+    min-height: var(--spacing-touch);
+  }
+
+  /* Fokus halqasi — klaviatura bilan yurganda ko'rinadi */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-accent);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+
+  /* Telefonda matn tanlanib ketmasligi uchun (sudrash bilan ziddiyat) */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+@layer utilities {
+  /* Kartochka va panellar uchun yumshoq soya */
+  .shadow-card {
+    box-shadow:
+      0 1px 2px rgb(0 57 51 / 0.04),
+      0 1px 3px rgb(0 57 51 / 0.06);
+  }
+
+  .shadow-raised {
+    box-shadow:
+      0 4px 6px -1px rgb(0 57 51 / 0.08),
+      0 2px 4px -2px rgb(0 57 51 / 0.06);
+  }
+
+  .shadow-float {
+    box-shadow:
+      0 10px 15px -3px rgb(0 57 51 / 0.12),
+      0 4px 6px -4px rgb(0 57 51 / 0.1);
+  }
+
+  /* Harakatni kamaytirish sozlamasi yoqilgan bo'lsa */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

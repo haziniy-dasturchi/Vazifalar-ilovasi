@@ -1,0 +1,7 @@
+# Barcha matn fayllari omborda LF bilan saqlanadi
+* text=auto eol=lf
+
+# Ikkilik fayllar
+*.png binary
+*.eps binary
+*.ico binary

@@ -1,0 +1,7 @@
+# Deploy paketiga kirmasligi kerak bo'lgan fayllar
+Logo/
+supabase/
+tools/
+scripts/
+*.md
+!README.md

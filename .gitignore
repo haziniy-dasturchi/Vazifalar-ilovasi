@@ -1,0 +1,27 @@
+# Node
+node_modules/
+npm-debug.log*
+*.tsbuildinfo
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# Maxfiy qiymatlar — hech qachon git ga tushmasin
+.secrets/
+
+# Muhit o'zgaruvchilari
+.env
+.env.local
+.env.*.local
+supabase/.env
+
+# Supabase CLI ish fayllari
+supabase/.temp/
+supabase/.branches/
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store

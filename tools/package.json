@@ -1,0 +1,17 @@
+{
+  "name": "vazifalar-tools",
+  "private": true,
+  "type": "module",
+  "description": "Dockersiz lokal tekshiruv: migratsiyalarni PGlite (WASM Postgres) ichida ishga tushiradi",
+  "scripts": {
+    "verify": "node verify.mjs",
+    "verify:tests": "node verify-tests.mjs",
+    "verify:all": "node verify.mjs && node verify-tests.mjs",
+    "schema": "node dump-schema.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.16",
+    "pngjs": "^7.0.0",
+    "typescript": "5.9"
+  }
+}
