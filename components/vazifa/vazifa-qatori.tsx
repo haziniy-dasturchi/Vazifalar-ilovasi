@@ -10,9 +10,24 @@ import {
 } from 'lucide-react'
 import { useVazifaHolati } from '@/lib/queries/vazifalar'
 import { useToast } from '@/components/ui/toast'
+import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
 import { MUHIMLIK_NOMI, MUHIMLIK_RANGI } from '@/lib/papka-stillari'
-import { kechikishMatni, kechikkanmi, sanaMatni, vaqtMatni } from '@/lib/sana'
+import {
+  kechikishMatni,
+  kechikkanmi,
+  sanaMatni,
+  vaqtHolati,
+  vaqtMatni,
+  type VaqtHolati,
+} from '@/lib/sana'
 import type { Task } from '@/types/vazifalar'
+
+/** Vaqt holatiga qarab rang: o'tgan — qizil, yaqin — sariq, kelgusi — yashil */
+const VAQT_RANGI: Record<VaqtHolati, string> = {
+  otgan: 'text-red-600',
+  hozir: 'text-amber-600',
+  kelgusi: 'text-emerald-600',
+}
 
 export function VazifaQatori({
   vazifa,
@@ -28,6 +43,7 @@ export function VazifaQatori({
   const holat = useVazifaHolati()
   const { korsat } = useToast()
   const [ochiq, setOchiq] = useState(false)
+  const [tahrirOchiq, setTahrirOchiq] = useState(false)
 
   const bajarilgan = vazifa.status === 'done'
   const jarayonda = vazifa.status === 'in_progress'
@@ -80,7 +96,18 @@ export function VazifaQatori({
           </span>
         </button>
 
-        <div className="min-w-0 flex-1 py-1.5">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => setTahrirOchiq(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              setTahrirOchiq(true)
+            }
+          }}
+          className="min-w-0 flex-1 cursor-pointer py-1.5"
+        >
           <p
             className={`text-base leading-snug break-words ${
               bajarilgan
@@ -97,7 +124,18 @@ export function VazifaQatori({
                 {kechikkan
                   ? kechikishMatni(vazifa.due_date)
                   : sanaMatni(vazifa.due_date)}
-                {vazifa.due_time ? ` · ${vaqtMatni(vazifa.due_time)}` : ''}
+              </span>
+            )}
+
+            {vazifa.due_date && vazifa.due_time && (
+              <span
+                className={
+                  bajarilgan
+                    ? 'text-text-muted'
+                    : `font-medium ${VAQT_RANGI[vaqtHolati(vazifa.due_date, vazifa.due_time)]}`
+                }
+              >
+                {vaqtMatni(vazifa.due_time)}
               </span>
             )}
 
@@ -124,7 +162,10 @@ export function VazifaQatori({
             {subtasklar.length > 0 && (
               <button
                 type="button"
-                onClick={() => setOchiq((v) => !v)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setOchiq((v) => !v)
+                }}
                 aria-expanded={ochiq}
                 className="flex min-h-0 items-center gap-1 rounded-md text-text-muted transition hover:text-brand-primary"
               >
@@ -166,6 +207,10 @@ export function VazifaQatori({
             <VazifaQatori key={s.id} vazifa={s} />
           ))}
         </ul>
+      )}
+
+      {tahrirOchiq && (
+        <VazifaOynasi vazifa={vazifa} yop={() => setTahrirOchiq(false)} />
       )}
     </li>
   )

@@ -1,7 +1,14 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
+
+/**
+ * Bir nechta oyna ustma-ust ochilishi mumkin (masalan vazifani
+ * tahrirlash oynasi ustida o'chirishni tasdiqlash). Escape bosilganda
+ * faqat eng tepadagi oyna yopilishi uchun umumiy stek.
+ */
+const ochiqOynalarStegi: symbol[] = []
 
 /**
  * Oyna: telefonda pastdan chiqadi, kompyuterda markazda turadi.
@@ -20,11 +27,21 @@ export function Oyna({
   kenglik?: 'oddiy' | 'keng'
 }) {
   const panelRef = useRef<HTMLDivElement>(null)
+  const [id] = useState(() => Symbol('oyna'))
 
-  // Escape bilan yopish va orqa fonni qotirish
+  useEffect(() => {
+    ochiqOynalarStegi.push(id)
+    return () => {
+      const i = ochiqOynalarStegi.indexOf(id)
+      if (i !== -1) ochiqOynalarStegi.splice(i, 1)
+    }
+  }, [id])
+
+  // Escape bilan yopish (faqat eng tepadagi oyna uchun) va orqa fonni qotirish
   useEffect(() => {
     function klavisha(e: KeyboardEvent) {
-      if (e.key === 'Escape') yop()
+      const engTepadagi = ochiqOynalarStegi[ochiqOynalarStegi.length - 1]
+      if (e.key === 'Escape' && engTepadagi === id) yop()
     }
     document.addEventListener('keydown', klavisha)
 
@@ -38,7 +55,7 @@ export function Oyna({
       document.removeEventListener('keydown', klavisha)
       document.body.style.overflow = oldingiOverflow
     }
-  }, [yop])
+  }, [yop, id])
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">

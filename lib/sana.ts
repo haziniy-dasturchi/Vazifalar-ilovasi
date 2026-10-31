@@ -107,6 +107,25 @@ export function vaqtMatni(vaqt: string | null): string | null {
   return vaqt.slice(0, 5)
 }
 
+export type VaqtHolati = 'otgan' | 'hozir' | 'kelgusi'
+
+/**
+ * Sana + vaqtga nisbatan uchta holat:
+ *  - 'otgan'   — vaqti allaqachon o'tib ketgan
+ *  - 'hozir'   — vaqti yaqin (keyingi 30 daqiqa ichida)
+ *  - 'kelgusi' — vaqti hali yetib kelmagan
+ */
+export function vaqtHolati(iso: string, hhmm: string): VaqtHolati {
+  const [soat, daqiqa] = hhmm.split(':').map(Number)
+  const maqsad = isoDan(iso)
+  maqsad.setHours(soat, daqiqa, 0, 0)
+
+  const farqDaqiqa = (maqsad.getTime() - Date.now()) / 60_000
+  if (farqDaqiqa < 0) return 'otgan'
+  if (farqDaqiqa <= 30) return 'hozir'
+  return 'kelgusi'
+}
+
 /** Dushanbadan boshlanadigan hafta (Kelgusi sahifasi uchun) */
 export function haftaKunlari(boshlanish: Date = new Date(), kun = 7): string[] {
   const bosh = startOfWeek(boshlanish, { weekStartsOn: 1 })

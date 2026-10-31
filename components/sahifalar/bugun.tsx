@@ -5,7 +5,7 @@ import { ListChecks, Plus } from 'lucide-react'
 import { Guruh, Sahifa } from '@/components/app/sahifa'
 import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
-import { TezQoshish } from '@/components/vazifa/tez-qoshish'
+import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
 import { useBugungiVazifalar } from '@/lib/queries/vazifalar'
 import { usePapkalar } from '@/lib/queries/papkalar'
 import { bugunISO, sarlavhaSana } from '@/lib/sana'
@@ -107,7 +107,7 @@ export function BugunKorinishi() {
         </>
       )}
 
-      {qoshishOchiq && <TezQoshish yop={() => setQoshishOchiq(false)} />}
+      {qoshishOchiq && <VazifaOynasi yop={() => setQoshishOchiq(false)} />}
     </Sahifa>
   )
 }

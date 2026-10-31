@@ -6,7 +6,7 @@ import { FoydalanuvchiProvider, type Foydalanuvchi } from './foydalanuvchi'
 import { YonPanel } from './yon-panel'
 import { PastkiMenyu } from './pastki-menyu'
 import { MobilSarlavha } from './mobil-sarlavha'
-import { TezQoshish } from '@/components/vazifa/tez-qoshish'
+import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
 
 export function Shell({
   foydalanuvchi,
@@ -40,7 +40,7 @@ export function Shell({
 
       <PastkiMenyu />
 
-      {qoshishOchiq && <TezQoshish yop={() => setQoshishOchiq(false)} />}
+      {qoshishOchiq && <VazifaOynasi yop={() => setQoshishOchiq(false)} />}
     </FoydalanuvchiProvider>
   )
 }
