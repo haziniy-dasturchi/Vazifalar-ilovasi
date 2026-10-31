@@ -13,14 +13,33 @@ import {
   startOfWeek,
   subMonths,
 } from 'date-fns'
-import { Calendar, ChevronLeft, ChevronRight, Clock, X } from 'lucide-react'
+import { Calendar, ChevronLeft, ChevronRight, Clock, Repeat2, X } from 'lucide-react'
 import { OYLAR, isoDan, isoGa, toliqSana } from '@/lib/sana'
+import type { Recurrence } from '@/types/vazifalar'
 
 /** Dushanbadan boshlab hafta kunlari qisqartmasi (kalendar sarlavhasi uchun) */
 const HAFTA_KUNLARI = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya']
 
+/** Tez tanlash uchun eng ko'p ishlatiladigan vaqtlar */
+const TEZ_VAQTLAR = ['09:00', '12:00', '15:00', '18:00', '21:00']
+
+const TAKRORLANISH_VARIANTLARI: { nom: string; qiymat: Recurrence | null }[] = [
+  { nom: 'Yo‘q', qiymat: null },
+  { nom: 'Har kuni', qiymat: 'daily' },
+  { nom: 'Ish kunlari', qiymat: 'weekdays' },
+  { nom: 'Har hafta', qiymat: 'weekly' },
+  { nom: 'Har oy', qiymat: 'monthly' },
+]
+
+const TAKRORLANISH_QISQA: Record<Recurrence, string> = {
+  daily: 'Har kuni',
+  weekdays: 'Ish kunlari',
+  weekly: 'Har hafta',
+  monthly: 'Har oy',
+}
+
 /**
- * To'liq mustaqil kalendar + ixtiyoriy vaqt tanlagich.
+ * To'liq mustaqil kalendar + ixtiyoriy vaqt va takrorlanish tanlagich.
  *
  * Brauzer/qurilmaning o'z sana tanlagichiga (`<input type="date">`)
  * tayanmaydi — ba'zi muhitlarda (PWA oynasi, embedded brauzerlar)
@@ -31,13 +50,17 @@ const HAFTA_KUNLARI = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya']
 export function SanaTanlagich({
   sana,
   vaqt,
+  takrorlanish,
   onSanaChange,
   onVaqtChange,
+  onTakrorlanishChange,
 }: {
   sana: string | null
   vaqt: string | null
+  takrorlanish: Recurrence | null
   onSanaChange: (iso: string | null) => void
   onVaqtChange: (hhmm: string | null) => void
+  onTakrorlanishChange: (r: Recurrence | null) => void
 }) {
   const [ochiq, setOchiq] = useState(false)
   const [korinishOy, setKorinishOy] = useState(() => (sana ? isoDan(sana) : new Date()))
@@ -53,9 +76,6 @@ export function SanaTanlagich({
   })
 
   const tanlanganSana = sana ? isoDan(sana) : null
-  const label = sana
-    ? `${toliqSana(sana)}${vaqt ? ` · ${vaqt}` : ''}`
-    : 'Sana tanlash'
 
   return (
     <div className="relative inline-flex">
@@ -64,6 +84,7 @@ export function SanaTanlagich({
         onClick={() => (ochiq ? setOchiq(false) : ochish())}
         aria-expanded={ochiq}
         aria-pressed={Boolean(sana)}
+        title={takrorlanish ? TAKRORLANISH_QISQA[takrorlanish] : undefined}
         className={`flex min-h-0 items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition ${
           sana
             ? 'border-brand-primary bg-brand-soft text-brand-primary'
@@ -71,7 +92,8 @@ export function SanaTanlagich({
         }`}
       >
         <Calendar className="size-4" aria-hidden />
-        {label}
+        {sana ? `${toliqSana(sana)}${vaqt ? ` · ${vaqt}` : ''}` : 'Sana tanlash'}
+        {takrorlanish && <Repeat2 className="size-3.5" aria-hidden />}
       </button>
 
       {ochiq && (
@@ -145,27 +167,79 @@ export function SanaTanlagich({
               })}
             </div>
 
-            {/* Ixtiyoriy vaqt */}
+            {/* Vaqt: tez tanlash + qo'lda kiritish */}
             {sana && (
-              <div className="mt-3 flex items-center gap-2 border-t border-border-subtle px-1 pt-3">
-                <Clock className="size-4 shrink-0 text-text-faint" aria-hidden />
-                <input
-                  type="time"
-                  value={vaqt ?? ''}
-                  onChange={(e) => onVaqtChange(e.target.value || null)}
-                  aria-label="Vaqtni tanlang (ixtiyoriy)"
-                  className="min-h-0 flex-1 rounded-lg border border-border-subtle px-2 py-1.5 text-sm text-text-strong outline-none focus:border-brand-primary"
-                />
-                {vaqt && (
-                  <button
-                    type="button"
-                    onClick={() => onVaqtChange(null)}
-                    aria-label="Vaqtni olib tashlash"
-                    className="flex size-7 min-h-0 shrink-0 items-center justify-center rounded-full text-text-faint transition hover:bg-surface-muted hover:text-text-strong"
-                  >
-                    <X className="size-3.5" aria-hidden />
-                  </button>
-                )}
+              <div className="mt-3 border-t border-border-subtle pt-3">
+                <div className="mb-2 flex flex-wrap items-center gap-1.5 px-1">
+                  <Clock className="size-4 shrink-0 text-text-faint" aria-hidden />
+                  {TEZ_VAQTLAR.map((v) => {
+                    const tanlangan = vaqt === v
+                    return (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => onVaqtChange(tanlangan ? null : v)}
+                        aria-pressed={tanlangan}
+                        className={`min-h-0 rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                          tanlangan
+                            ? 'border-brand-primary bg-brand-soft text-brand-primary'
+                            : 'border-border-subtle text-text-muted hover:bg-surface-muted'
+                        }`}
+                      >
+                        {v}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div className="flex items-center gap-2 px-1">
+                  <input
+                    type="time"
+                    value={vaqt ?? ''}
+                    onChange={(e) => onVaqtChange(e.target.value || null)}
+                    aria-label="Boshqa vaqt kiriting"
+                    className="min-h-0 flex-1 rounded-lg border border-border-subtle px-2 py-1.5 text-sm text-text-strong outline-none focus:border-brand-primary"
+                  />
+                  {vaqt && (
+                    <button
+                      type="button"
+                      onClick={() => onVaqtChange(null)}
+                      aria-label="Vaqtni olib tashlash"
+                      className="flex size-7 min-h-0 shrink-0 items-center justify-center rounded-full text-text-faint transition hover:bg-surface-muted hover:text-text-strong"
+                    >
+                      <X className="size-3.5" aria-hidden />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Takrorlanish */}
+            {sana && (
+              <div className="mt-3 border-t border-border-subtle pt-3">
+                <div className="mb-2 flex items-center gap-1.5 px-1 text-xs font-medium text-text-faint">
+                  <Repeat2 className="size-4" aria-hidden />
+                  Takrorlanish
+                </div>
+                <div className="flex flex-wrap gap-1.5 px-1">
+                  {TAKRORLANISH_VARIANTLARI.map((t) => {
+                    const tanlangan = takrorlanish === t.qiymat
+                    return (
+                      <button
+                        key={t.nom}
+                        type="button"
+                        onClick={() => onTakrorlanishChange(t.qiymat)}
+                        aria-pressed={tanlangan}
+                        className={`min-h-0 rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                          tanlangan
+                            ? 'border-brand-primary bg-brand-soft text-brand-primary'
+                            : 'border-border-subtle text-text-muted hover:bg-surface-muted'
+                        }`}
+                      >
+                        {t.nom}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             )}
 
@@ -176,6 +250,7 @@ export function SanaTanlagich({
                 onClick={() => {
                   onSanaChange(null)
                   onVaqtChange(null)
+                  onTakrorlanishChange(null)
                   setOchiq(false)
                 }}
                 disabled={!sana}

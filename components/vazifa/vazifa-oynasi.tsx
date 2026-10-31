@@ -15,7 +15,7 @@ import {
   useVazifaYaratish,
 } from '@/lib/queries/vazifalar'
 import { bugunISO, isoGa, vaqtMatni } from '@/lib/sana'
-import type { Task, TaskPriority } from '@/types/vazifalar'
+import type { Recurrence, Task, TaskPriority } from '@/types/vazifalar'
 
 /**
  * Vazifa oynasi — ikkala holatda ham ishlaydi:
@@ -51,6 +51,9 @@ export function VazifaOynasi({
   const [vaqt, setVaqt] = useState<string | null>(
     vazifa?.due_time ? vaqtMatni(vazifa.due_time) : null
   )
+  const [takrorlanish, setTakrorlanish] = useState<Recurrence | null>(
+    vazifa?.recurrence ?? null
+  )
   const [muhimlik, setMuhimlik] = useState<TaskPriority>(vazifa?.priority ?? 4)
   const [ochirishOchiq, setOchirishOchiq] = useState(false)
 
@@ -63,10 +66,16 @@ export function VazifaOynasi({
     { nom: 'Ertaga', qiymat: isoGa(addDays(new Date(), 1)) },
   ]
 
-  /** Sana olib tashlansa, vaqt ham olib tashlanadi (vaqt faqat sana bilan ma'noga ega) */
+  /**
+   * Sana olib tashlansa, vaqt va takrorlanish ham olib tashlanadi —
+   * ikkalasi ham faqat sana bilan ma'noga ega.
+   */
   function sananiOrnat(iso: string | null) {
     setSana(iso)
-    if (!iso) setVaqt(null)
+    if (!iso) {
+      setVaqt(null)
+      setTakrorlanish(null)
+    }
   }
 
   /** Bugun/Ertaga tugmasi — qayta bosilsa, sana tozalanadi */
@@ -83,6 +92,7 @@ export function VazifaOynasi({
           title: sarlavha.trim(),
           due_date: sana,
           due_time: vaqt,
+          recurrence: takrorlanish,
           priority: muhimlik,
           // Subtask doim ota-vazifa papkasida qoladi — bu yerda o'zgartirilmaydi
           ...(subtaskmi ? {} : { folder_id: papkaQiymati }),
@@ -95,6 +105,7 @@ export function VazifaOynasi({
           title: sarlavha,
           due_date: sana,
           due_time: vaqt,
+          recurrence: takrorlanish,
           priority: muhimlik,
         })
         korsat({ matn: 'Vazifa qo‘shildi', tone: 'muvaffaqiyat' })
@@ -166,8 +177,10 @@ export function VazifaOynasi({
               <SanaTanlagich
                 sana={sana}
                 vaqt={vaqt}
+                takrorlanish={takrorlanish}
                 onSanaChange={sananiOrnat}
                 onVaqtChange={setVaqt}
+                onTakrorlanishChange={setTakrorlanish}
               />
             </div>
           </fieldset>

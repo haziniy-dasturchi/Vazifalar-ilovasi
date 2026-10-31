@@ -10,7 +10,7 @@ import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { bugunISO, isoGa } from '@/lib/sana'
 import { kalit } from './keys'
-import type { Task } from '@/types/vazifalar'
+import type { Recurrence, Task } from '@/types/vazifalar'
 
 /** Barcha vazifa so'rovlari shu ustunlarni qaytaradi */
 const USTUNLAR = '*'
@@ -173,6 +173,7 @@ export type YangiVazifa = {
   title: string
   due_date?: string | null
   due_time?: string | null
+  recurrence?: Recurrence | null
   priority?: 1 | 2 | 3 | 4
 }
 
@@ -193,6 +194,7 @@ export function useVazifaYaratish() {
           title: yangi.title.trim(),
           due_date: yangi.due_date ?? null,
           due_time: yangi.due_time ?? null,
+          recurrence: yangi.recurrence ?? null,
           priority: yangi.priority ?? 4,
         })
         .select()
@@ -219,7 +221,7 @@ export function useVazifaYaratish() {
         due_date: yangi.due_date ?? null,
         due_time: yangi.due_time ?? null,
         deadline: null,
-        recurrence: null,
+        recurrence: yangi.recurrence ?? null,
         sort_order: 9999,
         started_at: null,
         completed_at: null,
