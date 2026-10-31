@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { addDays } from 'date-fns'
 import { Oyna } from '@/components/ui/oyna'
+import { SanaTanlagich } from '@/components/ui/sana-tanlagich'
 import { useToast } from '@/components/ui/toast'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { useVazifaYaratish } from '@/lib/queries/vazifalar'
@@ -36,7 +37,6 @@ export function TezQoshish({
   const SANALAR = [
     { nom: 'Bugun', qiymat: bugunISO() },
     { nom: 'Ertaga', qiymat: isoGa(addDays(new Date(), 1)) },
-    { nom: 'Sanasiz', qiymat: null },
   ]
 
   async function qoshish() {
@@ -76,7 +76,7 @@ export function TezQoshish({
           <legend className="mb-2 text-sm font-medium text-text-muted">
             Qachon
           </legend>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {SANALAR.map((s) => {
               const tanlangan = sana === s.qiymat
               return (
@@ -95,6 +95,7 @@ export function TezQoshish({
                 </button>
               )
             })}
+            <SanaTanlagich value={sana} onChange={setSana} />
           </div>
         </fieldset>
 
