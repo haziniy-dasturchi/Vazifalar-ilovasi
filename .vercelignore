@@ -1,7 +1,11 @@
-# Deploy paketiga kirmasligi kerak bo'lgan fayllar
-Logo/
-supabase/
-tools/
-scripts/
-*.md
-!README.md
+# Deploy paketiga kirmasligi kerak bo'lgan fayllar.
+#
+# DIQQAT: qoliplar "/" bilan boshlanishi SHART. Aks holda ular istalgan
+# chuqurlikda mos keladi — masalan "supabase/" qolipi "lib/supabase/" ni
+# ham o'chirib yuboradi va qurish buziladi.
+
+/Logo/
+/supabase/
+/tools/
+/scripts/
+/DEPLOY.md
