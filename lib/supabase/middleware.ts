@@ -68,5 +68,38 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  if (user) {
+    // Foydalanuvchi shu yerda allaqachon tekshirildi (getUser() Supabase'ga
+    // tarmoq orqali murojaat qiladi). Natijani so'rov sarlavhasi orqali
+    // Server Component'larga uzatamiz — shunda ular getUser()'ni qayta
+    // chaqirib, yana bir tarmoq safarini sarflamaydi. Mijoz bu sarlavhani
+    // o'zi yubora olmaydi: middleware uni har doim shu yerda, haqiqiy
+    // tekshiruv natijasi bilan qayta yozadi.
+    const requestHeaders = new Headers(request.headers)
+    const meta = (user.user_metadata ?? {}) as Record<string, string | undefined>
+    requestHeaders.set(
+      'x-vazifalar-user',
+      JSON.stringify({
+        id: user.id,
+        email: user.email ?? '',
+        ism:
+          meta.full_name ??
+          meta.name ??
+          user.email?.split('@')[0] ??
+          'Foydalanuvchi',
+        rasm: meta.avatar_url ?? null,
+      })
+    )
+
+    const yangilanganResponse = NextResponse.next({
+      request: { headers: requestHeaders },
+    })
+    // Token yangilangan bo'lsa, sessiya cookie'lari saqlanib qolishi kerak
+    for (const cookie of response.cookies.getAll()) {
+      yangilanganResponse.cookies.set(cookie)
+    }
+    response = yangilanganResponse
+  }
+
   return response
 }
