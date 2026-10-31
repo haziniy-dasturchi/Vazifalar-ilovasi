@@ -30,6 +30,7 @@ export function TezQoshish({
   const [tanlanganPapka, setTanlanganPapka] = useState(papkaId ?? '')
   const [sarlavha, setSarlavha] = useState('')
   const [sana, setSana] = useState<string | null>(null)
+  const [vaqt, setVaqt] = useState<string | null>(null)
 
   const papkaQiymati = tanlanganPapka || papkaId || kiruvchi?.id || ''
   const toliq = sarlavha.trim().length > 0 && papkaQiymati.length > 0
@@ -39,6 +40,17 @@ export function TezQoshish({
     { nom: 'Ertaga', qiymat: isoGa(addDays(new Date(), 1)) },
   ]
 
+  /** Sana olib tashlansa, vaqt ham olib tashlanadi (vaqt faqat sana bilan ma'noga ega) */
+  function sananiOrnat(iso: string | null) {
+    setSana(iso)
+    if (!iso) setVaqt(null)
+  }
+
+  /** Bugun/Ertaga tugmasi — qayta bosilsa, sana tozalanadi */
+  function tezSanaTanlash(qiymat: string) {
+    sananiOrnat(sana === qiymat ? null : qiymat)
+  }
+
   async function qoshish() {
     if (!toliq || yaratish.isPending) return
     try {
@@ -47,6 +59,7 @@ export function TezQoshish({
         section_id: bolimId ?? null,
         title: sarlavha,
         due_date: sana,
+        due_time: vaqt,
       })
       korsat({ matn: 'Vazifa qo‘shildi', tone: 'muvaffaqiyat' })
       yop()
@@ -83,7 +96,7 @@ export function TezQoshish({
                 <button
                   key={s.nom}
                   type="button"
-                  onClick={() => setSana(s.qiymat)}
+                  onClick={() => tezSanaTanlash(s.qiymat)}
                   aria-pressed={tanlangan}
                   className={`min-h-0 rounded-full border px-4 py-2.5 text-sm font-medium transition ${
                     tanlangan
@@ -95,7 +108,12 @@ export function TezQoshish({
                 </button>
               )
             })}
-            <SanaTanlagich value={sana} onChange={setSana} />
+            <SanaTanlagich
+              sana={sana}
+              vaqt={vaqt}
+              onSanaChange={sananiOrnat}
+              onVaqtChange={setVaqt}
+            />
           </div>
         </fieldset>
 

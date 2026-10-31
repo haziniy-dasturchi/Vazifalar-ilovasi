@@ -172,6 +172,7 @@ export type YangiVazifa = {
   parent_id?: string | null
   title: string
   due_date?: string | null
+  due_time?: string | null
   priority?: 1 | 2 | 3 | 4
 }
 
@@ -191,6 +192,7 @@ export function useVazifaYaratish() {
           parent_id: yangi.parent_id ?? null,
           title: yangi.title.trim(),
           due_date: yangi.due_date ?? null,
+          due_time: yangi.due_time ?? null,
           priority: yangi.priority ?? 4,
         })
         .select()
@@ -215,7 +217,7 @@ export function useVazifaYaratish() {
         status: 'planned',
         priority: yangi.priority ?? 4,
         due_date: yangi.due_date ?? null,
-        due_time: null,
+        due_time: yangi.due_time ?? null,
         deadline: null,
         recurrence: null,
         sort_order: 9999,
