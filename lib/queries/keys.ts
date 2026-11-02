@@ -9,4 +9,6 @@ export const kalit = {
   bugungi: () => ['vazifalar', 'bugun'] as const,
   jarayondagi: () => ['vazifalar', 'jarayonda'] as const,
   kelgusi: () => ['vazifalar', 'kelgusi'] as const,
+  hisobot: (boshlanish: string, tugash: string) =>
+    ['vazifalar', 'hisobot', boshlanish, tugash] as const,
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { Oyna } from '@/components/ui/oyna'
 import { SanaTanlagich } from '@/components/ui/sana-tanlagich'
@@ -8,6 +8,7 @@ import { Tasdiq } from '@/components/ui/tasdiq'
 import { useToast } from '@/components/ui/toast'
 import { MuhimlikTanlagich } from '@/components/vazifa/muhimlik-tanlagich'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
+import { useBolimlar } from '@/lib/queries/bolimlar'
 import {
   useVazifaOchirish,
   useVazifaYangilash,
@@ -24,13 +25,9 @@ import type { Recurrence, Task, TaskPriority } from '@/types/vazifalar'
 export function VazifaOynasi({
   vazifa,
   yop,
-  papkaId,
-  bolimId,
 }: {
   vazifa?: Task
   yop: () => void
-  papkaId?: string
-  bolimId?: string | null
 }) {
   const tahrir = Boolean(vazifa)
   const subtaskmi = Boolean(vazifa?.parent_id)
@@ -43,8 +40,9 @@ export function VazifaOynasi({
 
   const kiruvchi = papkalar?.find((p) => p.is_inbox)
   const [tanlanganPapka, setTanlanganPapka] = useState(
-    vazifa?.folder_id ?? papkaId ?? ''
+    vazifa?.folder_id ?? ''
   )
+  const [tanlanganBolim, setTanlanganBolim] = useState(vazifa?.section_id ?? '')
   const [sarlavha, setSarlavha] = useState(vazifa?.title ?? '')
   const [sana, setSana] = useState<string | null>(vazifa?.due_date ?? null)
   const [vaqt, setVaqt] = useState<string | null>(
@@ -56,9 +54,22 @@ export function VazifaOynasi({
   const [muhimlik, setMuhimlik] = useState<TaskPriority>(vazifa?.priority ?? 4)
   const [ochirishOchiq, setOchirishOchiq] = useState(false)
 
-  const papkaQiymati = tanlanganPapka || papkaId || kiruvchi?.id || ''
+  const papkaQiymati = tanlanganPapka || kiruvchi?.id || ''
   const toliq = sarlavha.trim().length > 0 && papkaQiymati.length > 0
   const bajarilmoqda = yaratish.isPending || yangilash.isPending
+
+  const { data: bolimlar } = useBolimlar(subtaskmi ? undefined : papkaQiymati)
+
+  // Papka o'zgarsa, oldin tanlangan bo'lim endi boshqa papkaga tegishli
+  // bo'lib qolishi mumkin — shu sababli qaytadan tanlashga majburlaymiz.
+  // Hali yuklanmagan bo'lsa (undefined), tegmaymiz — aks holda tahrirlashda
+  // boshlang'ich qiymat yuklanishidan oldin tozalanib ketardi.
+  useEffect(() => {
+    if (!bolimlar) return
+    setTanlanganBolim((eski) =>
+      bolimlar.some((b) => b.id === eski) ? eski : ''
+    )
+  }, [bolimlar])
 
   /**
    * Sana olib tashlansa, vaqt va takrorlanish ham olib tashlanadi —
@@ -83,14 +94,16 @@ export function VazifaOynasi({
           due_time: vaqt,
           recurrence: takrorlanish,
           priority: muhimlik,
-          // Subtask doim ota-vazifa papkasida qoladi — bu yerda o'zgartirilmaydi
-          ...(subtaskmi ? {} : { folder_id: papkaQiymati }),
+          // Subtask doim ota-vazifa papkasida va bo'limsiz qoladi
+          ...(subtaskmi
+            ? {}
+            : { folder_id: papkaQiymati, section_id: tanlanganBolim || null }),
         })
         korsat({ matn: 'Vazifa yangilandi', tone: 'muvaffaqiyat' })
       } else {
         await yaratish.mutateAsync({
           folder_id: papkaQiymati,
-          section_id: bolimId ?? null,
+          section_id: tanlanganBolim || null,
           title: sarlavha,
           due_date: sana,
           due_time: vaqt,
@@ -174,6 +187,26 @@ export function VazifaOynasi({
                 {papkalar?.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+
+          {!subtaskmi && bolimlar && bolimlar.length > 0 && (
+            <label className="mt-5 block">
+              <span className="mb-2 block text-sm font-medium text-text-muted">
+                Bo‘lim
+              </span>
+              <select
+                value={tanlanganBolim}
+                onChange={(e) => setTanlanganBolim(e.target.value)}
+                className="min-h-touch w-full rounded-xl border border-border-subtle bg-surface px-4 py-3 text-base text-text-strong outline-none focus:border-brand-primary"
+              >
+                <option value="">Bo‘limsiz</option>
+                {bolimlar.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
                   </option>
                 ))}
               </select>
