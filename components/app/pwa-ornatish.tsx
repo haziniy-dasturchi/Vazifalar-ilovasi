@@ -9,6 +9,13 @@ interface OrnatishTaklifi extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
+declare global {
+  interface Window {
+    /** app/layout.tsx'dagi erta skript shu yerga saqlaydi */
+    __vazifalarOrnatishTaklifi?: OrnatishTaklifi | null
+  }
+}
+
 /** Faqat shu sessiya (vkladka) davomida yashirish — keyingi tashrifda qayta chiqadi */
 const YOPILDI_KALITI = 'vazifalar-ornatish-yopildi'
 
@@ -27,12 +34,20 @@ function iosMi(): boolean {
 }
 
 /**
- * Ilovani o'rnatishga doimiy taklif qiluvchi banner.
+ * Ilovani o'rnatishga doimiy taklif qiluvchi banner — telefonda ham,
+ * kompyuterda ham, ilovaga har kirishda (o'rnatilmagan bo'lsa) chiqadi.
  *
- * Har safar ilova ochilganda (o'rnatilmagan bo'lsa) qayta chiqadi —
- * faqat shu sessiya uchun yopib qo'yish mumkin, butunlay o'chirib
+ * Faqat shu sessiya uchun yopib qo'yish mumkin, butunlay o'chirib
  * bo'lmaydi. iOS'da "beforeinstallprompt" hodisasi umuman yo'qligi
  * sababli, o'rniga qo'lda qo'shish yo'riqnomasi ko'rsatiladi.
+ *
+ * MUHIM: brauzerning haqiqiy o'rnatish taklifi (`beforeinstallprompt`)
+ * sahifa yuklanishining ISTALGAN vaqtida kelishi mumkin — ko'pincha
+ * bu komponent hali DOM'ga ulanmasdan oldin. Shu sababli uni bu yerda
+ * emas, `app/layout.tsx`dagi React'dan OLDIN ishga tushadigan skriptda
+ * ushlab olamiz; bu komponent faqat `window.__vazifalarOrnatishTaklifi`
+ * orqali natijani o'qiydi (allaqachon kelgan bo'lsa — darhol, keyinroq
+ * kelsa — "vazifalar:ornatish-tayyor" hodisasi orqali).
  */
 export function PwaOrnatish() {
   const [korsat, setKorsat] = useState(false)
@@ -57,9 +72,27 @@ export function PwaOrnatish() {
       return
     }
 
-    function tayyor(e: Event) {
+    // Hodisa biz ulanishimizdan OLDIN kelib, allaqachon saqlangan bo'lishi
+    // mumkin — shu holatni birinchi tekshiramiz.
+    if (window.__vazifalarOrnatishTaklifi) {
+      setTaklif(window.__vazifalarOrnatishTaklifi)
+      setKorsat(true)
+    }
+
+    function tayyor() {
+      if (window.__vazifalarOrnatishTaklifi) {
+        setTaklif(window.__vazifalarOrnatishTaklifi)
+        setKorsat(true)
+      }
+    }
+    // Zaxira: agar qandaydir sababga ko'ra erta skript ishlamagan
+    // bo'lsa ham (masalan, Script bloklangan), to'g'ridan-to'g'ri
+    // tinglovchi hali ham hodisani ushlab qoladi.
+    function tayyorZaxira(e: Event) {
       e.preventDefault()
-      setTaklif(e as OrnatishTaklifi)
+      const t = e as OrnatishTaklifi
+      window.__vazifalarOrnatishTaklifi = t
+      setTaklif(t)
       setKorsat(true)
     }
     function ornatildi() {
@@ -67,11 +100,15 @@ export function PwaOrnatish() {
       setTaklif(null)
     }
 
-    window.addEventListener('beforeinstallprompt', tayyor)
+    window.addEventListener('vazifalar:ornatish-tayyor', tayyor)
+    window.addEventListener('vazifalar:ornatildi', ornatildi)
+    window.addEventListener('beforeinstallprompt', tayyorZaxira)
     window.addEventListener('appinstalled', ornatildi)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', tayyor)
+      window.removeEventListener('vazifalar:ornatish-tayyor', tayyor)
+      window.removeEventListener('vazifalar:ornatildi', ornatildi)
+      window.removeEventListener('beforeinstallprompt', tayyorZaxira)
       window.removeEventListener('appinstalled', ornatildi)
     }
   }, [])
@@ -90,6 +127,7 @@ export function PwaOrnatish() {
     } finally {
       setOrnatilmoqda(false)
       setTaklif(null)
+      window.__vazifalarOrnatishTaklifi = null
       setKorsat(false)
     }
   }
@@ -119,7 +157,7 @@ export function PwaOrnatish() {
         <button
           type="button"
           onClick={ornat}
-          disabled={ornatilmoqda}
+          disabled={ornatilmoqda || !taklif}
           className="flex min-h-touch shrink-0 items-center rounded-xl bg-white px-4 text-sm font-semibold text-brand-primary transition hover:bg-white/90 disabled:opacity-60"
         >
           {ornatilmoqda ? '…' : 'O‘rnatish'}
