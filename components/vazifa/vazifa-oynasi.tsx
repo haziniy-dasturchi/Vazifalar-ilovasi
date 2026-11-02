@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { addDays } from 'date-fns'
 import { Trash2 } from 'lucide-react'
 import { Oyna } from '@/components/ui/oyna'
 import { SanaTanlagich } from '@/components/ui/sana-tanlagich'
@@ -14,7 +13,7 @@ import {
   useVazifaYangilash,
   useVazifaYaratish,
 } from '@/lib/queries/vazifalar'
-import { bugunISO, isoGa, vaqtMatni } from '@/lib/sana'
+import { vaqtMatni } from '@/lib/sana'
 import type { Recurrence, Task, TaskPriority } from '@/types/vazifalar'
 
 /**
@@ -61,11 +60,6 @@ export function VazifaOynasi({
   const toliq = sarlavha.trim().length > 0 && papkaQiymati.length > 0
   const bajarilmoqda = yaratish.isPending || yangilash.isPending
 
-  const SANALAR = [
-    { nom: 'Bugun', qiymat: bugunISO() },
-    { nom: 'Ertaga', qiymat: isoGa(addDays(new Date(), 1)) },
-  ]
-
   /**
    * Sana olib tashlansa, vaqt va takrorlanish ham olib tashlanadi —
    * ikkalasi ham faqat sana bilan ma'noga ega.
@@ -76,11 +70,6 @@ export function VazifaOynasi({
       setVaqt(null)
       setTakrorlanish(null)
     }
-  }
-
-  /** Bugun/Ertaga tugmasi — qayta bosilsa, sana tozalanadi */
-  function tezSanaTanlash(qiymat: string) {
-    sananiOrnat(sana === qiymat ? null : qiymat)
   }
 
   async function saqla() {
@@ -155,34 +144,14 @@ export function VazifaOynasi({
             <legend className="mb-2 text-sm font-medium text-text-muted">
               Qachon
             </legend>
-            <div className="flex flex-wrap items-center gap-2">
-              {SANALAR.map((s) => {
-                const tanlangan = sana === s.qiymat
-                return (
-                  <button
-                    key={s.nom}
-                    type="button"
-                    onClick={() => tezSanaTanlash(s.qiymat)}
-                    aria-pressed={tanlangan}
-                    className={`min-h-0 rounded-full border px-4 py-2.5 text-sm font-medium transition ${
-                      tanlangan
-                        ? 'border-brand-primary bg-brand-soft text-brand-primary'
-                        : 'border-border-subtle text-text-strong hover:bg-surface-muted'
-                    }`}
-                  >
-                    {s.nom}
-                  </button>
-                )
-              })}
-              <SanaTanlagich
-                sana={sana}
-                vaqt={vaqt}
-                takrorlanish={takrorlanish}
-                onSanaChange={sananiOrnat}
-                onVaqtChange={setVaqt}
-                onTakrorlanishChange={setTakrorlanish}
-              />
-            </div>
+            <SanaTanlagich
+              sana={sana}
+              vaqt={vaqt}
+              takrorlanish={takrorlanish}
+              onSanaChange={sananiOrnat}
+              onVaqtChange={setVaqt}
+              onTakrorlanishChange={setTakrorlanish}
+            />
           </fieldset>
 
           <fieldset className="mt-5">
