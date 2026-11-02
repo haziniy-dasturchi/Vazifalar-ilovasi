@@ -25,6 +25,16 @@ function oraliqlarniHisobla(): Oraliq[] {
   const bugun = new Date()
   return [
     {
+      nom: 'Bugun',
+      boshlanish: isoGa(bugun),
+      tugash: isoGa(bugun),
+    },
+    {
+      nom: 'Kecha',
+      boshlanish: isoGa(addDays(bugun, -1)),
+      tugash: isoGa(addDays(bugun, -1)),
+    },
+    {
       nom: 'Bu hafta',
       boshlanish: isoGa(startOfWeek(bugun, { weekStartsOn: 1 })),
       tugash: isoGa(endOfWeek(bugun, { weekStartsOn: 1 })),
@@ -48,6 +58,9 @@ function oraliqlarniHisobla(): Oraliq[] {
 }
 
 const ORALIQLAR = oraliqlarniHisobla()
+/** Dastlab ochilganda tanlangan bo'lib turadigan oraliq */
+const BOSHLANGICH_ORALIQ =
+  ORALIQLAR.find((o) => o.nom === 'Bu hafta') ?? ORALIQLAR[0]
 
 type KartaTuri = 'bajarildi' | 'qoldi' | 'kechikkan'
 
@@ -59,8 +72,8 @@ function holatRangi(foiz: number): string {
 }
 
 export function HisobotKorinishi() {
-  const [boshlanish, setBoshlanish] = useState(ORALIQLAR[0].boshlanish)
-  const [tugash, setTugash] = useState(ORALIQLAR[0].tugash)
+  const [boshlanish, setBoshlanish] = useState(BOSHLANGICH_ORALIQ.boshlanish)
+  const [tugash, setTugash] = useState(BOSHLANGICH_ORALIQ.tugash)
   const [ochiqKarta, setOchiqKarta] = useState<KartaTuri | null>(null)
   const [ochiqPapka, setOchiqPapka] = useState<string | null>(null)
 
