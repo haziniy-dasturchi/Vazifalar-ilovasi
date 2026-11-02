@@ -10,11 +10,20 @@ import { ProfilMenyu } from './profil-menyu'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
+import { usePapkaniOldindanYuklash } from '@/lib/queries/vazifalar'
+import { useBolimlarniOldindanYuklash } from '@/lib/queries/bolimlar'
 
 export function YonPanel() {
   const yol = usePathname()
   const { data: papkalar, isPending } = useFaolPapkalar()
   const [oynaOchiq, setOynaOchiq] = useState(false)
+  const papkaniOldindanYukla = usePapkaniOldindanYuklash()
+  const bolimlarniOldindanYukla = useBolimlarniOldindanYuklash()
+
+  function papkaUstigaTegish(papkaId: string) {
+    papkaniOldindanYukla(papkaId)
+    bolimlarniOldindanYukla(papkaId)
+  }
 
   return (
     <aside className="hidden w-72 shrink-0 flex-col border-r border-border-subtle bg-surface md:flex">
@@ -89,6 +98,8 @@ export function YonPanel() {
                   <Link
                     href={`/papka/${papka.id}`}
                     aria-current={faol ? 'page' : undefined}
+                    onPointerEnter={() => papkaUstigaTegish(papka.id)}
+                    onPointerDown={() => papkaUstigaTegish(papka.id)}
                     className={`flex min-h-touch items-center gap-3 rounded-xl px-3 text-base transition ${
                       faol
                         ? 'bg-brand-soft font-semibold text-brand-primary'

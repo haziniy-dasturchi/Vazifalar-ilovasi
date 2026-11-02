@@ -1,9 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
 import { createClient } from './client'
 
-/** Brauzer mijozini bir marta yaratib, qayta ishlatish */
+/** Brauzer mijozi modul darajasida yagona — bu yerda shunchaki qaytariladi */
 export function useSupabase() {
-  return useMemo(() => createClient(), [])
+  return createClient()
 }

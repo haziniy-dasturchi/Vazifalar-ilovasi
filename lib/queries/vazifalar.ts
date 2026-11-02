@@ -1,19 +1,102 @@
 'use client'
 
+import { useEffect } from 'react'
 import {
   useMutation,
   useQuery,
   useQueryClient,
   type QueryClient,
 } from '@tanstack/react-query'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { bugunISO, isoGa } from '@/lib/sana'
 import { kalit } from './keys'
+import type { Database } from '@/types/database'
 import type { Recurrence, Task } from '@/types/vazifalar'
 
 /** Barcha vazifa so'rovlari shu ustunlarni qaytaradi */
 const USTUNLAR = '*'
+
+type Mijoz = SupabaseClient<Database>
+
+// =============================================================
+// So'rov funksiyalari — useQuery va oldindan yuklash (prefetch)
+// ikkalasida bir xil mantiq ishlatilishi uchun alohida ajratilgan
+// =============================================================
+
+async function papkaVazifalariSorovi(
+  supabase: Mijoz,
+  papkaId: string
+): Promise<Task[]> {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select(USTUNLAR)
+    .eq('folder_id', papkaId)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []) as Task[]
+}
+
+async function bugungiSorovi(supabase: Mijoz): Promise<Task[]> {
+  const bugun = bugunISO()
+  const kunBoshi = new Date()
+  kunBoshi.setHours(0, 0, 0, 0)
+
+  const [ochiq, bajarilgan] = await Promise.all([
+    supabase
+      .from('tasks')
+      .select(USTUNLAR)
+      .neq('status', 'done')
+      .lte('due_date', bugun)
+      .order('due_date', { ascending: true })
+      .order('priority', { ascending: true })
+      .order('sort_order', { ascending: true }),
+    supabase
+      .from('tasks')
+      .select(USTUNLAR)
+      .eq('status', 'done')
+      .gte('completed_at', kunBoshi.toISOString())
+      .order('completed_at', { ascending: false }),
+  ])
+
+  if (ochiq.error) throw ochiq.error
+  if (bajarilgan.error) throw bajarilgan.error
+
+  return [...(ochiq.data ?? []), ...(bajarilgan.data ?? [])] as Task[]
+}
+
+async function jarayondagiSorovi(supabase: Mijoz): Promise<Task[]> {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select(USTUNLAR)
+    .eq('status', 'in_progress')
+    .order('started_at', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []) as Task[]
+}
+
+async function kelgusiSorovi(supabase: Mijoz, kunSoni: number): Promise<Task[]> {
+  // Mahalliy sana ishlatiladi: toISOString() UTC beradi va
+  // Toshkent vaqti bilan kechasi bir kun farq qilib ketadi.
+  const oxiri = new Date()
+  oxiri.setDate(oxiri.getDate() + kunSoni)
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .select(USTUNLAR)
+    .neq('status', 'done')
+    .gt('due_date', bugunISO())
+    .lte('due_date', isoGa(oxiri))
+    .order('due_date', { ascending: true })
+    .order('priority', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []) as Task[]
+}
 
 // =============================================================
 // So'rovlar
@@ -26,17 +109,7 @@ export function usePapkaVazifalari(papkaId: string | undefined) {
   return useQuery({
     queryKey: kalit.papkaVazifalari(papkaId ?? ''),
     enabled: Boolean(papkaId),
-    queryFn: async (): Promise<Task[]> => {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select(USTUNLAR)
-        .eq('folder_id', papkaId!)
-        .order('sort_order', { ascending: true })
-        .order('created_at', { ascending: true })
-
-      if (error) throw error
-      return (data ?? []) as Task[]
-    },
+    queryFn: () => papkaVazifalariSorovi(supabase, papkaId!),
   })
 }
 
@@ -49,33 +122,7 @@ export function useBugungiVazifalar() {
 
   return useQuery({
     queryKey: kalit.bugungi(),
-    queryFn: async (): Promise<Task[]> => {
-      const bugun = bugunISO()
-      const kunBoshi = new Date()
-      kunBoshi.setHours(0, 0, 0, 0)
-
-      const [ochiq, bajarilgan] = await Promise.all([
-        supabase
-          .from('tasks')
-          .select(USTUNLAR)
-          .neq('status', 'done')
-          .lte('due_date', bugun)
-          .order('due_date', { ascending: true })
-          .order('priority', { ascending: true })
-          .order('sort_order', { ascending: true }),
-        supabase
-          .from('tasks')
-          .select(USTUNLAR)
-          .eq('status', 'done')
-          .gte('completed_at', kunBoshi.toISOString())
-          .order('completed_at', { ascending: false }),
-      ])
-
-      if (ochiq.error) throw ochiq.error
-      if (bajarilgan.error) throw bajarilgan.error
-
-      return [...(ochiq.data ?? []), ...(bajarilgan.data ?? [])] as Task[]
-    },
+    queryFn: () => bugungiSorovi(supabase),
   })
 }
 
@@ -85,16 +132,7 @@ export function useJarayondagiVazifalar() {
 
   return useQuery({
     queryKey: kalit.jarayondagi(),
-    queryFn: async (): Promise<Task[]> => {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select(USTUNLAR)
-        .eq('status', 'in_progress')
-        .order('started_at', { ascending: true })
-
-      if (error) throw error
-      return (data ?? []) as Task[]
-    },
+    queryFn: () => jarayondagiSorovi(supabase),
   })
 }
 
@@ -104,25 +142,43 @@ export function useKelgusiVazifalar(kunSoni = 30) {
 
   return useQuery({
     queryKey: kalit.kelgusi(),
-    queryFn: async (): Promise<Task[]> => {
-      // Mahalliy sana ishlatiladi: toISOString() UTC beradi va
-      // Toshkent vaqti bilan kechasi bir kun farq qilib ketadi.
-      const oxiri = new Date()
-      oxiri.setDate(oxiri.getDate() + kunSoni)
-
-      const { data, error } = await supabase
-        .from('tasks')
-        .select(USTUNLAR)
-        .neq('status', 'done')
-        .gt('due_date', bugunISO())
-        .lte('due_date', isoGa(oxiri))
-        .order('due_date', { ascending: true })
-        .order('priority', { ascending: true })
-
-      if (error) throw error
-      return (data ?? []) as Task[]
-    },
+    queryFn: () => kelgusiSorovi(supabase, kunSoni),
   })
+}
+
+/**
+ * Ilova ochilganda asosiy bo'limlarni (Bugun/Jarayonda/Kelgusi) fonda
+ * oldindan yuklaydi — foydalanuvchi hali boshqa bo'limga o'tmagan bo'lsa
+ * ham, keshda tayyor turadi va o'tish tarmoq kutmasdan, zudlik bilan bo'ladi.
+ *
+ * Joriy sahifaning so'rovi ustunlik olishi uchun ozgina kechiktirilgan.
+ */
+export function useAsosiyRoyxatlarniOldindanYuklash() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+
+  useEffect(() => {
+    const vaqt = setTimeout(() => {
+      qc.prefetchQuery({ queryKey: kalit.bugungi(), queryFn: () => bugungiSorovi(supabase) })
+      qc.prefetchQuery({ queryKey: kalit.jarayondagi(), queryFn: () => jarayondagiSorovi(supabase) })
+      qc.prefetchQuery({ queryKey: kalit.kelgusi(), queryFn: () => kelgusiSorovi(supabase, 30) })
+    }, 150)
+
+    return () => clearTimeout(vaqt)
+  }, [supabase, qc])
+}
+
+/** Papka sahifasiga o'tishdan oldin (havola bosilganda) vazifalarini yuklab qo'yish */
+export function usePapkaniOldindanYuklash() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+
+  return function (papkaId: string) {
+    qc.prefetchQuery({
+      queryKey: kalit.papkaVazifalari(papkaId),
+      queryFn: () => papkaVazifalariSorovi(supabase, papkaId),
+    })
+  }
 }
 
 // =============================================================

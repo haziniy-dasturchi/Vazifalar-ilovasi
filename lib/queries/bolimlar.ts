@@ -1,10 +1,27 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { kalit } from './keys'
+import type { Database } from '@/types/database'
 import type { Section } from '@/types/vazifalar'
+
+async function bolimlarSorovi(
+  supabase: SupabaseClient<Database>,
+  papkaId: string
+): Promise<Section[]> {
+  const { data, error } = await supabase
+    .from('sections')
+    .select('*')
+    .eq('folder_id', papkaId)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true })
+
+  if (error) throw error
+  return data ?? []
+}
 
 export function useBolimlar(papkaId: string | undefined) {
   const supabase = useSupabase()
@@ -12,18 +29,21 @@ export function useBolimlar(papkaId: string | undefined) {
   return useQuery({
     queryKey: kalit.bolimlar(papkaId ?? ''),
     enabled: Boolean(papkaId),
-    queryFn: async (): Promise<Section[]> => {
-      const { data, error } = await supabase
-        .from('sections')
-        .select('*')
-        .eq('folder_id', papkaId!)
-        .order('sort_order', { ascending: true })
-        .order('created_at', { ascending: true })
-
-      if (error) throw error
-      return data ?? []
-    },
+    queryFn: () => bolimlarSorovi(supabase, papkaId!),
   })
+}
+
+/** Papka havolasi bosilganda (navigatsiyadan oldin) bo'limlarini yuklab qo'yish */
+export function useBolimlarniOldindanYuklash() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+
+  return function (papkaId: string) {
+    qc.prefetchQuery({
+      queryKey: kalit.bolimlar(papkaId),
+      queryFn: () => bolimlarSorovi(supabase, papkaId),
+    })
+  }
 }
 
 export function useBolimYaratish(papkaId: string) {

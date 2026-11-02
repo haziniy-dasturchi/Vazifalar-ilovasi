@@ -2,20 +2,25 @@
 
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
-import { FoydalanuvchiProvider, type Foydalanuvchi } from './foydalanuvchi'
+import { FoydalanuvchiProvider } from './foydalanuvchi'
 import { YonPanel } from './yon-panel'
 import { PastkiMenyu } from './pastki-menyu'
 import { MobilSarlavha } from './mobil-sarlavha'
 import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
+import { useFoydalanuvchiSorovi } from '@/lib/queries/profil'
+import { useAsosiyRoyxatlarniOldindanYuklash } from '@/lib/queries/vazifalar'
 
-export function Shell({
-  foydalanuvchi,
-  children,
-}: {
-  foydalanuvchi: Foydalanuvchi
-  children: React.ReactNode
-}) {
+export function Shell({ children }: { children: React.ReactNode }) {
   const [qoshishOchiq, setQoshishOchiq] = useState(false)
+  const { data: foydalanuvchi } = useFoydalanuvchiSorovi()
+
+  // Boshqa bo'limlarni fonda oldindan yuklab qo'yish — shunda ularga
+  // o'tilganda ma'lumot allaqachon keshda tayyor turadi.
+  useAsosiyRoyxatlarniOldindanYuklash()
+
+  // Sessiya o'qilishi tarmoqsiz, deyarli zudlik bilan hal bo'ladi —
+  // middleware kirish huquqini allaqachon tasdiqlagan.
+  if (!foydalanuvchi) return null
 
   return (
     <FoydalanuvchiProvider qiymat={foydalanuvchi}>
