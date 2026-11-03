@@ -3,10 +3,15 @@
 import { useMemo, useState } from 'react'
 import { addDays, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from 'date-fns'
 import {
+  BookOpen,
+  CheckCircle2,
   ChevronDown,
   CircleCheck,
   Clock,
   FolderOpen,
+  ListTodo,
+  Moon,
+  Play,
   TriangleAlert,
 } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
@@ -76,6 +81,7 @@ export function HisobotKorinishi() {
   const [tugash, setTugash] = useState(BOSHLANGICH_ORALIQ.tugash)
   const [ochiqKarta, setOchiqKarta] = useState<KartaTuri | null>(null)
   const [ochiqPapka, setOchiqPapka] = useState<string | null>(null)
+  const [yoriqnomaOchiq, setYoriqnomaOchiq] = useState(false)
 
   const { data, isPending, isError, refetch } = useHisobotVazifalari(
     boshlanish,
@@ -162,6 +168,11 @@ export function HisobotKorinishi() {
 
   return (
     <Sahifa sarlavha="Hisobot" tavsif="Istalgan davr bo‘yicha natijalar">
+      <YoriqnomaBolimi
+        ochiq={yoriqnomaOchiq}
+        almashtirish={() => setYoriqnomaOchiq((v) => !v)}
+      />
+
       {/* Tezkor oraliqlar */}
       <div className="flex flex-wrap gap-2">
         {ORALIQLAR.map((o) => {
@@ -356,6 +367,101 @@ export function HisobotKorinishi() {
         </>
       )}
     </Sahifa>
+  )
+}
+
+const YORIQNOMA_QADAMLARI = [
+  {
+    ikonka: FolderOpen,
+    sarlavha: 'Papka — bu sizning loyihangiz',
+    matn:
+      'Ish, O‘qish, Uy kabi sohalaringiz uchun alohida papka oching. Har bir vazifa shu papkalardan biriga tegishli bo‘ladi.',
+  },
+  {
+    ikonka: ListTodo,
+    sarlavha: 'Bo‘lim bilan ichkarida tartib saqlang',
+    matn:
+      'Katta papka ichida kichikroq guruhlar kerak bo‘lsa (masalan "Reja" va "Bajarish"), bo‘lim qo‘shing.',
+  },
+  {
+    ikonka: CheckCircle2,
+    sarlavha: 'Vazifa qo‘shing — sana, vaqt, muhimlik',
+    matn:
+      '"+" tugmasini bosib vazifa yozing, kerak bo‘lsa sana va vaqt belgilang, P1–P4 orasidan muhimlik darajasini tanlang.',
+  },
+  {
+    ikonka: Play,
+    sarlavha: 'Uch holat: Reja → Jarayonda → Bajarildi',
+    matn:
+      'Ishni boshlaganingizda ▶ tugmasini bosing — "Jarayonda" bo‘limiga tushadi. Tugatganda ✓ bosing — bajarilgan hisoblanadi.',
+  },
+  {
+    ikonka: Moon,
+    sarlavha: 'Har kuni kechqurun — Kechki reja',
+    matn:
+      'Kun yakunida "Kechki reja"ga kirib, ertangi kun uchun vazifalarni oldindan yozib qo‘ying.',
+  },
+  {
+    ikonka: BookOpen,
+    sarlavha: 'Natijangizni shu yerda — Hisobotda ko‘ring',
+    matn:
+      'Istalgan davrni tanlab, qancha ish bajarilganini, qolganini va qaysi loyiha yaxshi yurayotganini kuzatib boring.',
+  },
+]
+
+function YoriqnomaBolimi({
+  ochiq,
+  almashtirish,
+}: {
+  ochiq: boolean
+  almashtirish: () => void
+}) {
+  return (
+    <div className="mb-5 overflow-hidden rounded-2xl bg-surface shadow-card">
+      <button
+        type="button"
+        onClick={almashtirish}
+        aria-expanded={ochiq}
+        className="flex min-h-touch w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-surface-muted"
+      >
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft">
+          <BookOpen className="size-5 text-brand-primary" aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-text-strong">Yo‘riqnoma</p>
+          <p className="truncate text-xs text-text-faint">
+            Ilova qanday ishlashini qisqacha bilib oling
+          </p>
+        </div>
+        <ChevronDown
+          className={`size-4 shrink-0 text-text-faint transition ${
+            ochiq ? 'rotate-180' : ''
+          }`}
+          aria-hidden
+        />
+      </button>
+
+      {ochiq && (
+        <div className="space-y-4 border-t border-border-subtle px-4 py-4">
+          {YORIQNOMA_QADAMLARI.map((q, i) => (
+            <div key={q.sarlavha} className="flex items-start gap-3">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-bold text-brand-primary">
+                {i + 1}
+              </span>
+              <div className="min-w-0 flex-1 pt-0.5">
+                <p className="flex items-center gap-2 text-sm font-semibold text-text-strong">
+                  <q.ikonka className="size-4 shrink-0 text-brand-primary" aria-hidden />
+                  {q.sarlavha}
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-text-muted">
+                  {q.matn}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 

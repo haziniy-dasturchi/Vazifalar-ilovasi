@@ -58,7 +58,8 @@ export function KorishKorinishi() {
             <KelgusiKarta
               ikonka={Moon}
               sarlavha="Kechki reja"
-              matn="Kun yakunida 5 qadamda ertangi kunni rejalashtirish."
+              matn="Ertangi kun uchun vazifalarni oldindan belgilab qo‘ying."
+              href="/kechki-reja"
             />
           </section>
 

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Download, Share, X } from 'lucide-react'
+import { Download, Share } from 'lucide-react'
+import { Oyna } from '@/components/ui/oyna'
 
 /** Standart DOM tiplarida hali yo'q (yangi, tajribaviy brauzer hodisasi) */
 interface OrnatishTaklifi extends Event {
@@ -34,8 +35,9 @@ function iosMi(): boolean {
 }
 
 /**
- * Ilovani o'rnatishga doimiy taklif qiluvchi banner — telefonda ham,
- * kompyuterda ham, ilovaga har kirishda (o'rnatilmagan bo'lsa) chiqadi.
+ * Ilovani o'rnatishga taklif qiluvchi modal — telefonda ham,
+ * kompyuterda ham, ilovaga kirishning o'zidayoq (o'rnatilmagan bo'lsa)
+ * qalqib chiqadi.
  *
  * Faqat shu sessiya uchun yopib qo'yish mumkin, butunlay o'chirib
  * bo'lmaydi. iOS'da "beforeinstallprompt" hodisasi umuman yo'qligi
@@ -135,43 +137,33 @@ export function PwaOrnatish() {
   if (!korsat) return null
 
   return (
-    <div className="sticky top-0 z-50 flex items-center gap-3 bg-brand-primary px-4 py-2 text-white">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/15">
-        {iosKorinish ? (
-          <Share className="size-5" aria-hidden />
-        ) : (
-          <Download className="size-5" aria-hidden />
-        )}
-      </span>
+    <Oyna sarlavha="Ilovani o‘rnating" yop={yopish}>
+      <div className="flex flex-col items-center gap-4 pb-2 text-center">
+        <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-brand-soft">
+          {iosKorinish ? (
+            <Share className="size-7 text-brand-primary" aria-hidden />
+          ) : (
+            <Download className="size-7 text-brand-primary" aria-hidden />
+          )}
+        </span>
 
-      <div className="min-w-0 flex-1 py-1">
-        <p className="text-sm leading-tight font-semibold">Ilovani o‘rnating</p>
-        <p className="truncate text-xs text-white/80">
+        <p className="text-base leading-relaxed text-text-muted">
           {iosKorinish
-            ? 'Ulashish tugmasidan foydalanib, Bosh ekranga qo‘shing'
-            : 'Tezroq ishlaydi, asosiy ekrandan bitta bosish bilan ochiladi'}
+            ? 'Pastdagi Ulashish tugmasini bosib, "Bosh ekranga qo‘shish" ni tanlang — ilova bosh ekraningizda paydo bo‘ladi.'
+            : 'Bosh ekraningizga qo‘shib qo‘ying — tezroq ishlaydi va bitta bosish bilan ochiladi, xuddi oddiy ilova kabi.'}
         </p>
+
+        {!iosKorinish && (
+          <button
+            type="button"
+            onClick={ornat}
+            disabled={ornatilmoqda || !taklif}
+            className="min-h-touch w-full rounded-xl bg-brand-primary px-6 text-base font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-60"
+          >
+            {ornatilmoqda ? 'Kuting…' : 'O‘rnatish'}
+          </button>
+        )}
       </div>
-
-      {!iosKorinish && (
-        <button
-          type="button"
-          onClick={ornat}
-          disabled={ornatilmoqda || !taklif}
-          className="flex min-h-touch shrink-0 items-center rounded-xl bg-white px-4 text-sm font-semibold text-brand-primary transition hover:bg-white/90 disabled:opacity-60"
-        >
-          {ornatilmoqda ? '…' : 'O‘rnatish'}
-        </button>
-      )}
-
-      <button
-        type="button"
-        onClick={yopish}
-        aria-label="Yopish"
-        className="flex size-11 min-h-0 shrink-0 items-center justify-center rounded-xl text-white/70 transition hover:bg-white/10 hover:text-white"
-      >
-        <X className="size-4" aria-hidden />
-      </button>
-    </div>
+    </Oyna>
   )
 }

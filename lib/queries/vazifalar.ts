@@ -98,6 +98,23 @@ async function kelgusiSorovi(supabase: Mijoz, kunSoni: number): Promise<Task[]> 
   return (data ?? []) as Task[]
 }
 
+async function ertangiSorovi(supabase: Mijoz): Promise<Task[]> {
+  const ertaga = new Date()
+  ertaga.setDate(ertaga.getDate() + 1)
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .select(USTUNLAR)
+    .eq('due_date', isoGa(ertaga))
+    .neq('status', 'done')
+    .order('due_time', { ascending: true, nullsFirst: false })
+    .order('priority', { ascending: true })
+    .order('sort_order', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []) as Task[]
+}
+
 // =============================================================
 // So'rovlar
 // =============================================================
@@ -143,6 +160,16 @@ export function useKelgusiVazifalar(kunSoni = 30) {
   return useQuery({
     queryKey: kalit.kelgusi(),
     queryFn: () => kelgusiSorovi(supabase, kunSoni),
+  })
+}
+
+/** Kechki reja: ertangi kunga rejalashtirilgan, hali bajarilmagan vazifalar */
+export function useErtangiVazifalar() {
+  const supabase = useSupabase()
+
+  return useQuery({
+    queryKey: kalit.ertangi(),
+    queryFn: () => ertangiSorovi(supabase),
   })
 }
 
