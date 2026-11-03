@@ -2,7 +2,15 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { BarChart3, CircleCheck, Clock, Moon, Plus, TriangleAlert } from 'lucide-react'
+import {
+  BarChart3,
+  BookOpen,
+  CircleCheck,
+  Clock,
+  Moon,
+  Plus,
+  TriangleAlert,
+} from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
 import { Yuklanmoqda } from '@/components/ui/holatlar'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
@@ -49,6 +57,12 @@ export function KorishKorinishi() {
           </div>
 
           <section className="mt-7 space-y-3">
+            <KelgusiKarta
+              ikonka={BookOpen}
+              sarlavha="Yo‘riqnoma"
+              matn="Ilova qanday ishlashini qisqa va sodda tarzda bilib oling."
+              href="/yoriqnoma"
+            />
             <KelgusiKarta
               ikonka={BarChart3}
               sarlavha="Hisobot"
