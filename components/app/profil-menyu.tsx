@@ -11,7 +11,7 @@ export function ProfilMenyu() {
   const chiqish = useChiqish()
   const [ochiq, setOchiq] = useState(false)
 
-  const bosh = foydalanuvchi.ism.trim().charAt(0).toUpperCase() || 'V'
+  const bosh = foydalanuvchi.ism.trim().charAt(0).toUpperCase() || 'S'
 
   return (
     <div className="relative border-t border-border-subtle p-3">

@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { Archive, LogOut } from 'lucide-react'
@@ -13,21 +12,19 @@ export function MobilSarlavha() {
   const chiqish = useChiqish()
   const [ochiq, setOchiq] = useState(false)
 
-  const bosh = foydalanuvchi.ism.trim().charAt(0).toUpperCase() || 'V'
+  const bosh = foydalanuvchi.ism.trim().charAt(0).toUpperCase() || 'S'
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border-subtle bg-surface/95 px-4 py-2 backdrop-blur md:hidden">
-      <Link href="/bugun" className="flex items-center gap-2">
-        <Image
-          src="/brand/belgi-512.png"
-          alt=""
-          width={28}
-          height={28}
-          className="size-7"
+      <Link href="/bugun" className="flex items-center">
+        {/* eslint-disable-next-line @next/next/no-img-element -- SVG, next/image optimallashtirmaydi */}
+        <img
+          src="/brand/logo-sidebar-light.svg"
+          alt="Samara"
+          width={96}
+          height={26}
+          className="h-6 w-auto"
         />
-        <span className="text-base font-bold tracking-tight text-brand-primary">
-          Vazifalar
-        </span>
       </Link>
 
       <div className="relative">

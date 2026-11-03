@@ -18,8 +18,8 @@ import {
 
 /** Papka uchun tanlanadigan ranglar */
 export const PAPKA_RANGLARI = [
-  { hex: '#003933', nom: 'To‘q yashil' },
-  { hex: '#00bc55', nom: 'Yashil' },
+  { hex: '#0b3d2e', nom: 'To‘q yashil' },
+  { hex: '#10b981', nom: 'Yashil' },
   { hex: '#0ea5e9', nom: 'Moviy' },
   { hex: '#6366f1', nom: 'Siyohrang' },
   { hex: '#a855f7', nom: 'Binafsha' },
@@ -61,7 +61,7 @@ export const SHABLON_PAPKALAR = [
   { name: 'Uy', icon: 'uy', color: '#14b8a6' },
   { name: 'Sog‘liq', icon: 'sogliq', color: '#ef4444' },
   { name: 'Xaridlar', icon: 'xarid', color: '#f59e0b' },
-  { name: 'Moliyaviy', icon: 'pul', color: '#00bc55' },
+  { name: 'Moliyaviy', icon: 'pul', color: '#10b981' },
   { name: 'Shaxsiy', icon: 'yulduz', color: '#a855f7' },
   { name: 'Loyihalar', icon: 'papka', color: '#64748b' },
 ] as const

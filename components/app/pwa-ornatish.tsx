@@ -13,12 +13,12 @@ interface OrnatishTaklifi extends Event {
 declare global {
   interface Window {
     /** app/layout.tsx'dagi erta skript shu yerga saqlaydi */
-    __vazifalarOrnatishTaklifi?: OrnatishTaklifi | null
+    __samaraOrnatishTaklifi?: OrnatishTaklifi | null
   }
 }
 
 /** Faqat shu sessiya (vkladka) davomida yashirish — keyingi tashrifda qayta chiqadi */
-const YOPILDI_KALITI = 'vazifalar-ornatish-yopildi'
+const YOPILDI_KALITI = 'samara-ornatish-yopildi'
 
 function ornatilganmi(): boolean {
   const standalone =
@@ -47,9 +47,9 @@ function iosMi(): boolean {
  * sahifa yuklanishining ISTALGAN vaqtida kelishi mumkin — ko'pincha
  * bu komponent hali DOM'ga ulanmasdan oldin. Shu sababli uni bu yerda
  * emas, `app/layout.tsx`dagi React'dan OLDIN ishga tushadigan skriptda
- * ushlab olamiz; bu komponent faqat `window.__vazifalarOrnatishTaklifi`
+ * ushlab olamiz; bu komponent faqat `window.__samaraOrnatishTaklifi`
  * orqali natijani o'qiydi (allaqachon kelgan bo'lsa — darhol, keyinroq
- * kelsa — "vazifalar:ornatish-tayyor" hodisasi orqali).
+ * kelsa — "samara:ornatish-tayyor" hodisasi orqali).
  */
 export function PwaOrnatish() {
   const [korsat, setKorsat] = useState(false)
@@ -76,14 +76,14 @@ export function PwaOrnatish() {
 
     // Hodisa biz ulanishimizdan OLDIN kelib, allaqachon saqlangan bo'lishi
     // mumkin — shu holatni birinchi tekshiramiz.
-    if (window.__vazifalarOrnatishTaklifi) {
-      setTaklif(window.__vazifalarOrnatishTaklifi)
+    if (window.__samaraOrnatishTaklifi) {
+      setTaklif(window.__samaraOrnatishTaklifi)
       setKorsat(true)
     }
 
     function tayyor() {
-      if (window.__vazifalarOrnatishTaklifi) {
-        setTaklif(window.__vazifalarOrnatishTaklifi)
+      if (window.__samaraOrnatishTaklifi) {
+        setTaklif(window.__samaraOrnatishTaklifi)
         setKorsat(true)
       }
     }
@@ -93,7 +93,7 @@ export function PwaOrnatish() {
     function tayyorZaxira(e: Event) {
       e.preventDefault()
       const t = e as OrnatishTaklifi
-      window.__vazifalarOrnatishTaklifi = t
+      window.__samaraOrnatishTaklifi = t
       setTaklif(t)
       setKorsat(true)
     }
@@ -102,14 +102,14 @@ export function PwaOrnatish() {
       setTaklif(null)
     }
 
-    window.addEventListener('vazifalar:ornatish-tayyor', tayyor)
-    window.addEventListener('vazifalar:ornatildi', ornatildi)
+    window.addEventListener('samara:ornatish-tayyor', tayyor)
+    window.addEventListener('samara:ornatildi', ornatildi)
     window.addEventListener('beforeinstallprompt', tayyorZaxira)
     window.addEventListener('appinstalled', ornatildi)
 
     return () => {
-      window.removeEventListener('vazifalar:ornatish-tayyor', tayyor)
-      window.removeEventListener('vazifalar:ornatildi', ornatildi)
+      window.removeEventListener('samara:ornatish-tayyor', tayyor)
+      window.removeEventListener('samara:ornatildi', ornatildi)
       window.removeEventListener('beforeinstallprompt', tayyorZaxira)
       window.removeEventListener('appinstalled', ornatildi)
     }
@@ -129,7 +129,7 @@ export function PwaOrnatish() {
     } finally {
       setOrnatilmoqda(false)
       setTaklif(null)
-      window.__vazifalarOrnatishTaklifi = null
+      window.__samaraOrnatishTaklifi = null
       setKorsat(false)
     }
   }

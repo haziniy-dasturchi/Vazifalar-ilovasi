@@ -227,13 +227,20 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
             {bolimsiz.length > 0 ? (
               <ul className="mb-2 space-y-2">{bolimsiz.map(qator)}</ul>
             ) : (
-              bolimlar?.length === 0 && (
+              bolimlar?.length === 0 &&
+              (papka?.is_inbox ? (
+                <BoshHolat
+                  rasm="/illustrations/empty-inbox.svg"
+                  sarlavha="Kiruvchi bo‘sh"
+                  matn="Hali vazifa yo‘q — + tugmasini bosing."
+                />
+              ) : (
                 <BoshHolat
                   ikonka={ListChecks}
                   sarlavha="Bu papka bo‘sh"
                   matn="Hali vazifa yo‘q — + tugmasini bosing."
                 />
-              )
+              ))
             )}
             <InlineQoshish papkaId={papkaId} />
           </section>

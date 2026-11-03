@@ -1,4 +1,4 @@
-// Vazifalar — minimal servis ishchisi.
+// Samara — minimal servis ishchisi.
 //
 // Chrome/Android'da "o'rnatish" taklifi (beforeinstallprompt) faqat
 // fetch hodisasini ushlaydigan ro'yxatdan o'tgan servis ishchisi

@@ -2,21 +2,21 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Vazifalar',
-    short_name: 'Vazifalar',
+    name: 'Samara',
+    short_name: 'Samara',
     description:
-      'Kunlik vazifalarni rejalashtirish va bajarish uchun sodda ilova.',
+      'Kunlik vazifalarni rejalashtirish va bajarish uchun sodda ilova. Har kun — samarali kun.',
     lang: 'uz',
     start_url: '/bugun',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#003933',
+    background_color: '#0b3d2e',
+    theme_color: '#0b3d2e',
     orientation: 'portrait',
     icons: [
-      { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { src: '/icons/pwa-192.png', sizes: '192x192', type: 'image/png' },
+      { src: '/icons/pwa-512.png', sizes: '512x512', type: 'image/png' },
       {
-        src: '/icons/maskable-512.png',
+        src: '/icons/pwa-maskable-512.png',
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',

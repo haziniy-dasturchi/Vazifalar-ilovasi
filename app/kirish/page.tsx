@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import type { Metadata } from 'next'
 import { GoogleTugma } from '@/components/auth/google-tugma'
 
@@ -23,18 +22,18 @@ export default async function KirishSahifasi({
     <main className="flex min-h-dvh flex-col bg-surface px-6 py-10">
       <div className="flex flex-1 flex-col items-center justify-center">
         <div className="w-full max-w-sm text-center">
-          <Image
-            src="/brand/belgi-512.png"
-            alt=""
-            width={88}
-            height={88}
-            priority
-            className="mx-auto size-22"
+          <h1 className="sr-only">Samara</h1>
+          {/* eslint-disable-next-line @next/next/no-img-element -- SVG, next/image optimallashtirmaydi */}
+          <img
+            src="/brand/logo-login-light.svg"
+            alt="Samara"
+            width={224}
+            height={168}
+            className="mx-auto h-auto w-56"
           />
-
-          <h1 className="mt-7 text-4xl font-bold tracking-tight text-brand-primary">
-            Vazifalar
-          </h1>
+          <p className="mt-2 text-sm font-semibold text-brand-primary">
+            Har kun — samarali kun
+          </p>
           <p className="mt-3 text-base leading-relaxed text-text-muted">
             Kunlik ishlaringizni bir joyda rejalashtiring va bajaring.
             Hamma uchun bepul.

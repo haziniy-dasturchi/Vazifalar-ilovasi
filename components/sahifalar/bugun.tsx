@@ -89,7 +89,7 @@ export function BugunKorinishi() {
 
           {bugungi.length === 0 && kechikkan.length === 0 && (
             <BoshHolat
-              ikonka={ListChecks}
+              rasm="/illustrations/empty-today-done.svg"
               sarlavha="Bugungi ishlar tugadi"
               matn="Bugun rejalashtirilgan vazifalar qolmadi."
               harakat={{

@@ -11,16 +11,17 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://vazifalar-eta.vercel.app'),
   title: {
-    default: 'Vazifalar',
-    template: '%s · Vazifalar',
+    default: 'Samara',
+    template: '%s · Samara',
   },
   description:
-    'Kunlik vazifalarni rejalashtirish va bajarish uchun sodda ilova. Hamma uchun bepul.',
-  applicationName: 'Vazifalar',
+    'Kunlik vazifalarni rejalashtirish va bajarish uchun sodda ilova. Hamma uchun bepul. Har kun — samarali kun.',
+  applicationName: 'Samara',
   appleWebApp: {
     capable: true,
-    title: 'Vazifalar',
+    title: 'Samara',
     statusBarStyle: 'default',
   },
   formatDetection: {
@@ -32,7 +33,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#003933',
+  themeColor: '#0b3d2e',
 }
 
 export default function RootLayout({
@@ -56,15 +57,15 @@ export default function RootLayout({
         */}
         <Script id="ornatish-taklifini-ushlash" strategy="beforeInteractive">
           {`
-            window.__vazifalarOrnatishTaklifi = null;
+            window.__samaraOrnatishTaklifi = null;
             window.addEventListener('beforeinstallprompt', function (e) {
               e.preventDefault();
-              window.__vazifalarOrnatishTaklifi = e;
-              window.dispatchEvent(new Event('vazifalar:ornatish-tayyor'));
+              window.__samaraOrnatishTaklifi = e;
+              window.dispatchEvent(new Event('samara:ornatish-tayyor'));
             });
             window.addEventListener('appinstalled', function () {
-              window.__vazifalarOrnatishTaklifi = null;
-              window.dispatchEvent(new Event('vazifalar:ornatildi'));
+              window.__samaraOrnatishTaklifi = null;
+              window.dispatchEvent(new Event('samara:ornatildi'));
             });
           `}
         </Script>

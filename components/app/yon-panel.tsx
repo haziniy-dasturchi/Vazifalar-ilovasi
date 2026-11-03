@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -27,17 +26,15 @@ export function YonPanel() {
 
   return (
     <aside className="hidden w-72 shrink-0 flex-col border-r border-border-subtle bg-surface md:flex">
-      <div className="flex items-center gap-3 px-5 py-5">
-        <Image
-          src="/brand/belgi-512.png"
-          alt=""
-          width={36}
+      <div className="px-5 py-5">
+        {/* eslint-disable-next-line @next/next/no-img-element -- SVG, next/image optimallashtirmaydi */}
+        <img
+          src="/brand/logo-sidebar-light.svg"
+          alt="Samara"
+          width={133}
           height={36}
-          className="size-9"
+          className="h-9 w-auto"
         />
-        <span className="text-xl font-bold tracking-tight text-brand-primary">
-          Vazifalar
-        </span>
       </div>
 
       <nav aria-label="Asosiy bo‘limlar" className="px-3">

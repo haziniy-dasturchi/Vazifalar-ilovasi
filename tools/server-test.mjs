@@ -147,8 +147,8 @@ if (SITE_URL) {
   ok('/kirish ochilmoqda', kirish.status === 200, `status=${kirish.status}`)
   ok(
     '/kirish sahifasida ilova nomi bor',
-    kirishMatni.includes('Vazifalar'),
-    'sahifada "Vazifalar" topilmadi'
+    kirishMatni.includes('Samara'),
+    'sahifada "Samara" topilmadi'
   )
   ok(
     '/kirish sahifasida Google tugmasi bor',
@@ -168,15 +168,15 @@ if (SITE_URL) {
   const manifestTana = manifest.status === 200 ? await manifest.json() : null
   ok(
     'PWA manifesti to‘g‘ri',
-    manifestTana?.name === 'Vazifalar' && manifestTana?.theme_color === '#003933',
+    manifestTana?.name === 'Samara' && manifestTana?.theme_color === '#0b3d2e',
     `manifest=${JSON.stringify(manifestTana)?.slice(0, 80)}`
   )
 
-  const ikonka = await so(`${SITE_URL}/icon.png`)
+  const ikonka = await so(`${SITE_URL}/favicon.ico`)
   ok(
     'Ikonka beriladi',
     ikonka.status === 200 &&
-      (ikonka.headers?.get?.('content-type') ?? '').includes('image/png'),
+      (ikonka.headers?.get?.('content-type') ?? '').includes('image/'),
     `status=${ikonka.status}`
   )
 

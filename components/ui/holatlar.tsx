@@ -25,23 +25,37 @@ export function Yuklanmoqda({ qator = 4 }: { qator?: number }) {
   )
 }
 
-/** Bo'sh holat — har sahifada bir xil ko'rinadi */
+/**
+ * Bo'sh holat — har sahifada bir xil ko'rinadi.
+ * `rasm` berilsa (masalan brend illyustratsiyasi), ikonka o'rniga
+ * shu rasm ko'rsatiladi — faqat ayrim maxsus holatlar uchun (bugungi
+ * ishlar tugaganda, Kiruvchi bo'sh bo'lganda) ishlatiladi.
+ */
 export function BoshHolat({
   ikonka: Ikonka,
+  rasm,
   sarlavha,
   matn,
   harakat,
 }: {
-  ikonka: LucideIcon
+  ikonka?: LucideIcon
+  rasm?: string
   sarlavha: string
   matn: string
   harakat?: { matn: string; bajar: () => void }
 }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-3xl bg-surface px-6 py-16 text-center shadow-card">
-      <span className="flex size-16 items-center justify-center rounded-2xl bg-brand-soft">
-        <Ikonka className="size-8 text-brand-primary" aria-hidden />
-      </span>
+      {rasm ? (
+        // eslint-disable-next-line @next/next/no-img-element -- SVG, next/image optimallashtirmaydi
+        <img src={rasm} alt="" className="h-28 w-auto" />
+      ) : (
+        Ikonka && (
+          <span className="flex size-16 items-center justify-center rounded-2xl bg-brand-soft">
+            <Ikonka className="size-8 text-brand-primary" aria-hidden />
+          </span>
+        )
+      )}
       <h2 className="mt-5 text-lg font-semibold text-text-strong">
         {sarlavha}
       </h2>

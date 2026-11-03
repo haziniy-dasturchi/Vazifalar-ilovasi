@@ -1,22 +1,22 @@
 @import 'tailwindcss';
 
 /* =============================================================
-   Vazifalar — dizayn tokenlari
-   Brend ranglari Logo/PNG fayllaridan piksel darajasida olingan:
-     #003933 — logo belgisi va yozuvi
-     #00BC55 — belgining markazidagi romb
-     #1D1D1B — "ilm maskani" quyi yozuvi
+   Samara — dizayn tokenlari
+   Brend ranglari logotipning o'zidan olingan (Logo/ICONS.md):
+     #0B3D2E — to'q yashil (belgi: barg, yozuv)
+     #10B981 — zumrad (belgi: aylana, asosiy harakat rangi)
+     #6EE7B7 — barg rangi (qorong'i fonda ishlatiladigan barg)
+     #ECFDF5 — eng ochiq ton (illyustratsiyalar foni bilan bir xil)
    ============================================================= */
 
 @theme {
   /* Brend */
-  --color-brand-primary: #003933;
-  --color-brand-primary-hover: #00524a;
-  --color-brand-primary-light: #0f655b;
-  --color-brand-accent: #00bc55;
-  --color-brand-accent-hover: #00a549;
-  --color-brand-soft: #e8f3ef;
-  --color-brand-ink: #1d1d1b;
+  --color-brand-primary: #0b3d2e;
+  --color-brand-primary-hover: #065f46;
+  --color-brand-accent: #10b981;
+  --color-brand-accent-hover: #059669;
+  --color-brand-soft: #ecfdf5;
+  --color-brand-ink: #0b3d2e;
 
   /* Holat ranglari — brenddan qat'i nazar o'zgarmaydi */
   --color-status-progress: #fef3c7;
