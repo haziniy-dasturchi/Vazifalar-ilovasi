@@ -68,7 +68,10 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
           ikonka={ListChecks}
           sarlavha="Bunday papka yo‘q"
           matn="U o‘chirilgan bo‘lishi mumkin."
-          harakat={{ matn: 'Bugunga qaytish', bajar: () => router.push('/bugun') }}
+          harakat={{
+            matn: 'Bosh sahifaga qaytish',
+            bajar: () => router.push('/jarayonda'),
+          }}
         />
       </Sahifa>
     )
@@ -100,7 +103,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
     try {
       await yangilash.mutateAsync({ id: papka.id, is_archived: true })
       korsat({ matn: 'Papka arxivlandi', tone: 'muvaffaqiyat' })
-      router.push('/bugun')
+      router.push('/jarayonda')
     } catch {
       korsat({ matn: 'Arxivlab bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
     }
@@ -111,7 +114,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
     try {
       await ochirish.mutateAsync(papka.id)
       korsat({ matn: 'Papka o‘chirildi', tone: 'muvaffaqiyat' })
-      router.push('/bugun')
+      router.push('/jarayonda')
     } catch {
       korsat({ matn: 'O‘chirib bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
     }

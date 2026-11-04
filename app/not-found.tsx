@@ -14,10 +14,10 @@ export default function TopilmadiSahifasi() {
         Manzil noto‘g‘ri bo‘lishi yoki sahifa o‘chirilgan bo‘lishi mumkin.
       </p>
       <Link
-        href="/bugun"
+        href="/jarayonda"
         className="mt-6 rounded-xl bg-brand-primary px-6 py-3 text-base font-semibold text-white transition hover:bg-brand-primary-hover"
       >
-        Bugunga qaytish
+        Bosh sahifaga qaytish
       </Link>
     </main>
   )

@@ -4,10 +4,16 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { CalendarDays, ClipboardCheck, Play, Sun } from 'lucide-react'
 
+/**
+ * Tartib ataylab shunday: "Jarayonda" birinchi — ilova ochilganda
+ * foydalanuvchi avval boshlangan ishini ko'radi va uni davom ettiradi.
+ * Agar jarayonda ish bo'lmasa, o'sha sahifaning o'zida bugungi
+ * ishlardan bittasini tanlab boshlaydi.
+ */
 export const BOLIMLAR = [
+  { yol: '/jarayonda', nom: 'Jarayonda', ikonka: Play },
   { yol: '/bugun', nom: 'Bugun', ikonka: Sun },
   { yol: '/kelgusi', nom: 'Kelgusi', ikonka: CalendarDays },
-  { yol: '/jarayonda', nom: 'Jarayonda', ikonka: Play },
   { yol: '/korish', nom: 'Ko‘rish', ikonka: ClipboardCheck },
 ] as const
 

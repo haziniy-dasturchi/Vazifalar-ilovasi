@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description:
       'Kunlik vazifalarni rejalashtirish va bajarish uchun sodda ilova. Har kun — samarali kun.',
     lang: 'uz',
-    start_url: '/bugun',
+    start_url: '/jarayonda',
     display: 'standalone',
     background_color: '#0b3d2e',
     theme_color: '#0b3d2e',

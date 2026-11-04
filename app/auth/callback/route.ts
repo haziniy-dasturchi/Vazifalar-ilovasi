@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const keyin = searchParams.get('keyin') ?? '/bugun'
+  const keyin = searchParams.get('keyin') ?? '/jarayonda'
 
   if (!code) {
     return NextResponse.redirect(`${origin}/kirish?xato=kod_yoq`)

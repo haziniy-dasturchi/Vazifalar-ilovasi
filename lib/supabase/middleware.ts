@@ -138,7 +138,7 @@ export async function updateSession(request: NextRequest) {
 
   if (user && pathname === '/kirish') {
     const url = request.nextUrl.clone()
-    url.pathname = '/bugun'
+    url.pathname = '/jarayonda'
     url.search = ''
     return NextResponse.redirect(url)
   }
