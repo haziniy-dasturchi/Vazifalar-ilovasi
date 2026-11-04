@@ -1,19 +1,25 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Link from 'next/link'
 import { addDays, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from 'date-fns'
 import {
   ChevronDown,
   CircleCheck,
   Clock,
+  Flame,
   FolderOpen,
   TriangleAlert,
 } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
 import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
-import { useHisobotVazifalari } from '@/lib/queries/hisobot'
+import {
+  useHisobotVazifalari,
+  usePapkaningBarchaVazifalari,
+} from '@/lib/queries/hisobot'
 import { usePapkalar } from '@/lib/queries/papkalar'
+import { useBarchaBolimlar } from '@/lib/queries/bolimlar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
 import { bugunISO, isoGa, toliqSana } from '@/lib/sana'
 import { iyerarxiya, saralash, subtasklar as olBolalar } from '@/lib/vazifa-yordam'
@@ -82,9 +88,18 @@ export function HisobotKorinishi() {
     tugash
   )
   const { data: papkalar } = usePapkalar()
+  const { data: barchaBolimlar } = useBarchaBolimlar()
+  const loyihalarPapka = papkalar?.find((p) => p.is_projects)
+  const { data: loyihaVazifalari } = usePapkaningBarchaVazifalari(
+    loyihalarPapka?.id
+  )
   const papkaMap = useMemo(
     () => new Map(papkalar?.map((p) => [p.id, p])),
     [papkalar]
+  )
+  const bolimNomlari = useMemo(
+    () => new Map((barchaBolimlar ?? []).map((b) => [b.id, b.name])),
+    [barchaBolimlar]
   )
 
   const bugun = bugunISO()
@@ -138,6 +153,43 @@ export function HisobotKorinishi() {
       .filter((p) => p.folder)
       .sort((a, b) => a.foiz - b.foiz)
   }, [rejaDoirasida, papkaMap])
+
+  /**
+   * Loyihalar papkasi ichidagi har bir loyiha (bo'lim) bo'yicha holat.
+   * Bu yerda davr filtri QO'LLANMAYDI — loyiha bu uzluksiz ish, uning
+   * umumiy tugallanganlik darajasi muhim (Zeygarnik effekti: tugallanmagan
+   * ish yodda qolib, tugatishga undaydi).
+   */
+  const loyihaStatistika = useMemo(() => {
+    if (!loyihalarPapka) return []
+
+    const loyihalar = (barchaBolimlar ?? []).filter(
+      (b) => b.folder_id === loyihalarPapka.id
+    )
+    if (loyihalar.length === 0) return []
+
+    const hisob = new Map<string, { jami: number; bajarilgan: number }>()
+    for (const v of loyihaVazifalari ?? []) {
+      if (!v.section_id) continue
+      const h = hisob.get(v.section_id) ?? { jami: 0, bajarilgan: 0 }
+      h.jami += 1
+      if (v.status === 'done') h.bajarilgan += 1
+      hisob.set(v.section_id, h)
+    }
+
+    return loyihalar
+      .map((b) => {
+        const h = hisob.get(b.id) ?? { jami: 0, bajarilgan: 0 }
+        return {
+          id: b.id,
+          nom: b.name,
+          ...h,
+          qolgan: h.jami - h.bajarilgan,
+          foiz: h.jami === 0 ? 0 : Math.round((h.bajarilgan / h.jami) * 100),
+        }
+      })
+      .sort((a, b) => a.foiz - b.foiz)
+  }, [loyihalarPapka, barchaBolimlar, loyihaVazifalari])
 
   function oraliqniTanla(o: Oraliq) {
     setBoshlanish(o.boshlanish)
@@ -255,6 +307,7 @@ export function HisobotKorinishi() {
             <VazifaRoyxati
               vazifalar={KARTA_RUYXATI[ochiqKarta]}
               papkaMap={papkaMap}
+              bolimNomlari={bolimNomlari}
               boshQatorMatni={
                 ochiqKarta === 'bajarildi'
                   ? 'Bu davrda hali hech narsa bajarilmagan.'
@@ -262,6 +315,14 @@ export function HisobotKorinishi() {
                     ? 'Bu davrda qolgan vazifa yo‘q.'
                     : 'Bu davrda kechikkan vazifa yo‘q.'
               }
+            />
+          )}
+
+          {/* Loyihalar holati — davr filtridan mustaqil, umumiy progress */}
+          {loyihaStatistika.length > 0 && (
+            <LoyihalarHolati
+              loyihalar={loyihaStatistika}
+              papkaId={loyihalarPapka?.id}
             />
           )}
 
@@ -393,11 +454,13 @@ function StatKarta({
 function VazifaRoyxati({
   vazifalar,
   papkaMap,
+  bolimNomlari,
   boshQatorMatni,
   yashirPapka = false,
 }: {
   vazifalar: Task[]
   papkaMap: Map<string, { name: string; color: string }>
+  bolimNomlari?: Map<string, string>
   boshQatorMatni?: string
   yashirPapka?: boolean
 }) {
@@ -425,9 +488,109 @@ function VazifaRoyxati({
             subtasklar={olBolalar(bolalar, v.id)}
             papkaNomi={yashirPapka ? undefined : papka?.name}
             papkaRangi={yashirPapka ? undefined : papka?.color}
+            bolimNomi={
+              v.section_id ? bolimNomlari?.get(v.section_id) : undefined
+            }
           />
         )
       })}
     </ul>
+  )
+}
+
+/**
+ * Loyihalar holati — Zeygarnik effekti.
+ *
+ * Tugallanmagan ish ongda "ochiq" bo'lib qoladi va tugatishga undaydi.
+ * Shu sababli bu yerda ataylab QOLGAN ishlar soni ta'kidlanadi va
+ * tugallanmagan loyihalar yuqorida turadi: "yana 3 ta qoldi" degan
+ * aniq raqam "60% bajarildi" dan ko'ra kuchliroq turtki beradi.
+ */
+function LoyihalarHolati({
+  loyihalar,
+  papkaId,
+}: {
+  loyihalar: {
+    id: string
+    nom: string
+    jami: number
+    bajarilgan: number
+    qolgan: number
+    foiz: number
+  }[]
+  papkaId?: string
+}) {
+  const tugallanmagan = loyihalar.filter((l) => l.jami > 0 && l.foiz < 100)
+  const engYaqin = [...tugallanmagan].sort((a, b) => b.foiz - a.foiz)[0]
+
+  return (
+    <section className="mt-7">
+      <h2 className="mb-2 px-1 text-sm font-semibold text-text-muted">
+        Loyihalar holati
+      </h2>
+
+      {/* Zeygarnik turtkisi — tugatishga eng yaqin loyihani ko'rsatadi */}
+      {engYaqin && (
+        <div className="mb-3 flex items-start gap-3 rounded-2xl bg-brand-primary px-4 py-3 text-white">
+          <Flame className="mt-0.5 size-5 shrink-0" aria-hidden />
+          <p className="text-sm leading-relaxed">
+            <span className="font-semibold">{engYaqin.nom}</span> loyihasi{' '}
+            {engYaqin.foiz}% bajarildi — tugatishga{' '}
+            <span className="font-semibold">
+              atigi {engYaqin.qolgan} ta ish
+            </span>{' '}
+            qoldi. Bugun yakunlab qo‘ying!
+          </p>
+        </div>
+      )}
+
+      <ul className="space-y-2">
+        {loyihalar.map((l) => {
+          const tugagan = l.jami > 0 && l.foiz === 100
+          return (
+            <li key={l.id} className="rounded-2xl bg-surface p-4 shadow-card">
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate text-sm font-medium text-text-strong">
+                  {l.nom}
+                </span>
+                <span
+                  className="shrink-0 text-sm font-semibold"
+                  style={{ color: holatRangi(l.foiz) }}
+                >
+                  {l.foiz}%
+                </span>
+              </div>
+
+              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-sunken">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${l.foiz}%`,
+                    backgroundColor: holatRangi(l.foiz),
+                  }}
+                />
+              </div>
+
+              <p className="mt-1 text-xs text-text-faint">
+                {l.jami === 0
+                  ? 'Hali vazifa qo‘shilmagan'
+                  : tugagan
+                    ? `Tugallandi — ${l.jami} ta ishning hammasi bajarildi`
+                    : `${l.bajarilgan}/${l.jami} ta bajarildi · yana ${l.qolgan} ta qoldi`}
+              </p>
+            </li>
+          )
+        })}
+      </ul>
+
+      {papkaId && (
+        <Link
+          href={`/papka/${papkaId}`}
+          className="mt-3 flex min-h-touch items-center justify-center rounded-xl border border-border-subtle text-sm font-medium text-text-strong transition hover:bg-surface-muted"
+        >
+          Loyihalar papkasini ochish
+        </Link>
+      )}
+    </section>
   )
 }

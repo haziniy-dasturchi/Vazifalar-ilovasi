@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { Oyna } from '@/components/ui/oyna'
 import { SanaTanlagich } from '@/components/ui/sana-tanlagich'
+import { Tanlagich } from '@/components/ui/tanlagich'
 import { Tasdiq } from '@/components/ui/tasdiq'
 import { useToast } from '@/components/ui/toast'
 import { MuhimlikTanlagich } from '@/components/vazifa/muhimlik-tanlagich'
@@ -57,6 +58,11 @@ export function VazifaOynasi({
   const papkaQiymati = tanlanganPapka || kiruvchi?.id || ''
   const toliq = sarlavha.trim().length > 0 && papkaQiymati.length > 0
   const bajarilmoqda = yaratish.isPending || yangilash.isPending
+
+  // "Loyihalar" papkasida bo'limlar aslida loyihalar — nomlanishi boshqa
+  const tanlanganPapkaLoyihalarmi = Boolean(
+    papkalar?.find((p) => p.id === papkaQiymati)?.is_projects
+  )
 
   const { data: bolimlar } = useBolimlar(subtaskmi ? undefined : papkaQiymati)
 
@@ -175,42 +181,41 @@ export function VazifaOynasi({
           </fieldset>
 
           {!subtaskmi && (
-            <label className="mt-5 block">
-              <span className="mb-2 block text-sm font-medium text-text-muted">
-                Papka
-              </span>
-              <select
-                value={papkaQiymati}
-                onChange={(e) => setTanlanganPapka(e.target.value)}
-                className="min-h-touch w-full rounded-xl border border-border-subtle bg-surface px-4 py-3 text-base text-text-strong outline-none focus:border-brand-primary"
-              >
-                {papkalar?.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="mt-5">
+              <p className="mb-2 text-sm font-medium text-text-muted">Papka</p>
+              <Tanlagich
+                ariaLabel="Papka"
+                qiymat={papkaQiymati}
+                onChange={setTanlanganPapka}
+                variantlar={(papkalar ?? []).map((p) => ({
+                  qiymat: p.id,
+                  nom: p.name,
+                  rang: p.color,
+                }))}
+              />
+            </div>
           )}
 
           {!subtaskmi && bolimlar && bolimlar.length > 0 && (
-            <label className="mt-5 block">
-              <span className="mb-2 block text-sm font-medium text-text-muted">
-                Bo‘lim
-              </span>
-              <select
-                value={tanlanganBolim}
-                onChange={(e) => setTanlanganBolim(e.target.value)}
-                className="min-h-touch w-full rounded-xl border border-border-subtle bg-surface px-4 py-3 text-base text-text-strong outline-none focus:border-brand-primary"
-              >
-                <option value="">Bo‘limsiz</option>
-                {bolimlar.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="mt-5">
+              <p className="mb-2 text-sm font-medium text-text-muted">
+                {tanlanganPapkaLoyihalarmi ? 'Loyiha' : 'Bo‘lim'}
+              </p>
+              <Tanlagich
+                ariaLabel={tanlanganPapkaLoyihalarmi ? 'Loyiha' : 'Bo‘lim'}
+                qiymat={tanlanganBolim}
+                onChange={setTanlanganBolim}
+                variantlar={[
+                  {
+                    qiymat: '',
+                    nom: tanlanganPapkaLoyihalarmi
+                      ? 'Loyihasiz'
+                      : 'Bo‘limsiz',
+                  },
+                  ...bolimlar.map((b) => ({ qiymat: b.id, nom: b.name })),
+                ]}
+              />
+            </div>
           )}
 
           <div className="mt-7 flex items-center gap-3">

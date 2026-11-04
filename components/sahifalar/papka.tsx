@@ -82,6 +82,8 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
     saralash(otalar.filter((v) => v.section_id === bolim.id))
 
   const Ikonka = papkaIkonkasi(papka?.icon ?? null, papka?.is_inbox)
+  /** Loyihalar papkasida "bo'lim" aslida loyiha — nomlanishi boshqa */
+  const loyihalarmi = Boolean(papka?.is_projects)
 
   function qator(v: Task) {
     return (
@@ -183,7 +185,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
                   </button>
 
                   {/* Kiruvchi papkani arxivlash va o'chirish mumkin emas */}
-                  {!papka.is_inbox && (
+                  {!papka.is_inbox && !papka.is_projects && (
                     <>
                       <button
                         type="button"
@@ -234,6 +236,12 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
                   sarlavha="Kiruvchi bo‘sh"
                   matn="Hali vazifa yo‘q — + tugmasini bosing."
                 />
+              ) : loyihalarmi ? (
+                <BoshHolat
+                  ikonka={ListChecks}
+                  sarlavha="Hali loyiha yo‘q"
+                  matn="Har bir loyihangiz shu papka ichida alohida bo‘lim bo‘ladi. Pastdagi “Loyiha qo‘shish” tugmasidan boshlang."
+                />
               ) : (
                 <BoshHolat
                   ikonka={ListChecks}
@@ -252,6 +260,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
               papkaId={papkaId}
               vazifalar={bolimBoyicha(bolim)}
               qator={qator}
+              loyihami={loyihalarmi}
             />
           ))}
 
@@ -273,7 +282,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
                     setYangiBolim(false)
                   }
                 }}
-                placeholder="Bo‘lim nomi"
+                placeholder={loyihalarmi ? 'Loyiha nomi' : 'Bo‘lim nomi'}
                 maxLength={120}
                 autoFocus
                 className="min-h-touch w-full bg-transparent px-2 text-base font-semibold text-text-strong outline-none placeholder:font-normal placeholder:text-text-faint"
@@ -305,7 +314,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
               className="mt-2 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-text-faint transition hover:bg-surface-muted hover:text-brand-primary"
             >
               <Plus className="size-4" aria-hidden />
-              Bo‘lim qo‘shish
+              {loyihalarmi ? 'Loyiha qo‘shish' : 'Bo‘lim qo‘shish'}
             </button>
           )}
         </>
@@ -331,16 +340,27 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
 // -------------------------------------------------------------
 // Bo'lim bloki
 // -------------------------------------------------------------
+
+/** Foiz bo'yicha rang — Hisobot sahifasidagi bilan bir xil shkala */
+function foizRangi(foiz: number): string {
+  if (foiz >= 80) return '#00bc55'
+  if (foiz >= 40) return '#d97706'
+  return '#dc2626'
+}
+
 function BolimBloki({
   bolim,
   papkaId,
   vazifalar,
   qator,
+  loyihami = false,
 }: {
   bolim: Section
   papkaId: string
   vazifalar: Task[]
   qator: (v: Task) => React.ReactNode
+  /** Loyihalar papkasida bo'lim = loyiha; progress ko'rsatiladi */
+  loyihami?: boolean
 }) {
   const yangilash = useBolimYangilash(papkaId)
   const ochirish = useBolimOchirish(papkaId)
@@ -353,6 +373,9 @@ function BolimBloki({
 
   const yopiq = bolim.is_collapsed
   const ochiqSoni = vazifalar.filter((v) => v.status !== 'done').length
+  const jami = vazifalar.length
+  const bajarilgan = jami - ochiqSoni
+  const foiz = jami === 0 ? 0 : Math.round((bajarilgan / jami) * 100)
 
   async function nomniSaqla() {
     const tozalangan = nom.trim()
@@ -412,6 +435,16 @@ function BolimBloki({
           </h2>
         )}
 
+        {/* Loyiha bajarilish darajasi — sarlavha yonida */}
+        {loyihami && jami > 0 && (
+          <span
+            className="shrink-0 text-xs font-semibold"
+            style={{ color: foizRangi(foiz) }}
+          >
+            {foiz}%
+          </span>
+        )}
+
         <div className="relative">
           <button
             type="button"
@@ -459,6 +492,23 @@ function BolimBloki({
         </div>
       </div>
 
+      {/* Loyiha progressi — Zeygarnik: qolgan ishlar soni ta'kidlanadi */}
+      {loyihami && jami > 0 && (
+        <div className="mb-3 px-1">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-sunken">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{ width: `${foiz}%`, backgroundColor: foizRangi(foiz) }}
+            />
+          </div>
+          <p className="mt-1 text-xs text-text-faint">
+            {ochiqSoni === 0
+              ? `Tugallandi — ${jami} ta ishning hammasi bajarildi`
+              : `${bajarilgan}/${jami} ta bajarildi · yana ${ochiqSoni} ta qoldi`}
+          </p>
+        </div>
+      )}
+
       {!yopiq && (
         <>
           {vazifalar.length > 0 && (
@@ -470,8 +520,8 @@ function BolimBloki({
 
       {ochirishOchiq && (
         <Tasdiq
-          sarlavha="Bo‘limni o‘chirish"
-          matn={`"${bolim.name}" bo‘limi va undagi ${vazifalar.length} ta vazifa o‘chadi. Buni qaytarib bo‘lmaydi.`}
+          sarlavha={loyihami ? 'Loyihani o‘chirish' : 'Bo‘limni o‘chirish'}
+          matn={`"${bolim.name}" ${loyihami ? 'loyihasi' : 'bo‘limi'} va undagi ${vazifalar.length} ta vazifa o‘chadi. Buni qaytarib bo‘lmaydi.`}
           tasdiqla={async () => {
             try {
               await ochirish.mutateAsync(bolim.id)

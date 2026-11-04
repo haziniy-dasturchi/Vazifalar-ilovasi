@@ -32,3 +32,28 @@ export function useHisobotVazifalari(boshlanish: string, tugash: string) {
     },
   })
 }
+
+/**
+ * Bitta papkadagi BARCHA vazifalar — sana filtrisiz.
+ *
+ * Loyihalar holati uchun kerak: loyiha bu uzluksiz ish, uning umumiy
+ * tugallanganlik darajasi (boshidan oxirigacha) muhim, bir hafta yoki
+ * bir oylik kesim emas.
+ */
+export function usePapkaningBarchaVazifalari(papkaId: string | undefined) {
+  const supabase = useSupabase()
+
+  return useQuery({
+    queryKey: kalit.papkaVazifalari(papkaId ?? ''),
+    enabled: Boolean(papkaId),
+    queryFn: async (): Promise<Task[]> => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('folder_id', papkaId!)
+
+      if (error) throw error
+      return (data ?? []) as Task[]
+    },
+  })
+}

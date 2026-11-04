@@ -5,10 +5,12 @@ import { addDays } from 'date-fns'
 import { Moon } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
 import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
+import { Tanlagich } from '@/components/ui/tanlagich'
 import { useToast } from '@/components/ui/toast'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
 import { useErtangiVazifalar, useVazifaYaratish } from '@/lib/queries/vazifalar'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
+import { useBolimNomlari } from '@/lib/queries/bolimlar'
 import { isoGa, toliqSana } from '@/lib/sana'
 import { iyerarxiya, saralash, subtasklar } from '@/lib/vazifa-yordam'
 import type { Folder, Task } from '@/types/vazifalar'
@@ -22,6 +24,7 @@ export function KechkiRejaKorinishi() {
 
   const { data, isPending, isError, refetch } = useErtangiVazifalar()
   const { data: papkalar } = useFaolPapkalar()
+  const bolimNomlari = useBolimNomlari()
   const papkaMap = new Map(papkalar?.map((p) => [p.id, p]))
 
   const { otalar, bolalar } = iyerarxiya(data ?? [])
@@ -36,6 +39,7 @@ export function KechkiRejaKorinishi() {
         subtasklar={subtasklar(bolalar, v.id)}
         papkaNomi={papka?.name}
         papkaRangi={papka?.color}
+        bolimNomi={v.section_id ? bolimNomlari.get(v.section_id) : undefined}
       />
     )
   }
@@ -136,18 +140,18 @@ function ErtangaQoshish({
       />
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <select
-          value={papkaQiymati}
-          onChange={(e) => setTanlanganPapka(e.target.value)}
-          aria-label="Papka"
-          className="min-h-touch flex-1 rounded-xl border border-border-subtle bg-surface px-3 text-sm text-text-strong outline-none focus:border-brand-primary"
-        >
-          {papkalar?.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <div className="min-w-40 flex-1">
+          <Tanlagich
+            ariaLabel="Papka"
+            qiymat={papkaQiymati}
+            onChange={setTanlanganPapka}
+            variantlar={(papkalar ?? []).map((p) => ({
+              qiymat: p.id,
+              nom: p.name,
+              rang: p.color,
+            }))}
+          />
+        </div>
 
         <input
           type="time"

@@ -78,6 +78,7 @@ export function usePapkaYaratish() {
         icon: yangi.icon,
         sort_order: 999,
         is_inbox: false,
+        is_projects: false,
         is_archived: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

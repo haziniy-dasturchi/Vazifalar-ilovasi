@@ -34,11 +34,14 @@ export function VazifaQatori({
   subtasklar = [],
   papkaNomi,
   papkaRangi,
+  bolimNomi,
 }: {
   vazifa: Task
   subtasklar?: Task[]
   papkaNomi?: string
   papkaRangi?: string
+  /** Papka ichidagi bo'lim (Loyihalar papkasida — loyiha nomi) */
+  bolimNomi?: string
 }) {
   const holat = useVazifaHolati()
   const { korsat } = useToast()
@@ -156,6 +159,14 @@ export function VazifaQatori({
                   aria-hidden
                 />
                 {papkaNomi}
+                {bolimNomi && (
+                  <>
+                    <ChevronRight className="size-3 opacity-60" aria-hidden />
+                    <span className="font-medium text-text-strong">
+                      {bolimNomi}
+                    </span>
+                  </>
+                )}
               </span>
             )}
 

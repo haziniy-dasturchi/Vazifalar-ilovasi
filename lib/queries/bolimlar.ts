@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/lib/supabase/use-supabase'
@@ -31,6 +32,41 @@ export function useBolimlar(papkaId: string | undefined) {
     enabled: Boolean(papkaId),
     queryFn: () => bolimlarSorovi(supabase, papkaId!),
   })
+}
+
+/**
+ * Foydalanuvchining BARCHA bo'limlari (RLS o'zinikini filtrlaydi).
+ * Vazifa qatorida "qaysi loyihaga tegishli" degan belgini har qanday
+ * sahifada ko'rsatish uchun kerak — aks holda har bir papka uchun
+ * alohida so'rov yuborishga to'g'ri kelardi.
+ */
+export function useBarchaBolimlar() {
+  const supabase = useSupabase()
+
+  return useQuery({
+    queryKey: kalit.barchaBolimlar,
+    queryFn: async (): Promise<Section[]> => {
+      const { data, error } = await supabase
+        .from('sections')
+        .select('*')
+        .order('sort_order', { ascending: true })
+
+      if (error) throw error
+      return data ?? []
+    },
+  })
+}
+
+/**
+ * Bo'lim id -> nomi xaritasi. Vazifa ro'yxatlarida har bir vazifa
+ * qaysi loyihaga (bo'limga) tegishli ekanini ko'rsatish uchun.
+ */
+export function useBolimNomlari(): Map<string, string> {
+  const { data } = useBarchaBolimlar()
+  return useMemo(
+    () => new Map((data ?? []).map((b) => [b.id, b.name])),
+    [data]
+  )
 }
 
 /** Papka havolasi bosilganda (navigatsiyadan oldin) bo'limlarini yuklab qo'yish */
@@ -99,7 +135,7 @@ export function useBolimYaratish(papkaId: string) {
     },
 
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: kalit.bolimlar(papkaId) })
+      qc.invalidateQueries({ queryKey: kalit.bolimlarPrefiks })
     },
   })
 }
@@ -140,7 +176,7 @@ export function useBolimYangilash(papkaId: string) {
     },
 
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: kalit.bolimlar(papkaId) })
+      qc.invalidateQueries({ queryKey: kalit.bolimlarPrefiks })
     },
   })
 }
@@ -172,7 +208,7 @@ export function useBolimOchirish(papkaId: string) {
     },
 
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: kalit.bolimlar(papkaId) })
+      qc.invalidateQueries({ queryKey: kalit.bolimlarPrefiks })
       qc.invalidateQueries({ queryKey: kalit.vazifalar })
     },
   })

@@ -6,11 +6,13 @@ import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
 import { useJarayondagiVazifalar } from '@/lib/queries/vazifalar'
 import { usePapkalar } from '@/lib/queries/papkalar'
+import { useBolimNomlari } from '@/lib/queries/bolimlar'
 import { iyerarxiya, subtasklar } from '@/lib/vazifa-yordam'
 
 export function JarayondaKorinishi() {
   const { data, isPending, isError, refetch } = useJarayondagiVazifalar()
   const { data: papkalar } = usePapkalar()
+  const bolimNomlari = useBolimNomlari()
   const papkaMap = new Map(papkalar?.map((p) => [p.id, p]))
 
   const { otalar, bolalar } = iyerarxiya(data ?? [])
@@ -45,6 +47,9 @@ export function JarayondaKorinishi() {
                 subtasklar={subtasklar(bolalar, v.id)}
                 papkaNomi={papka?.name}
                 papkaRangi={papka?.color}
+                bolimNomi={
+                  v.section_id ? bolimNomlari.get(v.section_id) : undefined
+                }
               />
             )
           })}

@@ -8,12 +8,14 @@ import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
 import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
 import { useBugungiVazifalar } from '@/lib/queries/vazifalar'
 import { usePapkalar } from '@/lib/queries/papkalar'
+import { useBolimNomlari } from '@/lib/queries/bolimlar'
 import { bugunISO, sarlavhaSana } from '@/lib/sana'
 import { iyerarxiya, saralash, subtasklar } from '@/lib/vazifa-yordam'
 
 export function BugunKorinishi() {
   const { data, isPending, isError, refetch } = useBugungiVazifalar()
   const { data: papkalar } = usePapkalar()
+  const bolimNomlari = useBolimNomlari()
   const [qoshishOchiq, setQoshishOchiq] = useState(false)
 
   const papkaMap = new Map(papkalar?.map((p) => [p.id, p]))
@@ -43,6 +45,7 @@ export function BugunKorinishi() {
         subtasklar={subtasklar(bolalar, v.id)}
         papkaNomi={papka?.name}
         papkaRangi={papka?.color}
+        bolimNomi={v.section_id ? bolimNomlari.get(v.section_id) : undefined}
       />
     )
   }
