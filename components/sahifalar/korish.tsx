@@ -8,51 +8,81 @@ import {
   CircleCheck,
   Clock,
   Moon,
+  Play,
   Plus,
   TriangleAlert,
 } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
 import { Yuklanmoqda } from '@/components/ui/holatlar'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
-import { useBugungiVazifalar } from '@/lib/queries/vazifalar'
+import {
+  useBugungiVazifalar,
+  useJarayondagiVazifalar,
+} from '@/lib/queries/vazifalar'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
 import { bugunISO, sarlavhaSana } from '@/lib/sana'
+import { iyerarxiya } from '@/lib/vazifa-yordam'
 
 export function KorishKorinishi() {
   const { data, isPending } = useBugungiVazifalar()
+  const { data: jarayondaData, isPending: jarayondaYuklanmoqda } =
+    useJarayondagiVazifalar()
   const { data: papkalar } = useFaolPapkalar()
   const [papkaOchiq, setPapkaOchiq] = useState(false)
 
   const bugun = bugunISO()
   const vazifalar = data ?? []
+
+  // "Jarayonda" sahifasi bilan bir xil sanaladi (iyerarxiya bo'yicha),
+  // aks holda ikki joyda ikki xil son chiqib, ishonchni yo'qotardi.
+  const { otalar: jarayondagilar } = iyerarxiya(jarayondaData ?? [])
+  const jarayonda = jarayondagilar.length
+
   const bajarilgan = vazifalar.filter((v) => v.status === 'done').length
+  // Boshlanganlar alohida kartada sanaladi — bu yerda faqat hali
+  // boshlanmaganlar ('planned'), shunda sonlar takrorlanmaydi.
   const kechikkan = vazifalar.filter(
-    (v) => v.status !== 'done' && v.due_date !== null && v.due_date < bugun
+    (v) => v.status === 'planned' && v.due_date !== null && v.due_date < bugun
   ).length
   const qolgan = vazifalar.filter(
-    (v) => v.status !== 'done' && v.due_date === bugun
+    (v) => v.status === 'planned' && v.due_date === bugun
   ).length
 
   return (
     <Sahifa sarlavha="Ko‘rish" tavsif={sarlavhaSana()}>
-      {isPending ? (
+      {isPending || jarayondaYuklanmoqda ? (
         <Yuklanmoqda qator={2} />
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <Karta
+              ikonka={Play}
+              son={jarayonda}
+              matn="jarayonda"
+              rang="#d97706"
+              href="/jarayonda"
+            />
             <Karta
               ikonka={CircleCheck}
               son={bajarilgan}
               matn="bajarildi"
-              rang="#00bc55"
+              rang="#10b981"
+              href="/bugun"
             />
-            <Karta ikonka={Clock} son={qolgan} matn="qoldi" rang="#003933" />
+            <Karta
+              ikonka={Clock}
+              son={qolgan}
+              matn="qoldi"
+              rang="#0b3d2e"
+              href="/bugun"
+            />
             <Karta
               ikonka={TriangleAlert}
               son={kechikkan}
               matn="kechikkan"
               rang="#dc2626"
+              href="/bugun"
             />
           </div>
 
@@ -131,17 +161,37 @@ function Karta({
   son,
   matn,
   rang,
+  href,
 }: {
   ikonka: typeof CircleCheck
   son: number
   matn: string
   rang: string
+  /** Berilsa, karta bosiladigan bo'ladi va shu bo'limga olib boradi */
+  href?: string
 }) {
-  return (
-    <div className="rounded-2xl bg-surface p-4 text-center shadow-card">
+  const ichi = (
+    <>
       <Ikonka className="mx-auto size-5" style={{ color: rang }} aria-hidden />
       <p className="mt-2 text-2xl font-bold text-text-strong">{son}</p>
       <p className="text-xs text-text-muted">{matn}</p>
+    </>
+  )
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="rounded-2xl bg-surface p-4 text-center shadow-card transition hover:bg-surface-muted"
+      >
+        {ichi}
+      </Link>
+    )
+  }
+
+  return (
+    <div className="rounded-2xl bg-surface p-4 text-center shadow-card">
+      {ichi}
     </div>
   )
 }

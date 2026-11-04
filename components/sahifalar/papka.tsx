@@ -346,7 +346,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
 
 /** Foiz bo'yicha rang — Hisobot sahifasidagi bilan bir xil shkala */
 function foizRangi(foiz: number): string {
-  if (foiz >= 80) return '#00bc55'
+  if (foiz >= 80) return '#10b981'
   if (foiz >= 40) return '#d97706'
   return '#dc2626'
 }

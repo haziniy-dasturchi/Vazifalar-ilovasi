@@ -72,7 +72,7 @@ type KartaTuri = 'bajarildi' | 'qoldi' | 'kechikkan'
 
 /** Foiz bo'yicha rang — 80%+ yashil, 40-79% sariq, 40% dan past qizil */
 function holatRangi(foiz: number): string {
-  if (foiz >= 80) return '#00bc55'
+  if (foiz >= 80) return '#10b981'
   if (foiz >= 40) return '#d97706'
   return '#dc2626'
 }
@@ -281,7 +281,7 @@ export function HisobotKorinishi() {
               ikonka={CircleCheck}
               son={bajarilganlar.length}
               matn="bajarildi"
-              rang="#00bc55"
+              rang="#10b981"
               faol={ochiqKarta === 'bajarildi'}
               bosilganda={() => qolToggle('bajarildi')}
             />
@@ -289,7 +289,7 @@ export function HisobotKorinishi() {
               ikonka={Clock}
               son={qolganlar.length}
               matn="qoldi"
-              rang="#003933"
+              rang="#0b3d2e"
               faol={ochiqKarta === 'qoldi'}
               bosilganda={() => qolToggle('qoldi')}
             />
