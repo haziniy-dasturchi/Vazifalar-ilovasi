@@ -15,6 +15,7 @@ import { Sahifa } from '@/components/app/sahifa'
 import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
 import {
+  useFoizJurnali,
   useHisobotVazifalari,
   usePapkaningBarchaVazifalari,
 } from '@/lib/queries/hisobot'
@@ -326,6 +327,8 @@ export function HisobotKorinishi() {
             />
           )}
 
+          <FoizTarixi boshlanish={boshlanish} tugash={tugash} />
+
           {/* Papkalar bo'yicha holat — eng past foizlar birinchi */}
           <section className="mt-7">
             <h2 className="mb-2 px-1 text-sm font-semibold text-text-muted">
@@ -591,6 +594,57 @@ function LoyihalarHolati({
           Loyihalar papkasini ochish
         </Link>
       )}
+    </section>
+  )
+}
+
+/**
+ * Davr ichida foizi oshgan vazifalar.
+ *
+ * Bir kunda tugamaydigan ishlar uchun muhim: vazifa keyin ertangi
+ * kunga ko'chirilsa ham, bugun qilingan ish shu yerda ko'rinib turadi.
+ */
+function FoizTarixi({
+  boshlanish,
+  tugash,
+}: {
+  boshlanish: string
+  tugash: string
+}) {
+  const { data, isPending } = useFoizJurnali(boshlanish, tugash)
+
+  if (isPending || !data || data.length === 0) return null
+
+  const jami = data.reduce((s, y) => s + y.osish, 0)
+
+  return (
+    <section className="mt-7">
+      <h2 className="mb-2 flex items-center gap-2 px-1 text-sm font-semibold text-text-muted">
+        Qisman bajarilgan ishlar
+        <span className="font-normal text-text-faint">+{jami}%</span>
+      </h2>
+
+      <ul className="overflow-hidden rounded-2xl bg-surface shadow-card">
+        {data.map((y) => (
+          <li
+            key={y.task_id}
+            className="flex items-center gap-3 border-b border-border-subtle px-4 py-3 last:border-0"
+          >
+            <span className="min-w-0 flex-1 truncate text-sm text-text-strong">
+              {y.sarlavha}
+            </span>
+            <div className="h-1.5 w-24 shrink-0 overflow-hidden rounded-full bg-surface-sunken">
+              <div
+                className="h-full rounded-full bg-brand-accent"
+                style={{ width: `${Math.min(y.osish, 100)}%` }}
+              />
+            </div>
+            <span className="w-12 shrink-0 text-right text-sm font-semibold text-brand-primary">
+              +{y.osish}%
+            </span>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

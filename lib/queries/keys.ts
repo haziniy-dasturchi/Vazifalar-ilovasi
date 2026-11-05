@@ -16,4 +16,6 @@ export const kalit = {
   ertangi: () => ['vazifalar', 'ertangi'] as const,
   hisobot: (boshlanish: string, tugash: string) =>
     ['vazifalar', 'hisobot', boshlanish, tugash] as const,
+  foizJurnali: (boshlanish: string, tugash: string) =>
+    ['vazifalar', 'foiz-jurnali', boshlanish, tugash] as const,
 }

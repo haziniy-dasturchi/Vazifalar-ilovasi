@@ -8,6 +8,7 @@ import { Tanlagich } from '@/components/ui/tanlagich'
 import { Tasdiq } from '@/components/ui/tasdiq'
 import { useToast } from '@/components/ui/toast'
 import { MuhimlikTanlagich } from '@/components/vazifa/muhimlik-tanlagich'
+import { FoizTanlagich } from '@/components/vazifa/foiz-tanlagich'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { useBolimlar } from '@/lib/queries/bolimlar'
 import {
@@ -53,6 +54,7 @@ export function VazifaOynasi({
     vazifa?.recurrence ?? null
   )
   const [muhimlik, setMuhimlik] = useState<TaskPriority>(vazifa?.priority ?? 4)
+  const [foiz, setFoiz] = useState<number>(vazifa?.progress ?? 0)
   const [ochirishOchiq, setOchirishOchiq] = useState(false)
 
   const papkaQiymati = tanlanganPapka || kiruvchi?.id || ''
@@ -100,6 +102,7 @@ export function VazifaOynasi({
           due_time: vaqt,
           recurrence: takrorlanish,
           priority: muhimlik,
+          progress: foiz,
           // Subtask doim ota-vazifa papkasida va bo'limsiz qoladi
           ...(subtaskmi
             ? {}
@@ -115,6 +118,7 @@ export function VazifaOynasi({
           due_time: vaqt,
           recurrence: takrorlanish,
           priority: muhimlik,
+          progress: foiz,
         })
         korsat({ matn: 'Vazifa qo‘shildi', tone: 'muvaffaqiyat' })
       }
@@ -178,6 +182,15 @@ export function VazifaOynasi({
               Muhimlik
             </legend>
             <MuhimlikTanlagich qiymat={muhimlik} onChange={setMuhimlik} />
+          </fieldset>
+
+          {/* Foiz — ixtiyoriy. Bir kunda tugamaydigan ishlar uchun:
+              bugun 50% qilib, qolganini ertaga davom ettirish mumkin. */}
+          <fieldset className="mt-5">
+            <legend className="mb-2 text-sm font-medium text-text-muted">
+              Bajarildi
+            </legend>
+            <FoizTanlagich qiymat={foiz} onChange={setFoiz} />
           </fieldset>
 
           {!subtaskmi && (

@@ -11,6 +11,7 @@ import {
 import { useVazifaHolati } from '@/lib/queries/vazifalar'
 import { useToast } from '@/components/ui/toast'
 import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
+import { SuvDoira } from '@/components/vazifa/foiz-tanlagich'
 import { MUHIMLIK_NOMI, MUHIMLIK_RANGI } from '@/lib/papka-stillari'
 import {
   kechikishMatni,
@@ -49,6 +50,7 @@ export function VazifaQatori({
   const [tahrirOchiq, setTahrirOchiq] = useState(false)
 
   const bajarilgan = vazifa.status === 'done'
+  const foiz = vazifa.progress ?? 0
   const jarayonda = vazifa.status === 'in_progress'
   const kechikkan = !bajarilgan && kechikkanmi(vazifa.due_date)
   const ochiqSubtask = subtasklar.filter((s) => s.status !== 'done').length
@@ -76,27 +78,27 @@ export function VazifaQatori({
             : 'bg-surface shadow-card'
         } ${bajarilgan ? 'opacity-55' : ''}`}
       >
-        {/* Belgilash doirasi — rangi muhimlikdan */}
+        {/* Belgilash doirasi — chegarasi muhimlik rangida, ichi esa
+            bajarilgan foizga qarab "suv" bilan to'ladi */}
         <button
           type="button"
           onClick={() => harakat(bajarilgan ? 'qaytarish' : 'bajarish')}
-          aria-label={bajarilgan ? 'Rejaga qaytarish' : 'Bajarildi'}
+          aria-label={
+            bajarilgan
+              ? 'Rejaga qaytarish'
+              : foiz > 0
+                ? `Bajarildi (hozir ${foiz}%)`
+                : 'Bajarildi'
+          }
           title={MUHIMLIK_NOMI[vazifa.priority]}
           className="mt-0.5 flex size-11 min-h-0 shrink-0 items-center justify-center rounded-full"
         >
-          <span
-            className={`flex size-6 items-center justify-center rounded-full border-2 transition ${
-              bajarilgan ? 'text-white' : 'text-transparent'
-            }`}
-            style={{
-              borderColor: MUHIMLIK_RANGI[vazifa.priority],
-              backgroundColor: bajarilgan
-                ? MUHIMLIK_RANGI[vazifa.priority]
-                : 'transparent',
-            }}
-          >
-            <Check className="size-4" strokeWidth={3} aria-hidden />
-          </span>
+          <SuvDoira
+            foiz={foiz}
+            bajarilgan={bajarilgan}
+            chegaraRangi={MUHIMLIK_RANGI[vazifa.priority]}
+            olcham="kichik"
+          />
         </button>
 
         <div

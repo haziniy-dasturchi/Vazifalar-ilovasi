@@ -390,8 +390,10 @@ function SanaPaneli({
           </div>
         )}
 
-        {/* Takrorlanish — xuddi shu naqshda */}
-        {sana && (
+        {/* Takrorlanish — sana tanlanmagan bo'lsa ham doim ko'rinadi.
+            Todoist'dagi kabi: takrorlanish tanlansa va sana bo'lmasa,
+            boshlanish sanasi avtomatik bugundan qo'yiladi. */}
+        {(
           <div className="border-t border-border-subtle py-1">
             <button
               type="button"
@@ -433,7 +435,12 @@ function SanaPaneli({
                     <button
                       key={t.nom}
                       type="button"
-                      onClick={() => onTakrorlanishChange(t.qiymat)}
+                      onClick={() => {
+                        // Takrorlanish boshlanish sanasisiz ma'nosiz —
+                        // sana tanlanmagan bo'lsa bugundan boshlaymiz
+                        if (t.qiymat && !sana) onSanaChange(isoGa(new Date()))
+                        onTakrorlanishChange(t.qiymat)
+                      }}
                       aria-pressed={tanlangan}
                       className={`min-h-0 rounded-full border px-2.5 py-1 text-xs font-medium transition ${
                         tanlangan

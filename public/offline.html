@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Internet yo‘q · Samara</title>
+    <style>
+      :root {
+        --qorong: #0b3d2e;
+        --zumrad: #10b981;
+        --och: #ecfdf5;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        text-align: center;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        background: #f6f8f7;
+        color: var(--qorong);
+      }
+      .belgi {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 20px;
+        border-radius: 20px;
+        background: var(--och);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      h1 { margin: 0 0 10px; font-size: 20px; }
+      p { margin: 0; font-size: 15px; line-height: 1.6; color: #4b5563; max-width: 22rem; }
+      button {
+        margin-top: 24px;
+        min-height: 44px;
+        padding: 0 24px;
+        border: 0;
+        border-radius: 12px;
+        background: var(--qorong);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="belgi">
+        <svg width="34" height="34" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="58" r="36" fill="#10B981" />
+          <path
+            d="M33 58 L45 70 L67 46"
+            fill="none"
+            stroke="#fff"
+            stroke-width="8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <h1>Internet aloqasi yo‘q</h1>
+      <p>
+        Ilovaning saqlangan nusxasi ochilmadi. Aloqa tiklanganda qayta
+        urinib ko‘ring — yozgan ishlaringiz saqlanib qoladi.
+      </p>
+      <button onclick="location.reload()">Qayta urinish</button>
+    </main>
+  </body>
+</html>

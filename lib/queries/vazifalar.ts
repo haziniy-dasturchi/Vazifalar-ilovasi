@@ -258,6 +258,8 @@ export type YangiVazifa = {
   due_time?: string | null
   recurrence?: Recurrence | null
   priority?: 1 | 2 | 3 | 4
+  /** 0, 10 ... 100. 100 berilsa baza triggeri vazifani "done" qiladi */
+  progress?: number
 }
 
 export function useVazifaYaratish() {
@@ -279,6 +281,7 @@ export function useVazifaYaratish() {
           due_time: yangi.due_time ?? null,
           recurrence: yangi.recurrence ?? null,
           priority: yangi.priority ?? 4,
+          progress: yangi.progress ?? 0,
         })
         .select()
         .single()
@@ -300,6 +303,7 @@ export function useVazifaYaratish() {
         title: yangi.title.trim(),
         description: null,
         status: 'planned',
+        progress: yangi.progress ?? 0,
         priority: yangi.priority ?? 4,
         due_date: yangi.due_date ?? null,
         due_time: yangi.due_time ?? null,
@@ -337,6 +341,7 @@ type VazifaOzgarishi = Partial<
     | 'title'
     | 'description'
     | 'priority'
+    | 'progress'
     | 'due_date'
     | 'due_time'
     | 'deadline'
@@ -458,13 +463,17 @@ export function useVazifaHolati() {
       }
       // started_at faqat boshlanganda yoziladi; boshqa holatda tegilmaydi
       if (holat === 'in_progress') ozgarish.started_at = hozir
+      // Foiz bazadagi trigger bilan bir xil yuritiladi, shunda doiradagi
+      // "suv" darhol to'g'ri ko'rinadi va serverdan kelgach sakramaydi
+      if (harakat === 'bajarish') ozgarish.progress = 100
+      if (harakat === 'qaytarish') ozgarish.progress = 0
       keshdaYangila(qc, id, ozgarish)
 
       if (harakat === 'bajarish' && subtasklarBilan) {
         qc.setQueriesData<Task[]>({ queryKey: kalit.vazifalar }, (eski) =>
           eski?.map((v) =>
             v.parent_id === id && v.status !== 'done'
-              ? { ...v, status: 'done', completed_at: hozir }
+              ? { ...v, status: 'done', progress: 100, completed_at: hozir }
               : v
           )
         )

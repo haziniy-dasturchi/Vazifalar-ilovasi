@@ -1,17 +1,3 @@
-/**
- * Vazifalar — baza tiplari
- *
- * Bu fayl `supabase gen types typescript` natijasining aynan shakliga
- * mos qilib yozilgan. Sxemani o'zgartirgandan keyin qayta generatsiya qiling:
- *
- *   supabase gen types typescript --local > types/database.ts
- *   # yoki masofaviy loyihadan:
- *   supabase gen types typescript --project-id <PROJECT_REF> > types/database.ts
- *
- * Ilova uchun qo'shimcha yordamchi tiplar (TaskStatus, ReportResult va h.k.)
- * `types/vazifalar.ts` faylida — u qayta generatsiyada o'chib ketmaydi.
- */
-
 export type Json =
   | string
   | number
@@ -21,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.18"
+  }
   public: {
     Tables: {
       folders: {
@@ -63,15 +54,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "folders_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       labels: {
         Row: {
@@ -98,15 +81,7 @@ export type Database = {
           sort_order?: number
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "labels_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       pomodoro_sessions: {
         Row: {
@@ -146,13 +121,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tasks"
             referencedColumns: ["id", "user_id"]
-          },
-          {
-            foreignKeyName: "pomodoro_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
           },
         ]
       }
@@ -205,15 +173,7 @@ export type Database = {
           theme?: string
           timezone?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       sections: {
         Row: {
@@ -250,13 +210,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "folders"
             referencedColumns: ["id", "user_id"]
-          },
-          {
-            foreignKeyName: "sections_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
           },
         ]
       }
@@ -300,13 +253,6 @@ export type Database = {
             referencedRelation: "tasks"
             referencedColumns: ["id", "user_id"]
           },
-          {
-            foreignKeyName: "task_events_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
         ]
       }
       task_labels: {
@@ -343,11 +289,39 @@ export type Database = {
             referencedRelation: "tasks"
             referencedColumns: ["id", "user_id"]
           },
+        ]
+      }
+      task_progress_log: {
+        Row: {
+          created_at: string
+          id: string
+          oldingi: number
+          task_id: string
+          user_id: string
+          yangi: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          oldingi: number
+          task_id: string
+          user_id: string
+          yangi: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          oldingi?: number
+          task_id?: string
+          user_id?: string
+          yangi?: number
+        }
+        Relationships: [
           {
-            foreignKeyName: "task_labels_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "task_progress_log_task_id_fkey"
+            columns: ["task_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -364,6 +338,7 @@ export type Database = {
           id: string
           parent_id: string | null
           priority: number
+          progress: number
           recurrence: string | null
           section_id: string | null
           sort_order: number
@@ -384,6 +359,7 @@ export type Database = {
           id?: string
           parent_id?: string | null
           priority?: number
+          progress?: number
           recurrence?: string | null
           section_id?: string | null
           sort_order?: number
@@ -404,6 +380,7 @@ export type Database = {
           id?: string
           parent_id?: string | null
           priority?: number
+          progress?: number
           recurrence?: string | null
           section_id?: string | null
           sort_order?: number
@@ -435,13 +412,6 @@ export type Database = {
             referencedRelation: "sections"
             referencedColumns: ["id", "folder_id"]
           },
-          {
-            foreignKeyName: "tasks_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
         ]
       }
     }
@@ -450,10 +420,7 @@ export type Database = {
     }
     Functions: {
       complete_task: {
-        Args: {
-          task_id: string
-          include_subtasks?: boolean
-        }
+        Args: { include_subtasks?: boolean; task_id: string }
         Returns: {
           completed_at: string | null
           created_at: string
@@ -465,6 +432,7 @@ export type Database = {
           id: string
           parent_id: string | null
           priority: number
+          progress: number
           recurrence: string | null
           section_id: string | null
           sort_order: number
@@ -474,27 +442,27 @@ export type Database = {
           updated_at: string
           user_id: string
         }
+        SetofOptions: {
+          from: "*"
+          to: "tasks"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
+      events_suppressed: { Args: never; Returns: boolean }
       folder_health: {
         Args: {
-          p_open: number
           p_completed: number
-          p_overdue: number
           p_last_activity: string
+          p_open: number
+          p_overdue: number
         }
         Returns: Json
       }
-      get_report: {
-        Args: {
-          p_from: string
-          p_to: string
-        }
-        Returns: Json
-      }
+      get_report: { Args: { p_from: string; p_to: string }; Returns: Json }
+      local_date: { Args: { p_ts: string; p_tz: string }; Returns: string }
       move_back: {
-        Args: {
-          task_id: string
-        }
+        Args: { task_id: string }
         Returns: {
           completed_at: string | null
           created_at: string
@@ -506,6 +474,7 @@ export type Database = {
           id: string
           parent_id: string | null
           priority: number
+          progress: number
           recurrence: string | null
           section_id: string | null
           sort_order: number
@@ -514,20 +483,20 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tasks"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       next_occurrence: {
-        Args: {
-          p_base: string
-          p_recurrence: string
-          p_today: string
-        }
+        Args: { p_base: string; p_recurrence: string; p_today: string }
         Returns: string
       }
       start_task: {
-        Args: {
-          task_id: string
-        }
+        Args: { task_id: string }
         Returns: {
           completed_at: string | null
           created_at: string
@@ -539,6 +508,7 @@ export type Database = {
           id: string
           parent_id: string | null
           priority: number
+          progress: number
           recurrence: string | null
           section_id: string | null
           sort_order: number
@@ -547,12 +517,16 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tasks"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       uncomplete_task: {
-        Args: {
-          task_id: string
-        }
+        Args: { task_id: string }
         Returns: {
           completed_at: string | null
           created_at: string
@@ -564,6 +538,7 @@ export type Database = {
           id: string
           parent_id: string | null
           priority: number
+          progress: number
           recurrence: string | null
           section_id: string | null
           sort_order: number
@@ -573,13 +548,14 @@ export type Database = {
           updated_at: string
           user_id: string
         }
-      }
-      user_timezone: {
-        Args: {
-          p_user_id: string
+        SetofOptions: {
+          from: "*"
+          to: "tasks"
+          isOneToOne: true
+          isSetofReturn: false
         }
-        Returns: string
       }
+      user_timezone: { Args: { p_user_id: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
@@ -590,16 +566,125 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database['public']
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-export type Tables<T extends keyof PublicSchema['Tables']> =
-  PublicSchema['Tables'][T]['Row']
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
-export type TablesInsert<T extends keyof PublicSchema['Tables']> =
-  PublicSchema['Tables'][T]['Insert']
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
 
-export type TablesUpdate<T extends keyof PublicSchema['Tables']> =
-  PublicSchema['Tables'][T]['Update']
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
 
-export type Functions<T extends keyof PublicSchema['Functions']> =
-  PublicSchema['Functions'][T]
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const
