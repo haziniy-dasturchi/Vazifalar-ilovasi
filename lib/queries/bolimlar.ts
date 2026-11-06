@@ -6,6 +6,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { kalit } from './keys'
+import { MUTATSIYA } from './mutatsiya-sozlamalari'
 import type { Database } from '@/types/database'
 import type { Section } from '@/types/vazifalar'
 
@@ -88,26 +89,9 @@ export function useBolimYaratish(papkaId: string) {
   const { id: userId } = useFoydalanuvchi()
 
   return useMutation({
-    mutationFn: async (name: string): Promise<Section> => {
-      const mavjud = qc.getQueryData<Section[]>(kalit.bolimlar(papkaId)) ?? []
-      const tartib = Math.max(0, ...mavjud.map((b) => b.sort_order)) + 1
+    mutationKey: MUTATSIYA.bolimYaratish,
 
-      const { data, error } = await supabase
-        .from('sections')
-        .insert({
-          user_id: userId,
-          folder_id: papkaId,
-          name: name.trim(),
-          sort_order: tartib,
-        })
-        .select()
-        .single()
-
-      if (error) throw error
-      return data
-    },
-
-    onMutate: async (name) => {
+    onMutate: async (name: string) => {
       await qc.cancelQueries({ queryKey: kalit.bolimlar(papkaId) })
       const oldingi = qc.getQueryData<Section[]>(kalit.bolimlar(papkaId))
 
@@ -145,22 +129,12 @@ export function useBolimYangilash(papkaId: string) {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
+    mutationKey: MUTATSIYA.bolimYangilash,
+
+    onMutate: async ({
       id,
       ...ozgarish
     }: { id: string } & Partial<Pick<Section, 'name' | 'is_collapsed' | 'sort_order'>>) => {
-      const { data, error } = await supabase
-        .from('sections')
-        .update(ozgarish)
-        .eq('id', id)
-        .select()
-        .single()
-
-      if (error) throw error
-      return data
-    },
-
-    onMutate: async ({ id, ...ozgarish }) => {
       await qc.cancelQueries({ queryKey: kalit.bolimlar(papkaId) })
       const oldingi = qc.getQueryData<Section[]>(kalit.bolimlar(papkaId))
       qc.setQueryData<Section[]>(kalit.bolimlar(papkaId), (eski) =>
@@ -186,13 +160,9 @@ export function useBolimOchirish(papkaId: string) {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('sections').delete().eq('id', id)
-      if (error) throw error
-      return id
-    },
+    mutationKey: MUTATSIYA.bolimOchirish,
 
-    onMutate: async (id) => {
+    onMutate: async (id: string) => {
       await qc.cancelQueries({ queryKey: kalit.bolimlar(papkaId) })
       const oldingi = qc.getQueryData<Section[]>(kalit.bolimlar(papkaId))
       qc.setQueryData<Section[]>(kalit.bolimlar(papkaId), (eski) =>

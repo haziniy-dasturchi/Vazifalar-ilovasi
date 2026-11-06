@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { onlineManager } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { Check } from 'lucide-react'
 import { Oyna } from '@/components/ui/oyna'
@@ -35,31 +36,42 @@ export function PapkaOynasi({
   const bajarilmoqda = yaratish.isPending || yangilash.isPending
   const nomToliq = nom.trim().length > 0
 
+  /**
+   * Offline'da ham ishlashi uchun natijani KUTMAYMIZ: o'zgarish
+   * keshda darhol ko'rinadi, serverga yuborish esa navbatga tushadi
+   * va aloqa tiklanganda o'zi bajariladi. Aks holda internet yo'q
+   * paytda tugma cheksiz "saqlanmoqda" bo'lib qolardi.
+   */
   async function saqla() {
     if (!nomToliq || bajarilmoqda) return
 
-    try {
-      if (papka) {
-        await yangilash.mutateAsync({
-          id: papka.id,
-          name: nom.trim(),
-          color: rang,
-          icon: ikonka,
-        })
-        korsat({ matn: 'Papka yangilandi', tone: 'muvaffaqiyat' })
-      } else {
-        const yangi = await yaratish.mutateAsync({
-          name: nom.trim(),
-          color: rang,
-          icon: ikonka,
-        })
-        korsat({ matn: 'Papka yaratildi', tone: 'muvaffaqiyat' })
-        router.push(`/papka/${yangi.id}`)
-      }
+    const maydonlar = { name: nom.trim(), color: rang, icon: ikonka }
+
+    if (papka) {
+      yangilash.mutate({ id: papka.id, ...maydonlar })
+      korsat({ matn: 'Papka yangilandi', tone: 'muvaffaqiyat' })
       yop()
-    } catch {
-      korsat({ matn: 'Saqlab bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
+      return
     }
+
+    // Yangi papkaga o'tish uchun uning id'si kerak — bu faqat server
+    // javob berganda ma'lum. Onlayn bo'lsa kutamiz, offline bo'lsa
+    // shunchaki yopamiz: papka ro'yxatda allaqachon ko'rinib turadi.
+    if (onlineManager.isOnline()) {
+      try {
+        const yangi = await yaratish.mutateAsync(maydonlar)
+        korsat({ matn: 'Papka yaratildi', tone: 'muvaffaqiyat' })
+        yop()
+        router.push(`/papka/${yangi.id}`)
+      } catch {
+        korsat({ matn: 'Saqlab bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
+      }
+      return
+    }
+
+    yaratish.mutate(maydonlar)
+    korsat({ matn: 'Papka yaratildi', tone: 'muvaffaqiyat' })
+    yop()
   }
 
   const Oldindan = papkaIkonkasi(ikonka)

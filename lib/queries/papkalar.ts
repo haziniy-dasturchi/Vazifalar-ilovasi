@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { kalit } from './keys'
+import { MUTATSIYA } from './mutatsiya-sozlamalari'
 import type { Folder } from '@/types/vazifalar'
 
 /** Papkalar — Kiruvchi doim birinchi, keyin tartib bo'yicha */
@@ -51,20 +52,10 @@ export function usePapkaYaratish() {
   const qc = useQueryClient()
   const { id: userId } = useFoydalanuvchi()
 
-  return useMutation({
-    mutationFn: async (yangi: YangiPapka): Promise<Folder> => {
-      const mavjud = qc.getQueryData<Folder[]>(kalit.papkalar) ?? []
-      const tartib = Math.max(0, ...mavjud.map((p) => p.sort_order)) + 1
-
-      const { data, error } = await supabase
-        .from('folders')
-        .insert({ ...yangi, user_id: userId, sort_order: tartib })
-        .select()
-        .single()
-
-      if (error) throw error
-      return data
-    },
+  // Generiklar aniq ko'rsatilgan: mutationFn endi markazda (offline
+  // navbat uchun), shuning uchun TS qaytish turini o'zi topa olmaydi
+  return useMutation<Folder, Error, YangiPapka, { oldingi?: Folder[] }>({
+    mutationKey: MUTATSIYA.papkaYaratish,
 
     onMutate: async (yangi) => {
       await qc.cancelQueries({ queryKey: kalit.papkalar })
@@ -105,19 +96,9 @@ export function usePapkaYangilash() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, ...ozgarish }: PapkaOzgarishi & { id: string }) => {
-      const { data, error } = await supabase
-        .from('folders')
-        .update(ozgarish)
-        .eq('id', id)
-        .select()
-        .single()
+    mutationKey: MUTATSIYA.papkaYangilash,
 
-      if (error) throw error
-      return data
-    },
-
-    onMutate: async ({ id, ...ozgarish }) => {
+    onMutate: async ({ id, ...ozgarish }: PapkaOzgarishi & { id: string }) => {
       await qc.cancelQueries({ queryKey: kalit.papkalar })
       const oldingi = qc.getQueryData<Folder[]>(kalit.papkalar)
 
@@ -142,13 +123,9 @@ export function usePapkaOchirish() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('folders').delete().eq('id', id)
-      if (error) throw error
-      return id
-    },
+    mutationKey: MUTATSIYA.papkaOchirish,
 
-    onMutate: async (id) => {
+    onMutate: async (id: string) => {
       await qc.cancelQueries({ queryKey: kalit.papkalar })
       const oldingi = qc.getQueryData<Folder[]>(kalit.papkalar)
       qc.setQueryData<Folder[]>(kalit.papkalar, (eski) =>

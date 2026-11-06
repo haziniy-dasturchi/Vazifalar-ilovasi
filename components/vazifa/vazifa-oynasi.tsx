@@ -91,46 +91,42 @@ export function VazifaOynasi({
     }
   }
 
-  async function saqla() {
+  /**
+   * Natija KUTILMAYDI: o'zgarish keshda darhol ko'rinadi, serverga
+   * yuborish navbatga tushadi. Shu sababli internet yo'q paytda ham
+   * oyna darhol yopiladi va ish yo'qolmaydi.
+   */
+  function saqla() {
     if (!toliq || bajarilmoqda) return
-    try {
-      if (tahrir) {
-        await yangilash.mutateAsync({
-          id: vazifa!.id,
-          title: sarlavha.trim(),
-          due_date: sana,
-          due_time: vaqt,
-          recurrence: takrorlanish,
-          priority: muhimlik,
-          progress: foiz,
-          // Subtask doim ota-vazifa papkasida va bo'limsiz qoladi
-          ...(subtaskmi
-            ? {}
-            : { folder_id: papkaQiymati, section_id: tanlanganBolim || null }),
-        })
-        korsat({ matn: 'Vazifa yangilandi', tone: 'muvaffaqiyat' })
-      } else {
-        await yaratish.mutateAsync({
-          folder_id: papkaQiymati,
-          section_id: tanlanganBolim || null,
-          title: sarlavha,
-          due_date: sana,
-          due_time: vaqt,
-          recurrence: takrorlanish,
-          priority: muhimlik,
-          progress: foiz,
-        })
-        korsat({ matn: 'Vazifa qo‘shildi', tone: 'muvaffaqiyat' })
-      }
-      yop()
-    } catch {
-      korsat({
-        matn: tahrir
-          ? 'Saqlab bo‘lmadi. Qayta urinib ko‘ring.'
-          : 'Qo‘shib bo‘lmadi. Qayta urinib ko‘ring.',
-        tone: 'xato',
+    if (tahrir) {
+      yangilash.mutate({
+        id: vazifa!.id,
+        title: sarlavha.trim(),
+        due_date: sana,
+        due_time: vaqt,
+        recurrence: takrorlanish,
+        priority: muhimlik,
+        progress: foiz,
+        // Subtask doim ota-vazifa papkasida va bo'limsiz qoladi
+        ...(subtaskmi
+          ? {}
+          : { folder_id: papkaQiymati, section_id: tanlanganBolim || null }),
       })
+      korsat({ matn: 'Vazifa yangilandi', tone: 'muvaffaqiyat' })
+    } else {
+      yaratish.mutate({
+        folder_id: papkaQiymati,
+        section_id: tanlanganBolim || null,
+        title: sarlavha,
+        due_date: sana,
+        due_time: vaqt,
+        recurrence: takrorlanish,
+        priority: muhimlik,
+        progress: foiz,
+      })
+      korsat({ matn: 'Vazifa qo‘shildi', tone: 'muvaffaqiyat' })
     }
+    yop()
   }
 
   async function ochirishniTasdiqla() {

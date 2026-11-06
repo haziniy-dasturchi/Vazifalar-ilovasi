@@ -7,19 +7,48 @@
 //   * Supabase API so'rovlari HECH QACHON keshlanmaydi: eski
 //     ma'lumotni yangi deb ko'rsatish xatoga olib keladi
 
-const KESH = 'samara-v1'
+const KESH = 'samara-v2'
 
 /** Internet yo'qligida ko'rsatiladigan zaxira sahifa */
 const ZAXIRA = '/offline.html'
 
-/** O'rnatish paytida darhol keshlanadigan eng zarur fayllar */
-const ASOSIY = [ZAXIRA, '/manifest.webmanifest', '/icons/pwa-192.png']
+/**
+ * O'rnatish paytida darhol keshlanadigan fayllar.
+ *
+ * MUHIM: asosiy sahifalar ham shu yerda. Aks holda ilova offline
+ * ochilganda (PWA start_url = /jarayonda) o'sha sahifa keshda
+ * bo'lmay, zaxira "Internet yo'q" ekrani chiqib qolardi — foydalanuvchi
+ * uchun bu ilova umuman ishlamayapti degani.
+ */
+const ASOSIY = [
+  ZAXIRA,
+  '/manifest.webmanifest',
+  '/icons/pwa-192.png',
+  '/jarayonda',
+  '/bugun',
+  '/kelgusi',
+  '/korish',
+  '/hisobot',
+  '/kechki-reja',
+  '/yoriqnoma',
+  '/arxiv',
+]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(KESH)
-      .then((k) => k.addAll(ASOSIY))
+      .then((k) =>
+        // Bittasi tushmay qolsa ham o'rnatish buzilmasligi uchun
+        // har birini alohida qo'shamiz (addAll "hammasi yoki hech nima")
+        Promise.all(
+          ASOSIY.map((yol) =>
+            fetch(yol, { cache: 'reload' })
+              .then((javob) => (javob.ok ? k.put(yol, javob) : null))
+              .catch(() => null)
+          )
+        )
+      )
       .then(() => self.skipWaiting())
   )
 })

@@ -53,8 +53,8 @@ const TAKRORLANISH_QISQA: Record<Recurrence, string> = {
   monthly: 'Har oy',
 }
 
-const PANEL_KENGLIGI = 304
-const PANEL_BALANDLIGI_TAXMINI = 560
+const PANEL_KENGLIGI = 448
+const PANEL_BALANDLIGI_TAXMINI = 620
 const CHEKKA_BOSHLIG_I = 12
 
 export function SanaTanlagich({
@@ -229,10 +229,11 @@ function SanaPaneli({
       />
       <div
         style={{ top: koord.top, left: koord.left }}
-        className="fixed z-[100] max-h-[70vh] w-[19rem] overflow-y-auto rounded-2xl border border-border-subtle bg-surface p-2 shadow-float"
+        className="fixed z-[100] max-h-[88vh] w-[28rem] max-w-[calc(100vw-1.5rem)] overflow-y-auto rounded-2xl border border-border-subtle bg-surface p-3 shadow-float"
       >
-        {/* Tezkor sana qatorlari — Todoist uslubida, to'liq kenglikda */}
-        <div className="border-b border-border-subtle pb-1">
+        {/* Tezkor sana qatorlari — ikki ustunda, shunda panel past
+            bo'ladi va skroll qilish kerak bo'lmaydi */}
+        <div className="grid grid-cols-2 gap-1 border-b border-border-subtle pb-2">
           {TEZ_QATORLAR.map((q) => {
             const iso = isoGa(q.sana)
             return (

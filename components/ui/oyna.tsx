@@ -73,7 +73,7 @@ export function Oyna({
         aria-label={sarlavha}
         tabIndex={-1}
         className={`relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl bg-surface shadow-float outline-none sm:rounded-3xl ${
-          kenglik === 'keng' ? 'sm:max-w-2xl' : 'sm:max-w-md'
+          kenglik === 'keng' ? 'sm:max-w-3xl' : 'sm:max-w-xl'
         }`}
       >
         {/* Telefonda sudrash uchun chiziqcha */}

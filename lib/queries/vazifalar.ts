@@ -12,6 +12,12 @@ import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { bugunISO, isoGa } from '@/lib/sana'
 import { kalit } from './keys'
+import {
+  MUTATSIYA,
+  type HolatHarakati,
+  type VazifaOzgarishi,
+  type YangiVazifa,
+} from './mutatsiya-sozlamalari'
 import type { Database } from '@/types/database'
 import type { Recurrence, Task } from '@/types/vazifalar'
 
@@ -249,18 +255,7 @@ function vazifalarniYangilash(qc: QueryClient) {
 // O'zgartirishlar
 // =============================================================
 
-export type YangiVazifa = {
-  folder_id: string
-  section_id?: string | null
-  parent_id?: string | null
-  title: string
-  due_date?: string | null
-  due_time?: string | null
-  recurrence?: Recurrence | null
-  priority?: 1 | 2 | 3 | 4
-  /** 0, 10 ... 100. 100 berilsa baza triggeri vazifani "done" qiladi */
-  progress?: number
-}
+export type { YangiVazifa }
 
 export function useVazifaYaratish() {
   const supabase = useSupabase()
@@ -268,29 +263,9 @@ export function useVazifaYaratish() {
   const { id: userId } = useFoydalanuvchi()
 
   return useMutation({
-    mutationFn: async (yangi: YangiVazifa): Promise<Task> => {
-      const { data, error } = await supabase
-        .from('tasks')
-        .insert({
-          user_id: userId,
-          folder_id: yangi.folder_id,
-          section_id: yangi.section_id ?? null,
-          parent_id: yangi.parent_id ?? null,
-          title: yangi.title.trim(),
-          due_date: yangi.due_date ?? null,
-          due_time: yangi.due_time ?? null,
-          recurrence: yangi.recurrence ?? null,
-          priority: yangi.priority ?? 4,
-          progress: yangi.progress ?? 0,
-        })
-        .select()
-        .single()
+    mutationKey: MUTATSIYA.vazifaYaratish,
 
-      if (error) throw error
-      return data as Task
-    },
-
-    onMutate: async (yangi) => {
+    onMutate: async (yangi: YangiVazifa) => {
       await qc.cancelQueries({ queryKey: kalit.vazifalar })
       const nusxa = keshNusxasi(qc)
 
@@ -335,41 +310,15 @@ export function useVazifaYaratish() {
   })
 }
 
-type VazifaOzgarishi = Partial<
-  Pick<
-    Task,
-    | 'title'
-    | 'description'
-    | 'priority'
-    | 'progress'
-    | 'due_date'
-    | 'due_time'
-    | 'deadline'
-    | 'recurrence'
-    | 'folder_id'
-    | 'section_id'
-    | 'sort_order'
-  >
->
 
 export function useVazifaYangilash() {
   const supabase = useSupabase()
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, ...ozgarish }: VazifaOzgarishi & { id: string }) => {
-      const { data, error } = await supabase
-        .from('tasks')
-        .update(ozgarish)
-        .eq('id', id)
-        .select()
-        .single()
+    mutationKey: MUTATSIYA.vazifaYangilash,
 
-      if (error) throw error
-      return data as Task
-    },
-
-    onMutate: async ({ id, ...ozgarish }) => {
+    onMutate: async ({ id, ...ozgarish }: VazifaOzgarishi & { id: string }) => {
       await qc.cancelQueries({ queryKey: kalit.vazifalar })
       const nusxa = keshNusxasi(qc)
       keshdaYangila(qc, id, ozgarish as Partial<Task>)
@@ -386,13 +335,9 @@ export function useVazifaOchirish() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('tasks').delete().eq('id', id)
-      if (error) throw error
-      return id
-    },
+    mutationKey: MUTATSIYA.vazifaOchirish,
 
-    onMutate: async (id) => {
+    onMutate: async (id: string) => {
       await qc.cancelQueries({ queryKey: kalit.vazifalar })
       const nusxa = keshNusxasi(qc)
       keshdanOlib(qc, id)
@@ -408,7 +353,6 @@ export function useVazifaOchirish() {
 // Holat o'zgarishlari — barchasi RPC orqali
 // -------------------------------------------------------------
 
-type HolatHarakati = 'boshlash' | 'rejaga' | 'bajarish' | 'qaytarish'
 
 const RPC_NOMI: Record<HolatHarakati, 'start_task' | 'move_back' | 'complete_task' | 'uncomplete_task'> = {
   boshlash: 'start_task',
@@ -430,28 +374,17 @@ export function useVazifaHolati() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
+    mutationKey: MUTATSIYA.vazifaHolati,
+
+    onMutate: async ({
       id,
       harakat,
-      subtasklarBilan = false,
+      subtasklarBilan,
     }: {
       id: string
       harakat: HolatHarakati
       subtasklarBilan?: boolean
-    }): Promise<Task> => {
-      const { data, error } =
-        harakat === 'bajarish'
-          ? await supabase.rpc('complete_task', {
-              task_id: id,
-              include_subtasks: subtasklarBilan,
-            })
-          : await supabase.rpc(RPC_NOMI[harakat], { task_id: id })
-
-      if (error) throw error
-      return data as unknown as Task
-    },
-
-    onMutate: async ({ id, harakat, subtasklarBilan }) => {
+    }) => {
       await qc.cancelQueries({ queryKey: kalit.vazifalar })
       const nusxa = keshNusxasi(qc)
       const hozir = new Date().toISOString()
@@ -482,7 +415,7 @@ export function useVazifaHolati() {
       return { nusxa }
     },
 
-    onSuccess: (vazifa) => {
+    onSuccess: (vazifa: Task | undefined) => {
       // Takrorlanuvchi vazifa serverda keyingi sanaga suriladi —
       // serverdan kelgan qator bilan almashtiramiz
       if (vazifa?.id) keshdaYangila(qc, vazifa.id, vazifa)
