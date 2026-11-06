@@ -175,6 +175,33 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sections: {
         Row: {
           created_at: string
@@ -336,6 +363,7 @@ export type Database = {
           due_time: string | null
           folder_id: string
           id: string
+          notified_at: string | null
           parent_id: string | null
           priority: number
           progress: number
@@ -357,6 +385,7 @@ export type Database = {
           due_time?: string | null
           folder_id: string
           id?: string
+          notified_at?: string | null
           parent_id?: string | null
           priority?: number
           progress?: number
@@ -378,6 +407,7 @@ export type Database = {
           due_time?: string | null
           folder_id?: string
           id?: string
+          notified_at?: string | null
           parent_id?: string | null
           priority?: number
           progress?: number
@@ -430,6 +460,7 @@ export type Database = {
           due_time: string | null
           folder_id: string
           id: string
+          notified_at: string | null
           parent_id: string | null
           priority: number
           progress: number
@@ -449,6 +480,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      eslatma_yuborildi: { Args: { vazifalar: string[] }; Returns: undefined }
       events_suppressed: { Args: never; Returns: boolean }
       folder_health: {
         Args: {
@@ -460,6 +492,17 @@ export type Database = {
         Returns: Json
       }
       get_report: { Args: { p_from: string; p_to: string }; Returns: Json }
+      kutilayotgan_eslatmalar: {
+        Args: never
+        Returns: {
+          auth: string
+          endpoint: string
+          p256dh: string
+          sarlavha: string
+          task_id: string
+          user_id: string
+        }[]
+      }
       local_date: { Args: { p_ts: string; p_tz: string }; Returns: string }
       move_back: {
         Args: { task_id: string }
@@ -472,6 +515,7 @@ export type Database = {
           due_time: string | null
           folder_id: string
           id: string
+          notified_at: string | null
           parent_id: string | null
           priority: number
           progress: number
@@ -506,6 +550,7 @@ export type Database = {
           due_time: string | null
           folder_id: string
           id: string
+          notified_at: string | null
           parent_id: string | null
           priority: number
           progress: number
@@ -536,6 +581,7 @@ export type Database = {
           due_time: string | null
           folder_id: string
           id: string
+          notified_at: string | null
           parent_id: string | null
           priority: number
           progress: number

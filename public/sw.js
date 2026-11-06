@@ -141,3 +141,51 @@ self.addEventListener('fetch', (event) => {
     })
   )
 })
+
+// =============================================================
+// Push bildirishnomalar
+// =============================================================
+// Server (Supabase Edge Function) vaqti kelgan vazifa haqida
+// xabar yuboradi. Ilova yopiq bo'lsa ham shu yerda qabul qilinadi.
+
+self.addEventListener('push', (event) => {
+  let malumot = {}
+  try {
+    malumot = event.data ? event.data.json() : {}
+  } catch {
+    // Noto'g'ri formatdagi xabar bo'lsa ham bildirishnoma chiqsin
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(malumot.sarlavha || 'Samara', {
+      body: malumot.matn || '',
+      icon: '/icons/notification-icon-192.png',
+      badge: '/icons/notification-badge-96.png',
+      lang: 'uz',
+      data: { yol: malumot.yol || '/bugun' },
+      // Bir xil vazifa uchun ikkita bildirishnoma to'planib qolmasin
+      tag: malumot.yol || 'samara-eslatma',
+      renotify: true,
+    })
+  )
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const yol = (event.notification.data && event.notification.data.yol) || '/bugun'
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((oynalar) => {
+        // Ilova allaqachon ochiq bo'lsa — o'sha oynani ishlatamiz
+        for (const oyna of oynalar) {
+          if ('focus' in oyna) {
+            if ('navigate' in oyna) oyna.navigate(yol)
+            return oyna.focus()
+          }
+        }
+        return self.clients.openWindow(yol)
+      })
+  )
+})

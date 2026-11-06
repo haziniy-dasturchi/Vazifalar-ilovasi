@@ -15,6 +15,7 @@ import {
 import { Sahifa } from '@/components/app/sahifa'
 import { Yuklanmoqda } from '@/components/ui/holatlar'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
+import { BildirishnomaSozlamasi } from '@/components/app/bildirishnoma-sozlamasi'
 import {
   useBugungiVazifalar,
   useJarayondagiVazifalar,
@@ -87,6 +88,8 @@ export function KorishKorinishi() {
           </div>
 
           <section className="mt-7 space-y-3">
+            <BildirishnomaSozlamasi />
+
             <KelgusiKarta
               ikonka={BookOpen}
               sarlavha="Yo‘riqnoma"

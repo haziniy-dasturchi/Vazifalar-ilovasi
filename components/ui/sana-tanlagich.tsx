@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   addMonths,
@@ -53,9 +53,14 @@ const TAKRORLANISH_QISQA: Record<Recurrence, string> = {
   monthly: 'Har oy',
 }
 
-const PANEL_KENGLIGI = 448
-const PANEL_BALANDLIGI_TAXMINI = 620
+/** Kompyuterdagi tushuvchi panel kengligi (telefonda pastki varaq) */
+const PANEL_KENGLIGI = 340
 const CHEKKA_BOSHLIG_I = 12
+/** Shu kenglikdan boshlab kompyuter ko'rinishi (Tailwind `sm`) */
+const KATTA_EKRAN = '(min-width: 640px)'
+
+/** Tugmaning ekrandagi o'rni — panel o'zini shunga qarab joylaydi */
+type TugmaJoyi = { top: number; bottom: number; left: number }
 
 export function SanaTanlagich({
   sana,
@@ -76,23 +81,18 @@ export function SanaTanlagich({
   const [vaqtOchiq, setVaqtOchiq] = useState(false)
   const [takrorOchiq, setTakrorOchiq] = useState(false)
   const [korinishOy, setKorinishOy] = useState(() => (sana ? isoDan(sana) : new Date()))
-  const [koord, setKoord] = useState<{ top: number; left: number } | null>(null)
+  const [tugmaJoyi, setTugmaJoyi] = useState<TugmaJoyi | null>(null)
   const tugmaRef = useRef<HTMLButtonElement>(null)
 
-  /** Panelning ekrandagi o'rnini tugma joylashuviga qarab hisoblaydi */
+  /**
+   * Faqat tugmaning o'rnini saqlaymiz. Panelning o'zi qayerga
+   * joylashishni o'zi hal qiladi — chunki buning uchun uning haqiqiy
+   * balandligini bilish kerak, taxmin qilish emas.
+   */
   function joylashuvniHisobla() {
-    const rect = tugmaRef.current?.getBoundingClientRect()
-    if (!rect) return
-    const left = Math.min(
-      Math.max(rect.left, CHEKKA_BOSHLIG_I),
-      window.innerWidth - PANEL_KENGLIGI - CHEKKA_BOSHLIG_I
-    )
-    const joyYetmaydi =
-      rect.bottom + PANEL_BALANDLIGI_TAXMINI > window.innerHeight
-    const top = joyYetmaydi
-      ? Math.max(CHEKKA_BOSHLIG_I, rect.top - PANEL_BALANDLIGI_TAXMINI - 8)
-      : rect.bottom + 8
-    setKoord({ top, left })
+    const r = tugmaRef.current?.getBoundingClientRect()
+    if (!r) return
+    setTugmaJoyi({ top: r.top, bottom: r.bottom, left: r.left })
   }
 
   function ochish() {
@@ -145,10 +145,10 @@ export function SanaTanlagich({
       </button>
 
       {ochiq &&
-        koord &&
+        tugmaJoyi &&
         createPortal(
           <SanaPaneli
-            koord={koord}
+            tugmaJoyi={tugmaJoyi}
             sana={sana}
             vaqt={vaqt}
             takrorlanish={takrorlanish}
@@ -176,7 +176,7 @@ export function SanaTanlagich({
 // konteyneridan butunlay tashqarida qoladi
 // =============================================================
 function SanaPaneli({
-  koord,
+  tugmaJoyi,
   sana,
   vaqt,
   takrorlanish,
@@ -193,7 +193,7 @@ function SanaPaneli({
   setTakrorOchiq,
   yopish,
 }: {
-  koord: { top: number; left: number }
+  tugmaJoyi: TugmaJoyi
   sana: string | null
   vaqt: string | null
   takrorlanish: Recurrence | null
@@ -210,13 +210,48 @@ function SanaPaneli({
   setTakrorOchiq: (v: boolean) => void
   yopish: () => void
 }) {
+  const panelRef = useRef<HTMLDivElement>(null)
+  const [kattaEkran, setKattaEkran] = useState(true)
+  const [uslub, setUslub] = useState<React.CSSProperties>({
+    top: -9999,
+    left: -9999,
+  })
+
+  useEffect(() => {
+    const mq = window.matchMedia(KATTA_EKRAN)
+    const yangila = () => setKattaEkran(mq.matches)
+    yangila()
+    mq.addEventListener('change', yangila)
+    return () => mq.removeEventListener('change', yangila)
+  }, [])
+
+  // Haqiqiy balandlikni o'lchab joylashtiramiz — taxminiy balandlik
+  // bilan panel ba'zan ekrandan chiqib yoki oynani yopib qolardi.
+  useLayoutEffect(() => {
+    if (!kattaEkran) return
+    const balandlik = panelRef.current?.offsetHeight ?? 0
+    const left = Math.min(
+      Math.max(tugmaJoyi.left, CHEKKA_BOSHLIG_I),
+      Math.max(
+        CHEKKA_BOSHLIG_I,
+        window.innerWidth - PANEL_KENGLIGI - CHEKKA_BOSHLIG_I
+      )
+    )
+    const pastda = tugmaJoyi.bottom + 8
+    const sigadi = pastda + balandlik + CHEKKA_BOSHLIG_I <= window.innerHeight
+    const top = sigadi
+      ? pastda
+      : Math.max(CHEKKA_BOSHLIG_I, window.innerHeight - balandlik - CHEKKA_BOSHLIG_I)
+    setUslub({ top, left })
+  }, [kattaEkran, tugmaJoyi])
+
   const bugun = new Date()
 
   const TEZ_QATORLAR = [
     { nom: 'Bugun', ikonka: Sun, rang: '#f59e0b', sana: bugun },
     { nom: 'Ertaga', ikonka: Sunrise, rang: '#f97316', sana: addDaysSafe(bugun, 1) },
     { nom: 'Keyingi hafta', ikonka: ArrowRight, rang: '#8b5cf6', sana: nextMonday(bugun) },
-    { nom: 'Keyingi dam olish', ikonka: Coffee, rang: '#2563eb', sana: nextSaturday(bugun) },
+    { nom: 'Dam olish', ikonka: Coffee, rang: '#2563eb', sana: nextSaturday(bugun) },
   ]
 
   return (
@@ -228,9 +263,21 @@ function SanaPaneli({
         className="fixed inset-0 z-[90] min-h-0 cursor-default"
       />
       <div
-        style={{ top: koord.top, left: koord.left }}
-        className="fixed z-[100] max-h-[88vh] w-[28rem] max-w-[calc(100vw-1.5rem)] overflow-y-auto rounded-2xl border border-border-subtle bg-surface p-3 shadow-float"
+        ref={panelRef}
+        style={kattaEkran ? uslub : undefined}
+        className={
+          kattaEkran
+            ? 'fixed z-[100] max-h-[88vh] w-[21.25rem] overflow-y-auto rounded-2xl border border-border-subtle bg-surface p-2 shadow-float'
+            : // Telefonda — Todoist'dagi kabi pastdan chiqadigan varaq.
+              // Oldin bu yerda ham qat'iy kenglikdagi panel edi va u
+              // tor ekranda chap chetdan chiqib ketardi.
+              'fixed inset-x-0 bottom-0 z-[100] max-h-[88vh] overflow-y-auto rounded-t-3xl border-t border-border-subtle bg-surface p-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-float'
+        }
       >
+        {/* Telefonda sudrash chizig'i — varaqligini bildiradi */}
+        {!kattaEkran && (
+          <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-surface-sunken" />
+        )}
         {/* Tezkor sana qatorlari — ikki ustunda, shunda panel past
             bo'ladi va skroll qilish kerak bo'lmaydi */}
         <div className="grid grid-cols-2 gap-1 border-b border-border-subtle pb-2">
@@ -256,7 +303,7 @@ function SanaPaneli({
               onVaqtChange(null)
               onTakrorlanishChange(null)
             }}
-            className="flex min-h-0 w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-surface-muted"
+            className="col-span-2 flex min-h-0 w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-surface-muted"
           >
             <Ban className="size-4 shrink-0 text-text-faint" aria-hidden />
             <span className="flex-1 font-medium text-text-strong">Sanasiz</span>

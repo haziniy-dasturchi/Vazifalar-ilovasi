@@ -287,6 +287,7 @@ export function useVazifaYaratish() {
         sort_order: 9999,
         started_at: null,
         completed_at: null,
+        notified_at: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
