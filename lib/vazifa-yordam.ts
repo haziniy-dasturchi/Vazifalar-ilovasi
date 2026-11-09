@@ -33,10 +33,18 @@ export function subtasklar(bolalar: Map<string, Task[]>, otaId: string) {
   return bolalar.get(otaId) ?? []
 }
 
-/** Muhimlik va tartib bo'yicha saralash */
+/**
+ * Ro'yxat tartibi: avval bajarilmagan ishlar, oxirida bajarilganlar.
+ *
+ * Bajarilgan vazifa ro'yxat boshida turganda foydalanuvchi har safar
+ * uni aylanib o'tishga majbur bo'ladi — e'tibor allaqachon
+ * tugatilgan ishga ketadi. Qolgan ishlar ko'zga birinchi tashlanishi
+ * kerak.
+ */
 export function saralash(vazifalar: Task[]): Task[] {
   return [...vazifalar].sort(
     (a, b) =>
+      Number(a.status === 'done') - Number(b.status === 'done') ||
       a.priority - b.priority ||
       a.sort_order - b.sort_order ||
       a.created_at.localeCompare(b.created_at)

@@ -88,13 +88,11 @@ export function KorishKorinishi() {
           </div>
 
           <section className="mt-7 space-y-3">
-            <BildirishnomaSozlamasi />
-
             <KelgusiKarta
-              ikonka={BookOpen}
-              sarlavha="Yo‘riqnoma"
-              matn="Ilova qanday ishlashini qisqa va sodda tarzda bilib oling."
-              href="/yoriqnoma"
+              ikonka={Moon}
+              sarlavha="Kechki reja"
+              matn="Ertangi kun uchun vazifalarni oldindan belgilab qo‘ying."
+              href="/kechki-reja"
             />
             <KelgusiKarta
               ikonka={BarChart3}
@@ -103,11 +101,12 @@ export function KorishKorinishi() {
               href="/hisobot"
             />
             <KelgusiKarta
-              ikonka={Moon}
-              sarlavha="Kechki reja"
-              matn="Ertangi kun uchun vazifalarni oldindan belgilab qo‘ying."
-              href="/kechki-reja"
+              ikonka={BookOpen}
+              sarlavha="Yo‘riqnoma"
+              matn="Ilova qanday ishlashini qisqa va sodda tarzda bilib oling."
+              href="/yoriqnoma"
             />
+            <BildirishnomaSozlamasi />
           </section>
 
           <section className="mt-7">

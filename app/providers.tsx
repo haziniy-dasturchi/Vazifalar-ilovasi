@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { ToastProvider } from '@/components/ui/toast'
 import { PwaOrnatish } from '@/components/app/pwa-ornatish'
 import { OfflineBelgisi } from '@/components/app/offline-belgisi'
+import { BildirishnomaEslatmasi } from '@/components/app/bildirishnoma-eslatmasi'
 import { mutatsiyalarniRoyxatdanOtkaz } from '@/lib/queries/mutatsiya-sozlamalari'
 
 /** Kesh IndexedDB'da — localStorage'dan farqli, katta va bloklamaydi */
@@ -88,6 +89,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ToastProvider>
         <OfflineBelgisi />
         <PwaOrnatish />
+        <BildirishnomaEslatmasi />
         {children}
       </ToastProvider>
     </PersistQueryClientProvider>

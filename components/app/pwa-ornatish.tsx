@@ -30,52 +30,82 @@ function ornatilganmi(): boolean {
   return standalone || iosStandalone
 }
 
-function iosMi(): boolean {
-  return typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent)
+/**
+ * O'rnatish usuli brauzerga qarab butunlay boshqacha.
+ *
+ *   'avto'       — Chrome, Edge, Samsung...: brauzerning o'z taklifi
+ *   'ios'        — iPhone/iPad: Ulashish -> Bosh ekranga qo'shish
+ *   'mac-safari' — Mac Safari: Fayl -> Dockka qo'shish
+ *
+ * MUHIM: Safari'da (Mac'da ham, iPhone'da ham) `beforeinstallprompt`
+ * hodisasi UMUMAN yo'q. Avval faqat iPhone alohida ko'rib chiqilardi,
+ * natijada Mac Safari va iPad foydalanuvchilariga o'rnatish haqida
+ * hech qanday taklif ko'rsatilmasdi — ular ilovani o'rnata olmasdi.
+ */
+type Usul = 'avto' | 'ios' | 'mac-safari'
+
+function usulniAniqla(): Usul {
+  const ua = navigator.userAgent
+
+  // iPadOS 13+ o'zini "Macintosh" deb tanishtiradi — uni faqat
+  // sensorli ekran borligi bilan haqiqiy Mac'dan ajratish mumkin
+  const ipad = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1
+  if (/iPhone|iPad|iPod/i.test(ua) || ipad) return 'ios'
+
+  // Chrome/Edge/Firefox ham UA'da "Safari" so'zini yozadi, shuning
+  // uchun ularni alohida chiqarib tashlaymiz
+  const safari = /Safari/i.test(ua) && !/Chrome|Chromium|Edg|OPR|Firefox/i.test(ua)
+  if (/Macintosh/.test(ua) && safari) return 'mac-safari'
+
+  return 'avto'
+}
+
+const MATN: Record<Usul, string> = {
+  ios: 'Pastdagi Ulashish tugmasini bosing va “Bosh ekranga qo‘shish” (Add to Home Screen) ni tanlang — ilova bosh ekraningizda paydo bo‘ladi.',
+  'mac-safari':
+    'Yuqoridagi menyudan Fayl → “Dockka qo‘shish” (File → Add to Dock) ni tanlang — Samara alohida ilova bo‘lib Dock’ingizda turadi.',
+  avto: 'Bosh ekraningizga qo‘shib qo‘ying — tezroq ishlaydi va bitta bosish bilan ochiladi, xuddi oddiy ilova kabi.',
 }
 
 /**
  * Ilovani o'rnatishga taklif qiluvchi modal — telefonda ham,
  * kompyuterda ham, ilovaga kirishning o'zidayoq (o'rnatilmagan bo'lsa)
- * qalqib chiqadi.
- *
- * Faqat shu sessiya uchun yopib qo'yish mumkin, butunlay o'chirib
- * bo'lmaydi. iOS'da "beforeinstallprompt" hodisasi umuman yo'qligi
- * sababli, o'rniga qo'lda qo'shish yo'riqnomasi ko'rsatiladi.
+ * qalqib chiqadi. Faqat shu sessiya uchun yopib qo'yish mumkin.
  *
  * MUHIM: brauzerning haqiqiy o'rnatish taklifi (`beforeinstallprompt`)
  * sahifa yuklanishining ISTALGAN vaqtida kelishi mumkin — ko'pincha
  * bu komponent hali DOM'ga ulanmasdan oldin. Shu sababli uni bu yerda
  * emas, `app/layout.tsx`dagi React'dan OLDIN ishga tushadigan skriptda
  * ushlab olamiz; bu komponent faqat `window.__samaraOrnatishTaklifi`
- * orqali natijani o'qiydi (allaqachon kelgan bo'lsa — darhol, keyinroq
- * kelsa — "samara:ornatish-tayyor" hodisasi orqali).
+ * orqali natijani o'qiydi.
  */
 export function PwaOrnatish() {
   const [korsat, setKorsat] = useState(false)
-  const [iosKorinish, setIosKorinish] = useState(false)
+  const [usul, setUsul] = useState<Usul>('avto')
   const [taklif, setTaklif] = useState<OrnatishTaklifi | null>(null)
   const [ornatilmoqda, setOrnatilmoqda] = useState(false)
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {
-        // Ro'yxatdan o'tmasa ham ilova ishlayveradi — faqat o'rnatish
-        // taklifi chiqmasligi mumkin
+        // Ro'yxatdan o'tmasa ham ilova ishlayveradi
       })
     }
 
     if (ornatilganmi()) return
     if (sessionStorage.getItem(YOPILDI_KALITI)) return
 
-    if (iosMi()) {
-      setIosKorinish(true)
+    const aniqlangan = usulniAniqla()
+    setUsul(aniqlangan)
+
+    // Safari'da kutadigan hodisa yo'q — qo'llanmani darhol ko'rsatamiz
+    if (aniqlangan !== 'avto') {
       setKorsat(true)
       return
     }
 
-    // Hodisa biz ulanishimizdan OLDIN kelib, allaqachon saqlangan bo'lishi
-    // mumkin — shu holatni birinchi tekshiramiz.
+    // Hodisa biz ulanishimizdan OLDIN kelib, allaqachon saqlangan
+    // bo'lishi mumkin — shu holatni birinchi tekshiramiz.
     if (window.__samaraOrnatishTaklifi) {
       setTaklif(window.__samaraOrnatishTaklifi)
       setKorsat(true)
@@ -87,9 +117,7 @@ export function PwaOrnatish() {
         setKorsat(true)
       }
     }
-    // Zaxira: agar qandaydir sababga ko'ra erta skript ishlamagan
-    // bo'lsa ham (masalan, Script bloklangan), to'g'ridan-to'g'ri
-    // tinglovchi hali ham hodisani ushlab qoladi.
+    // Zaxira: erta skript ishlamagan bo'lsa ham hodisa ushlanadi
     function tayyorZaxira(e: Event) {
       e.preventDefault()
       const t = e as OrnatishTaklifi
@@ -136,11 +164,13 @@ export function PwaOrnatish() {
 
   if (!korsat) return null
 
+  const qollanma = usul !== 'avto'
+
   return (
     <Oyna sarlavha="Ilovani o‘rnating" yop={yopish}>
       <div className="flex flex-col items-center gap-4 pb-2 text-center">
         <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-brand-soft">
-          {iosKorinish ? (
+          {qollanma ? (
             <Share className="size-7 text-brand-primary" aria-hidden />
           ) : (
             <Download className="size-7 text-brand-primary" aria-hidden />
@@ -148,12 +178,17 @@ export function PwaOrnatish() {
         </span>
 
         <p className="text-base leading-relaxed text-text-muted">
-          {iosKorinish
-            ? 'Pastdagi Ulashish tugmasini bosib, "Bosh ekranga qo‘shish" ni tanlang — ilova bosh ekraningizda paydo bo‘ladi.'
-            : 'Bosh ekraningizga qo‘shib qo‘ying — tezroq ishlaydi va bitta bosish bilan ochiladi, xuddi oddiy ilova kabi.'}
+          {MATN[usul]}
         </p>
 
-        {!iosKorinish && (
+        {qollanma ? (
+          // Safari o'rnatishni dastur orqali boshlashga ruxsat bermaydi —
+          // foydalanuvchi o'zi menyudan tanlashi kerak
+          <p className="text-sm text-text-faint">
+            O‘rnatgandan keyin ilova tezroq ochiladi va internetsiz ham
+            ishlaydi.
+          </p>
+        ) : (
           <button
             type="button"
             onClick={ornat}

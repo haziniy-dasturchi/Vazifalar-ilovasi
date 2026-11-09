@@ -113,8 +113,11 @@ export function VazifaQatori({
           }}
           className="min-w-0 flex-1 cursor-pointer py-1.5"
         >
+          {/* Uzun matn butun ekranni egallab ketmasin: 4 qatordan
+              keyin kesiladi. To‘lig‘ini ko‘rish uchun qatorni bosish
+              kifoya — vazifa oynasi ochiladi. */}
           <p
-            className={`text-base leading-snug break-words ${
+            className={`line-clamp-4 text-base leading-snug break-words ${
               bajarilgan
                 ? 'text-text-muted line-through'
                 : 'text-text-strong'
