@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { kalit } from './keys'
-import { MUTATSIYA } from './mutatsiya-sozlamalari'
+import { MUTATSIYA, type YangiPapka } from './mutatsiya-sozlamalari'
 import type { Folder } from '@/types/vazifalar'
 
 /** Papkalar — Kiruvchi doim birinchi, keyin tartib bo'yicha */
@@ -39,12 +39,6 @@ export function useFaolPapkalar() {
 export function useKiruvchiPapka() {
   const { data } = usePapkalar()
   return data?.find((p) => p.is_inbox) ?? null
-}
-
-type YangiPapka = {
-  name: string
-  color: string
-  icon: string | null
 }
 
 export function usePapkaYaratish() {

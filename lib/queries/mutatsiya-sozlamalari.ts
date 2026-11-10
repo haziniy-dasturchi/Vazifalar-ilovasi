@@ -76,6 +76,40 @@ export type VazifaOzgarishi = Partial<
   >
 >
 
+/**
+ * Mutatsiya argumentlari — AYNAN shu yerda e'lon qilinadi.
+ *
+ * Nega muhim: mutationFn endi React'dan tashqarida, mutationKey
+ * orqali ulanadi. setMutationDefaults esa tipni tekshirmaydi, shuning
+ * uchun hook tomonida boshqa shakl kutilsa, TypeScript buni sezmay
+ * qoladi va xato faqat foydalanuvchida — ishlash paytida — chiqadi.
+ * Aynan shu sababli "Bo'lim qo'shilmadi" xatosi yuzaga kelgandi:
+ * chaqiruvchi matn yuborardi, mutationFn esa obyekt kutardi.
+ *
+ * Shu tiplarni hook ham, mutationFn ham ishlatsa, nomuvofiqlik
+ * kompilyatsiya paytida ushlanadi.
+ */
+export type YangiPapka = {
+  name: string
+  color: string
+  icon: string | null
+  sort_order?: number
+}
+
+export type PapkaOzgarishi = { id: string } & Partial<
+  Pick<Folder, 'name' | 'color' | 'icon' | 'is_archived' | 'sort_order'>
+>
+
+export type YangiBolim = {
+  folder_id: string
+  name: string
+  sort_order?: number
+}
+
+export type BolimOzgarishi = { id: string } & Partial<
+  Pick<Section, 'name' | 'is_collapsed' | 'sort_order'>
+>
+
 export type HolatHarakati = 'boshlash' | 'rejaga' | 'bajarish' | 'qaytarish'
 
 const RPC_NOMI: Record<
@@ -178,12 +212,7 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
 
   // ---------------- Papkalar ----------------
   qc.setMutationDefaults(MUTATSIYA.papkaYaratish, {
-    mutationFn: async (yangi: {
-      name: string
-      color: string
-      icon: string | null
-      sort_order?: number
-    }) => {
+    mutationFn: async (yangi: YangiPapka) => {
       const { sort_order, ...qolgan } = yangi
       const { data, error } = await sb()
         .from('folders')
@@ -201,12 +230,7 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
   })
 
   qc.setMutationDefaults(MUTATSIYA.papkaYangilash, {
-    mutationFn: async ({
-      id,
-      ...ozgarish
-    }: { id: string } & Partial<
-      Pick<Folder, 'name' | 'color' | 'icon' | 'is_archived' | 'sort_order'>
-    >) => {
+    mutationFn: async ({ id, ...ozgarish }: PapkaOzgarishi) => {
       const { data, error } = await sb()
         .from('folders')
         .update(ozgarish)
@@ -233,11 +257,7 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
 
   // ---------------- Bo'limlar ----------------
   qc.setMutationDefaults(MUTATSIYA.bolimYaratish, {
-    mutationFn: async (yangi: {
-      folder_id: string
-      name: string
-      sort_order?: number
-    }) => {
+    mutationFn: async (yangi: YangiBolim) => {
       const { data, error } = await sb()
         .from('sections')
         .insert({
@@ -255,12 +275,7 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
   })
 
   qc.setMutationDefaults(MUTATSIYA.bolimYangilash, {
-    mutationFn: async ({
-      id,
-      ...ozgarish
-    }: { id: string } & Partial<
-      Pick<Section, 'name' | 'is_collapsed' | 'sort_order'>
-    >) => {
+    mutationFn: async ({ id, ...ozgarish }: BolimOzgarishi) => {
       const { data, error } = await sb()
         .from('sections')
         .update(ozgarish)

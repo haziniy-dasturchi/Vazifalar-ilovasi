@@ -6,7 +6,11 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { kalit } from './keys'
-import { MUTATSIYA } from './mutatsiya-sozlamalari'
+import {
+  MUTATSIYA,
+  type BolimOzgarishi,
+  type YangiBolim,
+} from './mutatsiya-sozlamalari'
 import type { Database } from '@/types/database'
 import type { Section } from '@/types/vazifalar'
 
@@ -84,22 +88,26 @@ export function useBolimlarniOldindanYuklash() {
 }
 
 export function useBolimYaratish(papkaId: string) {
-  const supabase = useSupabase()
   const qc = useQueryClient()
   const { id: userId } = useFoydalanuvchi()
 
-  return useMutation({
+  // Generiklar aniq ko'rsatilgan: mutationFn markazda (offline navbat
+  // uchun), shuning uchun TS argument turini o'zi topa olmaydi. Bu
+  // yerda tipni aniq bog'lamaslik "Bo'lim qo'shilmadi" xatosiga olib
+  // kelgandi — chaqiruvchi matn yuborardi, mutationFn esa obyekt
+  // kutardi va TypeScript buni sezmasdi.
+  return useMutation<Section, Error, YangiBolim, { oldingi?: Section[] }>({
     mutationKey: MUTATSIYA.bolimYaratish,
 
-    onMutate: async (name: string) => {
+    onMutate: async (yangi) => {
       await qc.cancelQueries({ queryKey: kalit.bolimlar(papkaId) })
       const oldingi = qc.getQueryData<Section[]>(kalit.bolimlar(papkaId))
 
       const vaqtinchalik: Section = {
         id: `vaqtinchalik-${Date.now()}`,
         user_id: userId,
-        folder_id: papkaId,
-        name: name.trim(),
+        folder_id: yangi.folder_id,
+        name: yangi.name.trim(),
         sort_order: 999,
         is_collapsed: false,
         created_at: new Date().toISOString(),
@@ -112,7 +120,7 @@ export function useBolimYaratish(papkaId: string) {
       return { oldingi }
     },
 
-    onError: (_xato, _name, context) => {
+    onError: (_xato, _yangi, context) => {
       if (context?.oldingi) {
         qc.setQueryData(kalit.bolimlar(papkaId), context.oldingi)
       }
@@ -125,16 +133,12 @@ export function useBolimYaratish(papkaId: string) {
 }
 
 export function useBolimYangilash(papkaId: string) {
-  const supabase = useSupabase()
   const qc = useQueryClient()
 
-  return useMutation({
+  return useMutation<Section, Error, BolimOzgarishi, { oldingi?: Section[] }>({
     mutationKey: MUTATSIYA.bolimYangilash,
 
-    onMutate: async ({
-      id,
-      ...ozgarish
-    }: { id: string } & Partial<Pick<Section, 'name' | 'is_collapsed' | 'sort_order'>>) => {
+    onMutate: async ({ id, ...ozgarish }) => {
       await qc.cancelQueries({ queryKey: kalit.bolimlar(papkaId) })
       const oldingi = qc.getQueryData<Section[]>(kalit.bolimlar(papkaId))
       qc.setQueryData<Section[]>(kalit.bolimlar(papkaId), (eski) =>
@@ -156,13 +160,12 @@ export function useBolimYangilash(papkaId: string) {
 }
 
 export function useBolimOchirish(papkaId: string) {
-  const supabase = useSupabase()
   const qc = useQueryClient()
 
-  return useMutation({
+  return useMutation<string, Error, string, { oldingi?: Section[] }>({
     mutationKey: MUTATSIYA.bolimOchirish,
 
-    onMutate: async (id: string) => {
+    onMutate: async (id) => {
       await qc.cancelQueries({ queryKey: kalit.bolimlar(papkaId) })
       const oldingi = qc.getQueryData<Section[]>(kalit.bolimlar(papkaId))
       qc.setQueryData<Section[]>(kalit.bolimlar(papkaId), (eski) =>

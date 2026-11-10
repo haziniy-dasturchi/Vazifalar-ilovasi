@@ -129,7 +129,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
     setBolimNomi('')
     setYangiBolim(false)
     try {
-      await bolimYaratish.mutateAsync(nom)
+      await bolimYaratish.mutateAsync({ folder_id: papkaId, name: nom })
     } catch {
       korsat({ matn: 'Bo‘lim qo‘shilmadi. Qayta urinib ko‘ring.', tone: 'xato' })
     }
