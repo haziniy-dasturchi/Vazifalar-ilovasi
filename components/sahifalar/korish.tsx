@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {
   BarChart3,
   BookOpen,
+  ChevronRight,
   CircleCheck,
   Clock,
   Moon,
@@ -150,11 +151,37 @@ export function KorishKorinishi() {
               </ul>
             )}
           </section>
+
+          {/* Huquqiy havolalar va hisobni o‘chirish — ikkala do‘kon
+              ham bularni talab qiladi */}
+          <section className="mt-7 space-y-3">
+            <h2 className="px-1 text-sm font-semibold text-text-muted">
+              Hisob
+            </h2>
+
+            <div className="overflow-hidden rounded-2xl bg-surface shadow-card">
+              <HuquqiyHavola href="/maxfiylik" matn="Maxfiylik siyosati" />
+              <HuquqiyHavola href="/shartlar" matn="Foydalanish shartlari" />
+            </div>
+
+          </section>
         </>
       )}
 
       {papkaOchiq && <PapkaOynasi yop={() => setPapkaOchiq(false)} />}
     </Sahifa>
+  )
+}
+
+function HuquqiyHavola({ href, matn }: { href: string; matn: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex min-h-touch items-center justify-between border-b border-border-subtle px-4 py-3 text-base text-text-strong transition last:border-0 hover:bg-surface-muted"
+    >
+      {matn}
+      <ChevronRight className="size-4 text-text-faint" aria-hidden />
+    </Link>
   )
 }
 

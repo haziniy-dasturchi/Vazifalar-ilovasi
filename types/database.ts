@@ -482,6 +482,7 @@ export type Database = {
       }
       eslatma_yuborildi: { Args: { vazifalar: string[] }; Returns: undefined }
       events_suppressed: { Args: never; Returns: boolean }
+      hisobni_ochirish: { Args: never; Returns: undefined }
       folder_health: {
         Args: {
           p_completed: number

@@ -4,8 +4,21 @@ import { NextResponse, type NextRequest } from 'next/server'
 import type { Database } from '@/types/database'
 import { supabaseAnonKey, supabaseUrl } from '@/lib/env'
 
-/** Kirish talab qilinmaydigan yo'llar */
-const PUBLIC_PATHS = ['/kirish', '/auth']
+/**
+ * Kirish talab qilinmaydigan yo'llar.
+ *
+ * Huquqiy sahifalar ham shu yerda: Google Play va App Store ularni
+ * tekshiruvchi robotlar bilan ochadi, robotlar esa login qila
+ * olmaydi. Kirish talab qilinsa, ariza rad etiladi.
+ */
+const PUBLIC_PATHS = [
+  '/kirish',
+  '/auth',
+  '/maxfiylik',
+  '/shartlar',
+  '/hisobni-ochirish',
+  '/.well-known',
+]
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some(
