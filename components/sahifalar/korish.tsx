@@ -17,6 +17,7 @@ import { Sahifa } from '@/components/app/sahifa'
 import { Yuklanmoqda } from '@/components/ui/holatlar'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
 import { BildirishnomaSozlamasi } from '@/components/app/bildirishnoma-sozlamasi'
+import { HisobOchirish } from '@/components/app/hisob-ochirish'
 import {
   useBugungiVazifalar,
   useJarayondagiVazifalar,
@@ -164,6 +165,7 @@ export function KorishKorinishi() {
               <HuquqiyHavola href="/shartlar" matn="Foydalanish shartlari" />
             </div>
 
+            <HisobOchirish />
           </section>
         </>
       )}

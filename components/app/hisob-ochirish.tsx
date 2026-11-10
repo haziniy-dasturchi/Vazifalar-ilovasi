@@ -8,8 +8,25 @@ import { Oyna } from '@/components/ui/oyna'
 import { useToast } from '@/components/ui/toast'
 import { createClient } from '@/lib/supabase/client'
 
-/** Tasdiqlash uchun aynan shu so'z yozilishi kerak */
+/** Tasdiqlash uchun yoziladigan so'z */
 const TASDIQ_SOZI = 'O‘CHIRISH'
+
+/**
+ * Yozilgan so'zni solishtirishga tayyorlaydi.
+ *
+ * Apostrof muammosi: biz ekranda tipografik apostrof (') ko'rsatamiz,
+ * telefon klaviaturasi esa odatda oddiy tirnoq (') chiqaradi. Aynan
+ * belgima-belgi solishtirsak, foydalanuvchi to'g'ri yozsa ham tugma
+ * ochilmay, u hisobini o'chira olmay qolardi — bu Google Play uchun
+ * majburiy imkoniyat bo'lgani uchun jiddiy nuqson.
+ *
+ * Shuning uchun har qanday apostrof turini (va umuman apostrofsiz
+ * yozilgan "OCHIRISH" ni ham) qabul qilamiz. Himoya pasaymaydi:
+ * maqsad tasodifan bosib yuborishdan saqlash edi, imlo imtihoni emas.
+ */
+function soddalashtir(matn: string): string {
+  return matn.trim().toUpperCase().replace(/[‘’'`´ʻ]/g, '')
+}
 
 /**
  * Hisobni butunlay o'chirish.
@@ -61,7 +78,7 @@ function TasdiqOynasi({ yop }: { yop: () => void }) {
   const router = useRouter()
   const qc = useQueryClient()
 
-  const tayyor = matn.trim().toUpperCase() === TASDIQ_SOZI
+  const tayyor = soddalashtir(matn) === soddalashtir(TASDIQ_SOZI)
 
   async function ochir() {
     if (!tayyor || bajarilmoqda) return
