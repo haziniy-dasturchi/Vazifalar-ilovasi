@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
 import { Providers } from './providers'
+import { DOMEN } from '@/lib/huquqiy'
 
 const inter = Inter({
   subsets: ['latin', 'latin-ext'],
@@ -11,7 +12,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://vazifalar-eta.vercel.app'),
+  metadataBase: new URL(DOMEN),
   title: {
     default: 'Samara',
     template: '%s · Samara',
