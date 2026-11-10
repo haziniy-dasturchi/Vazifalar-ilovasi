@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { GoogleTugma } from '@/components/auth/google-tugma'
+import { KirishTugmalari } from '@/components/auth/kirish-tugmalari'
 
 export const metadata: Metadata = {
   title: 'Kirish',
@@ -49,11 +49,11 @@ export default async function KirishSahifasi({
           )}
 
           <div className="mt-9">
-            <GoogleTugma keyin={keyin} />
+            <KirishTugmalari keyin={keyin} />
           </div>
 
           <p className="mt-5 text-sm text-text-faint">
-            Kirish uchun Google hisobingiz yetarli.
+            Kirish uchun mavjud hisobingiz yetarli — alohida parol o‘ylab topish shart emas.
           </p>
         </div>
       </div>
