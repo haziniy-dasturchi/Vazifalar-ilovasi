@@ -2,124 +2,190 @@
 
 Hisob: **haziniyilmmaskani2025@gmail.com**
 
-Bu yerda **faqat siz qila oladigan** ishlar yozilgan. Tayyor matnlar va
-rasmlar [play-market.md](play-market.md) da — ularni o'sha yerdan
-nusxalaysiz.
-
-Har bir qadamdan keyin menga xabar bering, men keyingisiga tayyorlab
-beraman.
+Tayyor matnlar va rasmlar [play-market.md](play-market.md) da.
+Har qadamdan keyin menga xabar bering.
 
 ---
 
-# 1-QADAM — Play Console hisobini ochish
+# 0-QADAM — Hisob turini tanlash (ENG MUHIM QAROR)
 
-> ⏱ 20 daqiqa + tasdiqlashni kutish 1–3 kun
-> 💵 $25 (bir martalik, umrbod)
+Signup sahifasida ikkita variant bor. **Tanlov butun muddatni
+belgilaydi** — shuning uchun avval shuni o'qing.
 
-1. Brauzerda oching: [play.google.com/console](https://play.google.com/console)
-2. **haziniyilmmaskani2025@gmail.com** bilan kiring
-3. **«Create account»** ni bosing
-4. Turini tanlang:
-   - **Personal (yakka tartibda)** ← buni tanlang, tezroq
-   - *Organization* — D-U-N-S raqami so'raydi, bir necha haftaga cho'ziladi
-5. Ma'lumotlarni to'ldiring (ism, manzil, telefon — pasportdagidek)
-6. **$25** to'lang (karta kerak)
-7. Shaxsni tasdiqlash uchun hujjat yuklang (pasport yoki ID)
+## «Для себя» (Yakka tartibda)
 
-Keyin **kuting**. Google tasdiqlagach, emailga xabar keladi.
+✅ D-U-N-S raqami kerak emas — hisob **1–3 kunda** tayyor
 
-**✋ Shu yerda to'xtang va menga yozing: «Play Console tayyor».**
+❌ Lekin: 2023-yil 13-noyabrdan keyin ochilgan yakka hisoblar uchun
+Google qo'shimcha talab qo'ygan — ilovani hammaga chiqarishdan oldin
+**kamida 12 ta sinovchi 14 kun davomida uzluksiz** yopiq sinovda
+qatnashishi shart.
+
+- 12 ta **turli odam** taklifni qabul qilishi kerak
+- 14 kun **uzluksiz** — kimdir chiqib ketsa, hisob buziladi
+- Bu talab **har bir ilova uchun alohida**
+
+## «Для организации» (Tashkilot)
+
+✅ 12 sinovchi talabi **yo'q** — sinovdan keyin darhol chiqarish mumkin
+
+✅ Do'konda tashkilot nomi ko'rinadi (ishonchliroq)
+
+❌ **D-U-N-S raqami** kerak (Dun & Bradstreet'dan, bepul, lekin
+**30 kungacha** ketishi mumkin)
+
+❌ Tashkilot rasmiy ro'yxatdan o'tgan bo'lishi va hujjatlari bo'lishi
+kerak
+
+## Qaysi birini tanlash
+
+| Sizning holatingiz | Tanlang |
+|---|---|
+| Tez chiqarmoqchiman, 12 ta odam topa olaman | **Для себя** |
+| Haziniy ilm maskani rasmiy ro'yxatdan o'tgan va shoshmayman | **Для организации** |
+| D-U-N-S raqami allaqachon bor | **Для организации** |
+
+**Mening tavsiyam: «Для себя»**, chunki:
+
+- Hisob 1–3 kunda tayyor, D-U-N-S uchun 30 kun kutmaysiz
+- Sizda o'quv markazi bor — 12 ta sinovchi (o'qituvchilar, talabalar,
+  xodimlar) topish oson
+- 14 kunlik sinov baribir foydali: haqiqiy odamlar xatolarni topadi
+- Sinov davom etayotganda boshqa ishlarni bajara beramiz
+
+> **Agar keyinroq tashkilotga o'tmoqchi bo'lsangiz** — Google hisob
+> turini o'zgartirishga ruxsat beradi, lekin ilova ko'chmaydi. Shuning
+> uchun uzoq muddatli reja tashkilot bo'lsa, D-U-N-S ni **hozir**
+> so'rab qo'ying va yakka hisob bilan davom eting.
+
+**✋ Tanlaganingizni menga ayting — keyingi qadamlarni shunga moslayman.**
 
 ---
 
-# 2-QADAM — Ilova yaratish
+# 1-QADAM — Hisobni ochish
+
+> ⏱ 20 daqiqa + tasdiqlash 1–3 kun · 💵 $25 (bir martalik)
+
+1. [play.google.com/console/signup](https://play.google.com/console/signup)
+   sahifasida **haziniyilmmaskani2025@gmail.com** bilan kiring
+2. **«Для себя»** bo'limidagi **«Начать»** ni bosing
+3. To'ldiring — hammasi **pasportdagidek** bo'lsin:
+   - Ism va familiya (lotin harflarida)
+   - Manzil
+   - Telefon raqam (tasdiqlash kodi keladi)
+4. Dasturchi nomini kiriting — bu do'konda ko'rinadi:
+   ```
+   Haziniy ilm maskani
+   ```
+5. Aloqa emaili: `haziniyilmmaskani2025@gmail.com`
+
+---
+
+# 2-QADAM — $25 to'lash
+
+> 💵 Bir martalik, umrbod. Obuna emas.
+
+**Karta talabi:** xalqaro to'lovlar yoqilgan **Visa** yoki
+**Mastercard** kerak. UzCard va Humo **ishlamaydi**.
+
+O'zbekistonda eng oson yo'llar:
+
+- Bankdagi dollarli Visa/Mastercard (xalqaro to'lov yoqilgan bo'lsin)
+- Payme yoki Click'dagi virtual dollar kartasi
+- Kapitalbank / TBC / Anorbank kabi banklarning xalqaro kartasi
+
+Kartada **kamida $26** bo'lsin (komissiya uchun biroz ortiq).
+
+**Qadamlar:**
+
+1. Ro'yxatdan o'tish oxirida to'lov sahifasi chiqadi
+2. Karta ma'lumotlarini kiriting
+3. Bankdan SMS kod keladi — tasdiqlang
+4. To'lov o'tgach, emailga chek keladi
+
+> **To'lov o'tmasa:** ko'pincha sabab — kartada xalqaro to'lov
+> yoqilmagan. Bank ilovasidan yoqing yoki bankka qo'ng'iroq qiling.
+
+---
+
+# 3-QADAM — Shaxsni tasdiqlash
+
+> ⏱ 10 daqiqa + Google tekshiruvi 1–3 kun
+
+1. Google pasport yoki ID yuklashni so'raydi
+2. Rasm **aniq** bo'lsin: barcha burchaklari ko'rinsin, yorug' joyda
+3. Ismingiz 1-qadamda yozganingiz bilan **bir xil** bo'lishi shart
+
+Keyin kuting — emailga javob keladi.
+
+**✋ Tasdiqlangach menga yozing: «Play Console tayyor».**
+
+---
+
+# 4-QADAM — Ilova yaratish
 
 > ⏱ 10 daqiqa
 
-1. Play Console'da **«Create app»** ni bosing
-2. To'ldiring:
+Play Console → **«Create app»**:
 
-   | Maydon | Qiymat |
-   |---|---|
-   | App name | `Samara — vazifalar rejasi` |
-   | Default language | `Uzbek` (yo'q bo'lsa `English (US)`) |
-   | App or game | **App** |
-   | Free or paid | **Free** |
+| Maydon | Qiymat |
+|---|---|
+| App name | `Samara — vazifalar rejasi` |
+| Default language | `Uzbek` (yo'q bo'lsa `English (US)`) |
+| App or game | **App** |
+| Free or paid | **Free** |
 
-3. Ikkita katakchani belgilang (Developer Program Policies va US export laws)
-4. **«Create app»**
+Ikkita katakchani belgilang → **«Create app»**
 
 ---
 
-# 3-QADAM — Android paketini yaratish (PWABuilder)
+# 5-QADAM — Android paketini yaratish (PWABuilder)
 
-> ⏱ 15 daqiqa
-> 💵 bepul
+> ⏱ 15 daqiqa · bepul
 
-Sizda Android dasturchi vositalari o'rnatilmagan — ularni o'rnatish
-shart emas, PWABuilder brauzerda paket yasab beradi.
-
-1. Oching: [pwabuilder.com](https://www.pwabuilder.com)
-2. Maydonga yozing: `https://samarali-kun.uz`
-3. **«Start»** ni bosing, tahlil tugashini kuting
-4. **«Package for stores»** → **«Android»** ni tanlang
-5. **«All settings»** ni ochib, tekshiring:
+1. [pwabuilder.com](https://www.pwabuilder.com) ni oching
+2. Yozing: `https://samarali-kun.uz` → **«Start»**
+3. **«Package for stores»** → **«Android»**
+4. **«All settings»** ni ochib tekshiring:
 
    | Maydon | Qiymat |
    |---|---|
    | Package ID | `uz.samaralikun.samara` |
    | App name | `Samara` |
    | Short name | `Samara` |
-   | Launcher name | `Samara` |
    | Start URL | `/jarayonda` |
    | Display mode | `standalone` |
    | Signing key | **Create new** |
 
-6. **«Download package»** ni bosing
+5. **«Download package»**
 
-Yuklab olingan ZIP ichida:
+ZIP ichida: `app-release-bundle.aab`, `signing.keystore`,
+`signing-key-info.txt`, `assetlinks.json`.
 
-- `app-release-bundle.aab` ← Play Console'ga yuklanadi
-- `signing.keystore` ← **kalit fayli**
-- `signing-key-info.txt` ← **parollar**
-- `assetlinks.json` ← ichida barmoq izi bor
-
-> ## ⚠️ ENG MUHIM OGOHLANTIRISH
+> ## ⚠️ KALITNI YO'QOTMANG
 >
-> `signing.keystore` va `signing-key-info.txt` — bu ilovangizning
-> **kaliti**. Yo'qotsangiz, ilovani **boshqa hech qachon yangilay
-> olmaysiz**. Yangi ilova sifatida noldan chiqarishga to'g'ri keladi va
-> o'rnatgan odamlarning hammasi yo'qoladi.
+> `signing.keystore` va `signing-key-info.txt` — ilovangizning kaliti.
+> Yo'qotsangiz, ilovani **boshqa hech qachon yangilay olmaysiz**.
 >
-> **Hozir qiling:** ZIP'ni Google Drive'ga ham, flesh diskka ham
-> nusxalang. Ikki joyda tursin.
+> **Hozir:** ZIP'ni Google Drive'ga ham, flesh diskka ham nusxalang.
 
-**✋ Menga yozing: «paket tayyor» va `assetlinks.json` fayli ichidagi
-matnni menga yuboring** (yoki `signing-key-info.txt` dagi SHA-256
-qatorini). Men barmoq izini sozlayman.
+**✋ Menga `assetlinks.json` ichidagi matnni yoki SHA-256 barmoq izini
+yuboring.**
 
 ---
 
-# 4-QADAM — Barmoq izini ulash
+# 6-QADAM — Barmoq izini ulash
 
-Bu qadamni **men qilaman** — sizdan faqat barmoq izi kerak (3-qadam).
-
-Men Vercel'ga `ANDROID_SHA256` o'zgaruvchisini qo'shaman va
-`https://samarali-kun.uz/.well-known/assetlinks.json` to'g'ri
-javob berayotganini tekshiraman.
-
-> Agar Vercel'ga mening kirishim bo'lmasa, sizga aniq ko'rsatma
-> beraman — 2 daqiqalik ish.
+**Buni men qilaman.** Sizdan faqat 5-qadamdagi barmoq izi kerak.
 
 ---
 
-# 5-QADAM — Do'kon sahifasini to'ldirish
+# 7-QADAM — Do'kon sahifasi
 
 > ⏱ 30 daqiqa
 
-Play Console → **Grow** → **Store presence** → **Main store listing**
-
-[play-market.md](play-market.md) dagi B qismidan nusxalang:
+**Grow → Store presence → Main store listing**.
+[play-market.md](play-market.md) ning B qismidan nusxalang:
 
 | Maydon | Qayerdan |
 |---|---|
@@ -128,111 +194,144 @@ Play Console → **Grow** → **Store presence** → **Main store listing**
 | Full description | B4 |
 | App icon | `dokon/ilova-ikonkasi-512.png` |
 | Feature graphic | `dokon/feature-graphic.png` |
-| Phone screenshots | `dokon/skrinshot-1..4.png` (to'rttasini ham) |
+| Phone screenshots | `dokon/skrinshot-1..4.png` |
 
-Keyin **Store settings**:
-
-- Category: **Productivity**
-- Email: `haziniyilmmaskani2025@gmail.com`
-- Website: `https://samarali-kun.uz`
-- Privacy policy: `https://samarali-kun.uz/maxfiylik`
+**Store settings:** Category `Productivity`, email
+`haziniyilmmaskani2025@gmail.com`, website `https://samarali-kun.uz`
 
 ---
 
-# 6-QADAM — App content (anketalar)
+# 8-QADAM — App content anketalari
 
-> ⏱ 30 daqiqa
+> ⏱ 30 daqiqa · **Policy → App content**
 
-Play Console → **Policy** → **App content**. Beshta bo'lim bor:
-
-### 6.1 Privacy policy
+### Privacy policy
 `https://samarali-kun.uz/maxfiylik`
 
-### 6.2 App access
-**«All functionality is available without special access»** —
-*Yo'q*, chunki kirish kerak. Shuning uchun:
+### App access
+«All or some functionality is restricted» ni tanlang →
+**«Add new instructions»**:
 
-- **«All or some functionality is restricted»** ni tanlang
-- **«Add new instructions»**:
-  - Name: `Google bilan kirish`
-  - Instructions: `Ilovaga kirish uchun istalgan Google hisobi yetarli.
-    Alohida sinov hisobi kerak emas — "Google bilan davom etish"
-    tugmasini bosib kiring.`
+- Name: `Google bilan kirish`
+- Instructions:
+  ```
+  Ilovaga kirish uchun istalgan Google hisobi yetarli. Alohida sinov
+  hisobi kerak emas — "Google bilan davom etish" tugmasini bosib kiring.
+  ```
 
-### 6.3 Ads
+### Ads
 **«No, my app does not contain ads»**
 
-### 6.4 Content rating
-So'rovnomani to'ldiring — javoblar [play-market.md](play-market.md)
-B7 bo'limida.
+### Content rating
+Javoblar [play-market.md](play-market.md) B7 da
 
-### 6.5 Data safety
-Javoblar [play-market.md](play-market.md) B6 bo'limida.
-
+### Data safety
+Javoblar [play-market.md](play-market.md) B6 da.
 **Account deletion URL:** `https://samarali-kun.uz/hisobni-ochirish`
 
-### 6.6 Target audience
-- Yosh: **18 va undan katta** (eng sodda yo'l — bolalar uchun
-  qo'shimcha talablar chiqmaydi)
+### Target audience
+**18 va undan katta**
 
 ---
 
-# 7-QADAM — Avval o'zingiz sinab ko'ring
+# 9-QADAM — Yopiq sinov (12 sinovchi, 14 kun)
 
-> ⏱ 20 daqiqa
-> **To'g'ridan-to'g'ri Production'ga yubormang!**
+> ⏱ sozlash 20 daqiqa + **14 kun kutish**
+> Bu qadam faqat **«Для себя»** hisobi uchun majburiy
 
-1. Play Console → **Testing** → **Internal testing**
-2. **«Create new release»**
-3. `app-release-bundle.aab` faylini yuklang
-4. Release name: `1.0.0`
-5. Release notes: `Birinchi versiya`
-6. **«Next»** → **«Save and publish»**
-7. **Testers** bo'limida o'z emailingizni qo'shing
-8. Sizga havola beriladi — telefonda oching va ilovani o'rnating
+## 9.1 Sinovchilarni to'plash
 
-**Telefonda tekshiring:**
+Kamida **12 ta** odam kerak. Har birining **Gmail manzili** bo'lsin.
 
-- [ ] Ilova ochilyaptimi
-- [ ] Tepada brauzer manzil satri **yo'qmi** (bo'lsa — 4-qadam
-      bajarilmagan)
-- [ ] Google bilan kirish ishlaydimi
-- [ ] Vazifa qo'shish ishlaydimi
-- [ ] Internetni o'chirib ko'ring — ilova ishlayaptimi
-- [ ] Ko'rish → Hisobni o'chirish tugmasi bormi
+O'quv markazingizdan to'plash oson: o'qituvchilar, xodimlar, katta
+yoshli talabalar, oila a'zolari, do'stlar.
 
-**✋ Menga yozing: «sinov tugadi» va nima ishlamaganini ayting.**
+> **Muhim:** 12 ta — bu eng kam chegara. **15–16 ta** qo'shing: kimdir
+> taklifni qabul qilmasligi yoki chiqib ketishi mumkin, u holda 14 kun
+> qaytadan boshlanadi.
+
+## 9.2 Sinovni yaratish
+
+1. **Testing → Closed testing → «Create new release»**
+2. `app-release-bundle.aab` ni yuklang
+3. Release name: `1.0.0`, Release notes: `Birinchi versiya`
+4. **«Save»** → **«Review release»** → **«Start rollout»**
+
+## 9.3 Sinovchilarni qo'shish
+
+1. **Testers** yorlig'ida → **«Create email list»**
+2. Ro'yxat nomi: `Samara sinovchilari`
+3. 12+ Gmail manzilini kiriting
+4. **Copy link** — bu taklif havolasi
+
+## 9.4 Taklifni yuboring
+
+Havolani sinovchilarga yuboring (Telegram guruhiga tashlang) va
+**aniq ayting**:
+
+```
+Salom! Samara ilovasini sinab ko'rishga yordam bering.
+
+1. Shu havolani telefoningizda oching: [HAVOLA]
+2. "Become a tester" tugmasini bosing
+3. Keyin Play Market'dan ilovani o'rnating
+4. 14 kun davomida ilovani o'chirmang va sinovdan chiqmang
+
+Bu Google talabi — 14 kun to'lmaguncha ilovani hammaga chiqara
+olmaymiz. Rahmat!
+```
+
+## 9.5 Kuzatib boring
+
+Har 2–3 kunda **Testing → Closed testing → Testers** bo'limiga kirib,
+nechta odam qo'shilganini tekshiring. 12 tadan kam bo'lsa, yana odam
+qo'shing.
+
+**✋ 14 kun to'lgach menga yozing: «sinov tugadi».**
 
 ---
 
-# 8-QADAM — Hammaga chiqarish
+# 10-QADAM — Production'ga ariza
 
-> ⏱ 10 daqiqa + Google tekshiruvi **3–7 kun**
+> ⏱ 20 daqiqa + Google tekshiruvi 3–7 kun
 
-1. Play Console → **Production** → **Create new release**
-2. Internal testing'dagi `.aab` ni qayta ishlating
-   («Add from library»)
-3. Countries: **O'zbekiston** (yoki hamma davlat)
-4. **«Send for review»**
+1. **Production → «Apply for production access»**
+2. Anketani to'ldiring — Google sinov haqida so'raydi:
+   - Nechta sinovchi qatnashdi
+   - Qanday fikrlar keldi
+   - Nimalarni tuzatdingiz
 
-Keyin kuting. Natija emailga keladi.
+   > Halol va aniq yozing. Umumiy gaplar («hammasi yaxshi edi») rad
+   > etilishga olib keladi. Haqiqiy misollar keltiring.
 
-Rad etilsa — xabardagi sababni menga yuboring, tuzatamiz va qayta
-yuboramiz.
+3. **Production → «Create new release»**
+4. `.aab` ni **«Add from library»** orqali qo'shing
+5. Countries: **O'zbekiston** (yoki hamma davlat)
+6. **«Send for review»**
+
+Natija emailga keladi. Rad etilsa — sababni menga yuboring.
 
 ---
 
-# Umumiy jadval
+# Umumiy muddat
 
 | Qadam | Kim | Vaqt |
 |---|---|---|
-| 1. Console hisobi | **Siz** | 20 daq + 1–3 kun kutish |
-| 2. Ilova yaratish | **Siz** | 10 daq |
-| 3. Paket (PWABuilder) | **Siz** | 15 daq |
-| 4. Barmoq izi | **Men** | 5 daq |
-| 5. Do'kon sahifasi | **Siz** (matnlar tayyor) | 30 daq |
-| 6. Anketalar | **Siz** (javoblar tayyor) | 30 daq |
-| 7. Sinov | **Siz** | 20 daq |
-| 8. Chiqarish | **Siz** | 10 daq + 3–7 kun |
+| 0. Hisob turini tanlash | **Siz** | 5 daq |
+| 1–3. Hisob, to'lov, tasdiqlash | **Siz** | 30 daq + 1–3 kun |
+| 4. Ilova yaratish | **Siz** | 10 daq |
+| 5. Paket | **Siz** | 15 daq |
+| 6. Barmoq izi | **Men** | 5 daq |
+| 7. Do'kon sahifasi | **Siz** | 30 daq |
+| 8. Anketalar | **Siz** | 30 daq |
+| 9. Yopiq sinov | **Siz** | 20 daq + **14 kun** |
+| 10. Production | **Siz** | 20 daq + 3–7 kun |
 
-**Jami sizning ishingiz:** taxminan 2 soat + kutish.
+**Yakka hisob bilan jami:** ≈ 2.5 soat ish + **20–25 kun** kutish
+
+**Tashkilot hisobi bilan:** 9-qadam tushadi, lekin D-U-N-S uchun
+30 kungacha kutasiz
+
+Ikkala yo'l ham taxminan bir xil muddatga olib keladi — shuning uchun
+yakka hisobni tanlagan ma'qul: u arzonroq, soddaroq va sinov davrida
+haqiqiy foydali fikr olasiz.
