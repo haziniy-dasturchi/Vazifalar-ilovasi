@@ -1,12 +1,15 @@
 'use client'
 
-import { ListChecks, Play } from 'lucide-react'
+import { useState } from 'react'
+import { ListChecks, Play, Plus } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
 import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
+import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
 import {
   useBugungiVazifalar,
   useJarayondagiVazifalar,
+  useVazifaHolati,
 } from '@/lib/queries/vazifalar'
 import { usePapkalar } from '@/lib/queries/papkalar'
 import { useBolimNomlari } from '@/lib/queries/bolimlar'
@@ -28,6 +31,8 @@ export function JarayondaKorinishi() {
   const { data: papkalar } = usePapkalar()
   const bolimNomlari = useBolimNomlari()
   const papkaMap = new Map(papkalar?.map((p) => [p.id, p]))
+  const boshlash = useVazifaHolati()
+  const [qoshishOchiq, setQoshishOchiq] = useState(false)
 
   const { otalar, bolalar } = iyerarxiya(data ?? [])
 
@@ -46,24 +51,49 @@ export function JarayondaKorinishi() {
   }
 
   return (
-    <Sahifa
-      sarlavha="Jarayonda"
-      tavsif={
-        otalar.length > 0
-          ? `${otalar.length} ta vazifa ustida ishlayapsiz`
-          : undefined
-      }
-    >
-      {isPending ? (
-        <Yuklanmoqda qator={2} />
-      ) : isError ? (
-        <XatoHolati qayta={() => refetch()} />
-      ) : otalar.length === 0 ? (
-        <BugundanTanlash qator={qator} />
-      ) : (
-        <ul className="space-y-2">{otalar.map((v) => qator(v))}</ul>
+    <>
+      <Sahifa
+        sarlavha="Jarayonda"
+        tavsif={
+          otalar.length > 0
+            ? `${otalar.length} ta vazifa ustida ishlayapsiz`
+            : undefined
+        }
+        harakat={
+          <button
+            type="button"
+            onClick={() => setQoshishOchiq(true)}
+            className="hidden items-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-primary-hover md:flex"
+          >
+            <Plus className="size-4" aria-hidden />
+            Vazifa
+          </button>
+        }
+      >
+        {isPending ? (
+          <Yuklanmoqda qator={2} />
+        ) : isError ? (
+          <XatoHolati qayta={() => refetch()} />
+        ) : otalar.length === 0 ? (
+          <BugundanTanlash qator={qator} />
+        ) : (
+          <ul className="space-y-2">{otalar.map((v) => qator(v))}</ul>
+        )}
+      </Sahifa>
+
+      {qoshishOchiq && (
+        <VazifaOynasi
+          yop={() => setQoshishOchiq(false)}
+          defaultDate={bugunISO()}
+          onSuccess={(task) => {
+            boshlash.mutate({
+              id: task.id,
+              harakat: 'boshlash',
+            })
+          }}
+        />
       )}
-    </Sahifa>
+    </>
   )
 }
 

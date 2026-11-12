@@ -77,7 +77,7 @@ export function SanaTanlagich({
   onVaqtChange: (hhmm: string | null) => void
   onTakrorlanishChange: (r: Recurrence | null) => void
 }) {
-  const [ochiq, setOchiq] = useState(false)
+  const [ochiq, setOchiq] = useState(() => Boolean(sana))
   const [vaqtOchiq, setVaqtOchiq] = useState(false)
   const [takrorOchiq, setTakrorOchiq] = useState(false)
   const [korinishOy, setKorinishOy] = useState(() => (sana ? isoDan(sana) : new Date()))
@@ -267,11 +267,11 @@ function SanaPaneli({
         style={kattaEkran ? uslub : undefined}
         className={
           kattaEkran
-            ? 'fixed z-[100] max-h-[88vh] w-[21.25rem] overflow-y-auto rounded-2xl border border-border-subtle bg-surface p-2 shadow-float'
+            ? 'fixed z-[100] max-h-[70vh] w-[21.25rem] overflow-y-auto rounded-2xl border border-border-subtle bg-surface p-2 shadow-float dark:border-border-subtle-dark dark:bg-surface-dark'
             : // Telefonda — Todoist'dagi kabi pastdan chiqadigan varaq.
               // Oldin bu yerda ham qat'iy kenglikdagi panel edi va u
               // tor ekranda chap chetdan chiqib ketardi.
-              'fixed inset-x-0 bottom-0 z-[100] max-h-[88vh] overflow-y-auto rounded-t-3xl border-t border-border-subtle bg-surface p-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-float'
+              'fixed inset-x-0 bottom-0 z-[100] max-h-[70vh] overflow-y-auto rounded-t-3xl border-t border-border-subtle bg-surface p-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-float dark:border-border-subtle-dark dark:bg-surface-dark'
         }
       >
         {/* Telefonda sudrash chizig'i — varaqligini bildiradi */}
@@ -288,7 +288,7 @@ function SanaPaneli({
                 key={q.nom}
                 type="button"
                 onClick={() => onSanaChange(iso)}
-                className="flex min-h-0 w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-surface-muted"
+                className="flex min-h-0 w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-surface-muted dark:hover:bg-surface-muted-dark"
               >
                 <q.ikonka className="size-4 shrink-0" style={{ color: q.rang }} aria-hidden />
                 <span className="flex-1 font-medium text-text-strong">{q.nom}</span>
@@ -357,10 +357,10 @@ function SanaPaneli({
                   tanlangan
                     ? 'bg-brand-primary font-semibold text-white'
                     : bugunmi
-                      ? 'border border-brand-primary text-brand-primary'
+                      ? 'border border-brand-primary text-brand-primary dark:border-brand-primary-dark dark:text-brand-primary-dark'
                       : shuOyda
-                        ? 'text-text-strong hover:bg-surface-muted'
-                        : 'text-text-faint hover:bg-surface-muted'
+                        ? 'text-text-strong hover:bg-surface-muted dark:text-text-strong-dark dark:hover:bg-surface-muted-dark'
+                        : 'text-text-faint hover:bg-surface-muted dark:text-text-faint-dark dark:hover:bg-surface-muted-dark'
                 }`}
               >
                 {kun.getDate()}
@@ -417,8 +417,8 @@ function SanaPaneli({
                         aria-pressed={tanlangan}
                         className={`min-h-0 rounded-full border px-2.5 py-1 text-xs font-medium transition ${
                           tanlangan
-                            ? 'border-brand-primary bg-brand-soft text-brand-primary'
-                            : 'border-border-subtle text-text-muted hover:bg-surface-muted'
+                            ? 'border-brand-primary bg-brand-soft text-brand-primary dark:border-brand-primary-dark dark:bg-brand-soft-dark dark:text-brand-primary-dark'
+                            : 'border-border-subtle text-text-muted hover:bg-surface-muted dark:border-border-subtle-dark dark:text-text-muted-dark dark:hover:bg-surface-muted-dark'
                         }`}
                       >
                         {v}
@@ -431,7 +431,7 @@ function SanaPaneli({
                   value={vaqt ?? ''}
                   onChange={(e) => onVaqtChange(e.target.value || null)}
                   aria-label="Boshqa vaqt kiriting"
-                  className="min-h-0 w-full rounded-lg border border-border-subtle px-2 py-1.5 text-sm text-text-strong outline-none focus:border-brand-primary"
+                  className="min-h-0 w-full rounded-lg border border-border-subtle bg-surface px-2 py-1.5 text-sm text-text-strong outline-none focus:border-brand-primary dark:border-border-subtle-dark dark:bg-surface-dark dark:text-text-strong-dark dark:focus:border-brand-primary-dark"
                 />
               </div>
             )}
@@ -506,11 +506,11 @@ function SanaPaneli({
         )}
 
         {/* Tayyor */}
-        <div className="flex justify-end border-t border-border-subtle pt-2">
+        <div className="flex justify-end border-t border-border-subtle pt-2 dark:border-border-subtle-dark">
           <button
             type="button"
             onClick={yopish}
-            className="min-h-0 rounded-lg bg-brand-primary px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-brand-primary-hover"
+            className="min-h-0 rounded-lg bg-brand-primary px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-brand-primary-hover dark:bg-brand-primary-dark dark:hover:bg-brand-primary-hover-dark"
           >
             Tayyor
           </button>

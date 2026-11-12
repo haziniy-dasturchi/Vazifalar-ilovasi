@@ -110,7 +110,12 @@ export function BugunKorinishi() {
         </>
       )}
 
-      {qoshishOchiq && <VazifaOynasi yop={() => setQoshishOchiq(false)} />}
+      {qoshishOchiq && (
+        <VazifaOynasi
+          yop={() => setQoshishOchiq(false)}
+          defaultDate={bugun}
+        />
+      )}
     </Sahifa>
   )
 }
