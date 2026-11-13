@@ -1,7 +1,7 @@
 # Samara — loyiha holati (yangi chat uchun xulosa)
 
 > Bu fayl yangi suhbatga nusxalab tashlash uchun. Oxirgi yangilanish:
-> 2026-yil 12-noyabr.
+> 2026-yil 13-noyabr.
 
 ## Loyiha
 
@@ -59,6 +59,10 @@ Sinov uchun vaqtinchalik sahifa ochilsa (`app/sinov-*`), ish tugagach
 | `4dbe089` | Apple bilan kirish (yashirin) + yo'riqnomalar |
 | `897becd` | Hisobni o'chirish ishga tushdi |
 | `66d5814` | Play Market yo'riqnomasi tuzatildi (12 sinovchi) |
+| `9819771` | Sozlamalar sahifasi, qorong'i mavzu, sana tanlagich tuzatishlari |
+| `7438dcc` | Qorong'ida kulrang matn kontrasti AA darajasiga ko'tarildi |
+| `34c5f4d` | Avatar almashtirilganda eski fayl o'chadi |
+| `5fee25f` | iPhone'da o'rnatish yo'riqnomasi aniqlashtirildi |
 
 ## Muhim texnik qarorlar va sabablari
 
@@ -86,9 +90,44 @@ Bir soatdan eski eslatmalar yuborilmaydi.
 bo'lmasa **yashirin**. Sababi: Apple Developer a'zoligi ($99/yil) va
 Apple tomonida sozlashsiz tugma ishlamaydi.
 
+**Mavzu (yorug'/qorong'i).** Ranglar `app/globals.css` da oddiy CSS
+o'zgaruvchilari, `@theme inline` orqali Tailwind'ga bog'langan. Shu
+sababli komponentlarda `dark:` sinfi ISHLATILMAYDI — faqat
+o'zgaruvchilar almashadi. Yangi rang qo'shilsa, u ham shu yo'l bilan
+berilishi kerak.
+→ `--brand-onsoft` alohida token: qorong'ida to'ldirilgan tugma oq
+matn uchun to'q (`#047857`), yuzadagi matn esa yorug' (`#6ee7b7`)
+bo'lishi shart. Yorug' mavzuda ikkisi bir xil qiymatda.
+→ Tanlov localStorage'da (chizilishdan oldin o'qiladi, oq chaqnash
+bo'lmaydi) va `profiles.theme` da (qurilmalar orasida) saqlanadi.
+
+**Yon panel tartibi.** `profiles.sidebar_order` — bo'sh massiv "sukut
+tartib" degani. Ataylab shunday: kelajakda yangi bo'lim qo'shilsa, u
+avtomatik ro'yxatga tushadi. To'liq ro'yxat yozib qo'yilsa, eski
+foydalanuvchilar yangi bo'limni ko'rmay qolardi.
+
+**Avatar.** `avatarlar` storage bucket, fayl yo'li `<user_id>/<nom>`
+— RLS shu birinchi papkaga qarab ruxsat beradi. Yangisi yuklangach
+eskisi o'chiriladi, aks holda har almashtirish fayl qoldirardi.
+
 ---
 
 # Hozirgi vazifa: Play Market'ga chiqarish
+
+## Sozlamalar sahifasi (`/sozlamalar`)
+
+Profil menyusidan ochiladi (kompyuterda yon panel pasti, telefonda
+yuqori o'ng burchak). Besh bo'lim: profil (rasm, ism), umumiy (vaqt
+mintaqasi), ko'rinish, yon panel tartibi, bildirishnoma.
+
+Bazaga `20261113090000_sozlamalar.sql` migratsiyasi **qo'llangan**
+(13-noyabr): `profiles.sidebar_order` ustuni va `avatarlar` bucket.
+
+Supabase Auth → URL Configuration **tuzatilgan**: Site URL endi
+`https://samarali-kun.uz`. Oldin u Vercel manziliga qo'yilgandi va
+`samarali-kun.uz` da kirish boshqa domenga tashlab yuborardi — bu
+Play Market uchun to'siq edi, chunki Android ilovasi shu domenga
+ishora qiladi.
 
 ## Kod tomonidan TAYYOR
 
@@ -132,9 +171,16 @@ tekshiriladi.
 2. **App Store yo'li boshlanmagan.** Apple Developer hisobi ham, Mac
    ham yo'q. Qoida 4.2 (shunchaki sayt o'rami rad etiladi) va 4.8
    (Apple bilan kirish majburiy) sababli jiddiy ish talab qiladi.
-3. **Uchta fayl commit qilinmagan** (sessiya boshidan beri shunday):
-   `components/sahifalar/bugun.tsx`, `jarayonda.tsx`,
-   `components/vazifa/vazifa-oynasi.tsx`
+3. **YORUG' mavzuda kulrang matn kontrasti past.** `--text-faint`
+   (`#9ca3af`) oq fonda 2.5:1 beradi, WCAG AA esa 4.5:1 talab qiladi;
+   `--text-muted` ham 4.43:1 bilan chegarada. Bu loyihaning ASL
+   palitrasidan kelgan, qorong'i mavzu bilan bog'liq emas (qorong'ida
+   tuzatilgan). Tuzatish butun ilovaning ko'rinishini o'zgartiradi —
+   kulrang yozuvlar sezilarli to'qlashadi — shuning uchun dizayn
+   qarori sifatida foydalanuvchiga qoldirildi.
+4. **iPhone'da o'rnatishni dastur boshlay olmaydi.** iOS Safari'da
+   `beforeinstallprompt` yo'q — bu Apple cheklovi, kod bilan
+   aylanib o'tib bo'lmaydi. Faqat yo'riqnoma ko'rsatiladi.
 
 # Maxfiy ma'lumotlar
 
