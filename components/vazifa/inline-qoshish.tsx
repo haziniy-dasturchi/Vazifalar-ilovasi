@@ -47,7 +47,7 @@ export function InlineQoshish({
       <button
         type="button"
         onClick={() => setOchiq(true)}
-        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-text-faint transition hover:bg-surface-muted hover:text-brand-primary"
+        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-text-faint transition hover:bg-surface-muted hover:text-brand-onsoft"
       >
         <Plus className="size-4" aria-hidden />
         {matn}

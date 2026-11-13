@@ -138,6 +138,7 @@ export type Database = {
           pomodoro_focus_min: number
           pomodoro_long_break_min: number
           pomodoro_short_break_min: number
+          sidebar_order: string[]
           theme: string
           timezone: string
         }
@@ -154,6 +155,7 @@ export type Database = {
           pomodoro_focus_min?: number
           pomodoro_long_break_min?: number
           pomodoro_short_break_min?: number
+          sidebar_order?: string[]
           theme?: string
           timezone?: string
         }
@@ -170,6 +172,7 @@ export type Database = {
           pomodoro_focus_min?: number
           pomodoro_long_break_min?: number
           pomodoro_short_break_min?: number
+          sidebar_order?: string[]
           theme?: string
           timezone?: string
         }

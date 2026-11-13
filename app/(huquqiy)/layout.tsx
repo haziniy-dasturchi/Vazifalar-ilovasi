@@ -25,7 +25,7 @@ export default function HuquqiyLayout({
           >
             <ArrowLeft className="size-5" aria-hidden />
           </Link>
-          <span className="text-base font-bold text-brand-primary">Samara</span>
+          <span className="text-base font-bold text-brand-onsoft">Samara</span>
         </div>
       </header>
 

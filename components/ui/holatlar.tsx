@@ -52,7 +52,7 @@ export function BoshHolat({
       ) : (
         Ikonka && (
           <span className="flex size-16 items-center justify-center rounded-2xl bg-brand-soft">
-            <Ikonka className="size-8 text-brand-primary" aria-hidden />
+            <Ikonka className="size-8 text-brand-onsoft" aria-hidden />
           </span>
         )
       )}
@@ -79,8 +79,8 @@ export function BoshHolat({
 export function XatoHolati({ qayta }: { qayta?: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-3xl bg-surface px-6 py-14 text-center shadow-card">
-      <span className="flex size-14 items-center justify-center rounded-2xl bg-red-50">
-        <CircleAlert className="size-7 text-red-600" aria-hidden />
+      <span className="flex size-14 items-center justify-center rounded-2xl bg-danger-soft">
+        <CircleAlert className="size-7 text-danger" aria-hidden />
       </span>
       <h2 className="mt-4 text-lg font-semibold text-text-strong">
         Ma’lumotni yuklab bo‘lmadi

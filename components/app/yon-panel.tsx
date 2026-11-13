@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
-import { BOLIMLAR } from './pastki-menyu'
 import { ProfilMenyu } from './profil-menyu'
+import { useBolimTartibi } from '@/lib/queries/bolim-tartibi'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
@@ -14,6 +14,7 @@ import { useBolimlarniOldindanYuklash } from '@/lib/queries/bolimlar'
 
 export function YonPanel() {
   const yol = usePathname()
+  const BOLIMLAR = useBolimTartibi()
   const { data: papkalar, isPending } = useFaolPapkalar()
   const [oynaOchiq, setOynaOchiq] = useState(false)
   const papkaniOldindanYukla = usePapkaniOldindanYuklash()
@@ -48,7 +49,7 @@ export function YonPanel() {
                   aria-current={faol ? 'page' : undefined}
                   className={`flex min-h-touch items-center gap-3 rounded-xl px-3 text-base font-medium transition ${
                     faol
-                      ? 'bg-brand-soft text-brand-primary'
+                      ? 'bg-brand-soft text-brand-onsoft'
                       : 'text-text-strong hover:bg-surface-muted'
                   }`}
                 >
@@ -69,7 +70,7 @@ export function YonPanel() {
           type="button"
           onClick={() => setOynaOchiq(true)}
           aria-label="Yangi papka"
-          className="-mr-2 flex size-9 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted hover:text-brand-primary"
+          className="-mr-2 flex size-9 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted hover:text-brand-onsoft"
         >
           <Plus className="size-5" aria-hidden />
         </button>
@@ -99,7 +100,7 @@ export function YonPanel() {
                     onPointerDown={() => papkaUstigaTegish(papka.id)}
                     className={`flex min-h-touch items-center gap-3 rounded-xl px-3 text-base transition ${
                       faol
-                        ? 'bg-brand-soft font-semibold text-brand-primary'
+                        ? 'bg-brand-soft font-semibold text-brand-onsoft'
                         : 'text-text-strong hover:bg-surface-muted'
                     }`}
                   >

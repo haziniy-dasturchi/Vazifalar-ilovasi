@@ -50,10 +50,10 @@ export function YoriqnomaKorinishi() {
             key={q.sarlavha}
             className="flex items-center gap-4 rounded-2xl bg-surface p-4 shadow-card"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-base font-bold text-brand-primary">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-base font-bold text-brand-onsoft">
               {i + 1}
             </span>
-            <q.ikonka className="size-5 shrink-0 text-brand-primary" aria-hidden />
+            <q.ikonka className="size-5 shrink-0 text-brand-onsoft" aria-hidden />
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-text-strong">{q.sarlavha}</p>
               <p className="text-sm text-text-muted">{q.matn}</p>

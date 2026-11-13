@@ -1,6 +1,9 @@
 /** React Query kalitlari — bir joyda turgani invalidatsiyani soddalashtiradi */
 export const kalit = {
+  /** Sessiyadan olinadigan foydalanuvchi (ism, email, Google avatari) */
   profil: ['profil'] as const,
+  /** `profiles` jadvalidagi sozlamalar qatori */
+  sozlamalar: ['profil', 'sozlamalar'] as const,
   papkalar: ['papkalar'] as const,
   /** Barcha bo'lim so'rovlari shu prefiks bilan boshlanadi */
   bolimlarPrefiks: ['bolimlar'] as const,

@@ -100,7 +100,7 @@ export function PapkaOynasi({
                     setIkonka(shablon.icon)
                     setRang(shablon.color)
                   }}
-                  className="min-h-0 rounded-full border border-border-subtle px-4 py-2 text-sm text-text-strong transition hover:border-brand-primary hover:bg-brand-soft"
+                  className="min-h-0 rounded-full border border-border-subtle px-4 py-2 text-sm text-text-strong transition hover:border-brand-onsoft hover:bg-brand-soft"
                 >
                   {shablon.name}
                 </button>
@@ -113,7 +113,7 @@ export function PapkaOynasi({
           <span className="mb-2 block text-sm font-medium text-text-muted">
             Papka nomi
           </span>
-          <div className="flex items-center gap-3 rounded-xl border border-border-subtle bg-surface px-4 focus-within:border-brand-primary">
+          <div className="flex items-center gap-3 rounded-xl border border-border-subtle bg-surface px-4 focus-within:border-brand-onsoft">
             <Oldindan
               className="size-5 shrink-0"
               style={{ color: rang }}
@@ -169,7 +169,7 @@ export function PapkaOynasi({
                   aria-pressed={tanlangan}
                   className={`flex size-11 min-h-0 items-center justify-center rounded-xl border transition ${
                     tanlangan
-                      ? 'border-brand-primary bg-brand-soft'
+                      ? 'border-brand-onsoft bg-brand-soft'
                       : 'border-border-subtle hover:bg-surface-muted'
                   }`}
                 >

@@ -2,23 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CalendarDays, ClipboardCheck, Play, Sun } from 'lucide-react'
+import { useBolimTartibi } from '@/lib/queries/bolim-tartibi'
 
-/**
- * Tartib ataylab shunday: "Jarayonda" birinchi — ilova ochilganda
- * foydalanuvchi avval boshlangan ishini ko'radi va uni davom ettiradi.
- * Agar jarayonda ish bo'lmasa, o'sha sahifaning o'zida bugungi
- * ishlardan bittasini tanlab boshlaydi.
- */
-export const BOLIMLAR = [
-  { yol: '/jarayonda', nom: 'Jarayonda', ikonka: Play },
-  { yol: '/bugun', nom: 'Bugun', ikonka: Sun },
-  { yol: '/kelgusi', nom: 'Kelgusi', ikonka: CalendarDays },
-  { yol: '/korish', nom: 'Ko‘rish', ikonka: ClipboardCheck },
-] as const
+// Ro'yxatning o'zi `lib/bolimlar.ts` ga ko'chirildi: uni sozlamalar
+// sahifasi ham ishlatadi va komponentdan import qilish aylanma
+// bog'lanish hosil qilardi.
+export { BOLIMLAR } from '@/lib/bolimlar'
 
 export function PastkiMenyu() {
   const yol = usePathname()
+  const BOLIMLAR = useBolimTartibi()
 
   return (
     <nav
@@ -34,7 +27,7 @@ export function PastkiMenyu() {
                 href={manzil}
                 aria-current={faol ? 'page' : undefined}
                 className={`flex min-h-touch flex-col items-center justify-center gap-1 px-1 py-2 text-xs font-medium transition ${
-                  faol ? 'text-brand-primary' : 'text-text-faint'
+                  faol ? 'text-brand-onsoft' : 'text-text-faint'
                 }`}
               >
                 <Ikonka

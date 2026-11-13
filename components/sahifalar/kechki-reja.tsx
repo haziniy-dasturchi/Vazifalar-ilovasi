@@ -50,7 +50,7 @@ export function KechkiRejaKorinishi() {
       tavsif={`Ertaga uchun — ${toliqSana(ertaga)}`}
       belgi={
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft">
-          <Moon className="size-5 text-brand-primary" aria-hidden />
+          <Moon className="size-5 text-brand-onsoft" aria-hidden />
         </span>
       }
     >
@@ -158,7 +158,7 @@ function ErtangaQoshish({
           value={vaqt}
           onChange={(e) => setVaqt(e.target.value)}
           aria-label="Vaqt (ixtiyoriy)"
-          className="min-h-touch rounded-xl border border-border-subtle bg-surface px-3 text-sm text-text-strong outline-none focus:border-brand-primary"
+          className="min-h-touch rounded-xl border border-border-subtle bg-surface px-3 text-sm text-text-strong outline-none focus:border-brand-onsoft"
         />
 
         <button

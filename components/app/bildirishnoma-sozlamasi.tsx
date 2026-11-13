@@ -62,7 +62,7 @@ export function BildirishnomaSozlamasi() {
     <div className="flex items-start gap-4 rounded-2xl bg-surface p-4 shadow-card">
       <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft">
         {yoqilgan ? (
-          <Bell className="size-5 text-brand-primary" aria-hidden />
+          <Bell className="size-5 text-brand-onsoft" aria-hidden />
         ) : (
           <BellOff className="size-5 text-text-faint" aria-hidden />
         )}

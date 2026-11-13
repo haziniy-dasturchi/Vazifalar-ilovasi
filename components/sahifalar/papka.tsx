@@ -207,7 +207,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
                           setMenyuOchiq(false)
                           setOchirishOchiq(true)
                         }}
-                        className="flex w-full min-h-touch items-center gap-3 px-4 text-sm text-red-600 transition hover:bg-red-50"
+                        className="flex w-full min-h-touch items-center gap-3 px-4 text-sm text-danger transition hover:bg-danger-soft"
                       >
                         <Trash2 className="size-4" aria-hidden />
                         O‘chirish
@@ -314,7 +314,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
             <button
               type="button"
               onClick={() => setYangiBolim(true)}
-              className="mt-2 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-text-faint transition hover:bg-surface-muted hover:text-brand-primary"
+              className="mt-2 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-text-faint transition hover:bg-surface-muted hover:text-brand-onsoft"
             >
               <Plus className="size-4" aria-hidden />
               {loyihalarmi ? 'Loyiha qo‘shish' : 'Bo‘lim qo‘shish'}
@@ -484,7 +484,7 @@ function BolimBloki({
                     setMenyuOchiq(false)
                     setOchirishOchiq(true)
                   }}
-                  className="flex w-full min-h-touch items-center gap-3 px-4 text-sm text-red-600 transition hover:bg-red-50"
+                  className="flex w-full min-h-touch items-center gap-3 px-4 text-sm text-danger transition hover:bg-danger-soft"
                 >
                   <Trash2 className="size-4" aria-hidden />
                   O‘chirish

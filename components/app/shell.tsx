@@ -1,18 +1,39 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { FoydalanuvchiProvider } from './foydalanuvchi'
 import { YonPanel } from './yon-panel'
 import { PastkiMenyu } from './pastki-menyu'
 import { MobilSarlavha } from './mobil-sarlavha'
 import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
-import { useFoydalanuvchiSorovi } from '@/lib/queries/profil'
+import { useFoydalanuvchiSorovi, useProfil } from '@/lib/queries/profil'
 import { useAsosiyRoyxatlarniOldindanYuklash } from '@/lib/queries/vazifalar'
+import { MAVZU_KALITI, mavzuniOrnat } from '@/lib/mavzu'
+import type { Theme } from '@/types/vazifalar'
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const [qoshishOchiq, setQoshishOchiq] = useState(false)
   const { data: foydalanuvchi } = useFoydalanuvchiSorovi()
+  const { data: profil } = useProfil()
+
+  /**
+   * Yangi qurilmada mavzuni hisobdan tiklash.
+   *
+   * Faqat bu qurilmada hali tanlov qilinmagan bo'lsa ishlaydi: aks
+   * holda odam shu qurilmada "yorug'" deb qo'ygan bo'lsa ham, hisobdagi
+   * eski qiymat uni bosib ketardi.
+   */
+  useEffect(() => {
+    const saqlangan = profil?.theme as Theme | undefined
+    if (!saqlangan) return
+    try {
+      if (window.localStorage.getItem(MAVZU_KALITI)) return
+    } catch {
+      return
+    }
+    mavzuniOrnat(saqlangan)
+  }, [profil?.theme])
 
   // Boshqa bo'limlarni fonda oldindan yuklab qo'yish — shunda ularga
   // o'tilganda ma'lumot allaqachon keshda tayyor turadi.

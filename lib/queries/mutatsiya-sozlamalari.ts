@@ -3,7 +3,7 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { kalit } from './keys'
-import type { Folder, Recurrence, Section, Task } from '@/types/vazifalar'
+import type { Folder, Recurrence, Section, Task, Theme } from '@/types/vazifalar'
 
 /**
  * Offline yozishning yuragi.
@@ -26,6 +26,7 @@ import type { Folder, Recurrence, Section, Task } from '@/types/vazifalar'
  */
 
 export const MUTATSIYA = {
+  profilYangilash: ['mutatsiya', 'profil', 'yangilash'] as const,
   vazifaYaratish: ['mutatsiya', 'vazifa', 'yaratish'] as const,
   vazifaYangilash: ['mutatsiya', 'vazifa', 'yangilash'] as const,
   vazifaOchirish: ['mutatsiya', 'vazifa', 'ochirish'] as const,
@@ -57,6 +58,17 @@ export type YangiVazifa = {
   priority?: 1 | 2 | 3 | 4
   /** 0, 10 ... 100. 100 berilsa baza triggeri vazifani "done" qiladi */
   progress?: number
+  /**
+   * Boshlang'ich holat. Berilmasa — 'planned'.
+   *
+   * Nega yaratishning o'zida: "Jarayonda" sahifasidan qo'shilgan vazifa
+   * darhol boshlangan bo'lishi kerak. Avval buni ikki qadamda qilishga
+   * urinilgandi — avval yaratish, keyin `onSuccess` ichida "boshlash"
+   * RPC'si. Lekin ilova offline ishlaydi: internet yo'q paytda
+   * `onSuccess` umuman chaqirilmaydi va vazifa 'planned' bo'lib qolardi.
+   * Bitta amalda yuborilganda esa u navbatga butun holda tushadi.
+   */
+  status?: Task['status']
 }
 
 export type VazifaOzgarishi = Partial<
@@ -110,6 +122,21 @@ export type BolimOzgarishi = { id: string } & Partial<
   Pick<Section, 'name' | 'is_collapsed' | 'sort_order'>
 >
 
+/**
+ * Profil sozlamalari o'zgarishi.
+ *
+ * `id` yuborilmaydi — qator doim joriy foydalanuvchiniki (RLS shuni
+ * majburlaydi), shuning uchun uni chaqiruvchi tomondan olish ortiqcha
+ * va xato manbai bo'lardi.
+ */
+export type ProfilOzgarishi = {
+  full_name?: string | null
+  avatar_url?: string | null
+  theme?: Theme
+  timezone?: string
+  sidebar_order?: string[]
+}
+
 export type HolatHarakati = 'boshlash' | 'rejaga' | 'bajarish' | 'qaytarish'
 
 const RPC_NOMI: Record<
@@ -136,9 +163,25 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
   const bolimlarniYangila = () =>
     qc.invalidateQueries({ queryKey: kalit.bolimlarPrefiks })
 
+  // ---------------- Profil ----------------
+  qc.setMutationDefaults(MUTATSIYA.profilYangilash, {
+    mutationFn: async (ozgarish: ProfilOzgarishi) => {
+      const { data, error } = await sb()
+        .from('profiles')
+        .update(ozgarish)
+        .eq('id', await foydalanuvchiId())
+        .select()
+        .single()
+      if (error) throw error
+      return data
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: kalit.sozlamalar }),
+  })
+
   // ---------------- Vazifalar ----------------
   qc.setMutationDefaults(MUTATSIYA.vazifaYaratish, {
     mutationFn: async (yangi: YangiVazifa) => {
+      const holat = yangi.status ?? 'planned'
       const { data, error } = await sb()
         .from('tasks')
         .insert({
@@ -152,6 +195,11 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
           recurrence: yangi.recurrence ?? null,
           priority: yangi.priority ?? 4,
           progress: yangi.progress ?? 0,
+          status: holat,
+          // "Jarayonda" ro'yxati `started_at` bo'yicha saralanadi —
+          // `start_task` RPC'si qo'yadigan qiymatni shu yerda ham
+          // qo'yamiz, aks holda vazifa ro'yxat boshida osilib qolardi
+          started_at: holat === 'in_progress' ? new Date().toISOString() : null,
         })
         .select()
         .single()

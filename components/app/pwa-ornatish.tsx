@@ -171,9 +171,9 @@ export function PwaOrnatish() {
       <div className="flex flex-col items-center gap-4 pb-2 text-center">
         <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-brand-soft">
           {qollanma ? (
-            <Share className="size-7 text-brand-primary" aria-hidden />
+            <Share className="size-7 text-brand-onsoft" aria-hidden />
           ) : (
-            <Download className="size-7 text-brand-primary" aria-hidden />
+            <Download className="size-7 text-brand-onsoft" aria-hidden />
           )}
         </span>
 

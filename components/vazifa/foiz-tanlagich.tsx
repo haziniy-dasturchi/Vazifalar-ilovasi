@@ -91,7 +91,7 @@ export function FoizTanlagich({
               aria-pressed={tanlangan}
               className={`min-h-0 rounded-lg border py-2 text-xs font-medium transition ${
                 tanlangan
-                  ? 'border-brand-primary bg-brand-soft text-brand-primary'
+                  ? 'border-brand-onsoft bg-brand-soft text-brand-onsoft'
                   : 'border-border-subtle text-text-muted hover:bg-surface-muted'
               }`}
             >

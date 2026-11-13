@@ -107,7 +107,7 @@ export function Tanlagich({
         aria-label={ariaLabel}
         className={`flex min-h-touch w-full items-center gap-2 rounded-xl border bg-surface px-4 py-3 text-left text-base transition ${
           ochiq
-            ? 'border-brand-primary'
+            ? 'border-brand-onsoft'
             : 'border-border-subtle hover:bg-surface-muted'
         }`}
       >
@@ -167,7 +167,7 @@ export function Tanlagich({
                       }}
                       className={`flex min-h-0 w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition ${
                         faol
-                          ? 'bg-brand-soft font-medium text-brand-primary'
+                          ? 'bg-brand-soft font-medium text-brand-onsoft'
                           : 'text-text-strong hover:bg-surface-muted'
                       }`}
                     >
@@ -186,7 +186,7 @@ export function Tanlagich({
                       )}
                       {faol && (
                         <Check
-                          className="size-4 shrink-0 text-brand-primary"
+                          className="size-4 shrink-0 text-brand-onsoft"
                           aria-hidden
                         />
                       )}

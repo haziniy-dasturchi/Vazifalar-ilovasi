@@ -31,7 +31,7 @@ export default async function KirishSahifasi({
             height={168}
             className="mx-auto h-auto w-56"
           />
-          <p className="mt-2 text-sm font-semibold text-brand-primary">
+          <p className="mt-2 text-sm font-semibold text-brand-onsoft">
             Har kun — samarali kun
           </p>
           <p className="mt-3 text-base leading-relaxed text-text-muted">
@@ -42,7 +42,7 @@ export default async function KirishSahifasi({
           {xatoMatni && (
             <p
               role="alert"
-              className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"
+              className="mt-6 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger"
             >
               {xatoMatni}
             </p>

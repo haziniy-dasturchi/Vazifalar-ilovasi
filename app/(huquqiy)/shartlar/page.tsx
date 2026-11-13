@@ -54,7 +54,7 @@ export default function ShartlarSahifasi() {
           Batafsil:{' '}
           <a
             href="/maxfiylik"
-            className="font-medium text-brand-primary underline"
+            className="font-medium text-brand-onsoft underline"
           >
             Maxfiylik siyosati
           </a>
@@ -97,7 +97,7 @@ export default function ShartlarSahifasi() {
           Savollaringiz bo‘lsa:{' '}
           <a
             href={`mailto:${ALOQA_EMAIL}`}
-            className="font-medium text-brand-primary underline"
+            className="font-medium text-brand-onsoft underline"
           >
             {ALOQA_EMAIL}
           </a>

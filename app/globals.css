@@ -7,30 +7,17 @@
      #10B981 — zumrad (belgi: aylana, asosiy harakat rangi)
      #6EE7B7 — barg rangi (qorong'i fonda ishlatiladigan barg)
      #ECFDF5 — eng ochiq ton (illyustratsiyalar foni bilan bir xil)
+
+   MAVZU QANDAY ISHLAYDI
+   Har bir rang avval oddiy CSS o'zgaruvchisi sifatida e'lon qilinadi,
+   keyin `@theme inline` orqali Tailwind utilitasiga bog'lanadi.
+   `inline` muhim: usiz Tailwind rang qiymatini qotirib qo'yadi va
+   ish paytida mavzuni almashtirib bo'lmaydi. Shu tuzilish tufayli
+   qorong'i mavzu uchun biror komponentga `dark:` sinfi yozish
+   SHART EMAS — faqat o'zgaruvchilar almashadi.
    ============================================================= */
 
 @theme {
-  /* Brend */
-  --color-brand-primary: #0b3d2e;
-  --color-brand-primary-hover: #065f46;
-  --color-brand-accent: #10b981;
-  --color-brand-accent-hover: #059669;
-  /* Logodagi barg rangi — bajarilish foizini ko'rsatuvchi "suv" */
-  --color-brand-leaf: #6ee7b7;
-  --color-brand-soft: #ecfdf5;
-  --color-brand-ink: #0b3d2e;
-
-  /* Holat ranglari — brenddan qat'i nazar o'zgarmaydi */
-  --color-status-progress: #fef3c7;
-  --color-status-progress-line: #f59e0b;
-  --color-status-progress-text: #92400e;
-
-  /* Muhimlik */
-  --color-priority-1: #dc2626;
-  --color-priority-2: #ea580c;
-  --color-priority-3: #2563eb;
-  --color-priority-4: #9ca3af;
-
   /* Shrift */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
@@ -39,9 +26,12 @@
 }
 
 /* -------------------------------------------------------------
-   Yuza ranglari — yorug' va qorong'i mavzu (qorong'i: 6-bosqich)
+   YORUG' MAVZU (asosiy)
    ------------------------------------------------------------- */
 :root {
+  color-scheme: light;
+
+  /* Yuzalar */
   --surface: #ffffff;
   --surface-muted: #f6f8f7;
   --surface-sunken: #eef2f1;
@@ -49,8 +39,131 @@
   --text-strong: #1d1d1b;
   --text-muted: #6b7280;
   --text-faint: #9ca3af;
+
+  /* Brend */
+  --brand-primary: #0b3d2e;
+  --brand-primary-hover: #065f46;
+  --brand-accent: #10b981;
+  --brand-accent-hover: #059669;
+  /* Logodagi barg rangi — bajarilish foizini ko'rsatuvchi "suv" */
+  --brand-leaf: #6ee7b7;
+  --brand-soft: #ecfdf5;
+  /*
+    `--brand-soft` fonida yoki oddiy yuzada turadigan brend matni va
+    ikonkasi. Yorug' mavzuda u `--brand-primary` bilan AYNAN bir xil,
+    shuning uchun bu ajratish yorug' ko'rinishni zarracha o'zgartirmaydi.
+    Qorong'ida esa ikkisi ajralishi shart: to'ldirilgan tugma oq matn
+    uchun to'q bo'lishi kerak, yuzadagi matn esa — yorug'.
+  */
+  --brand-onsoft: #0b3d2e;
+  --brand-ink: #0b3d2e;
+
+  /* Holat ranglari */
+  --status-progress: #fef3c7;
+  --status-progress-line: #f59e0b;
+  --status-progress-text: #92400e;
+
+  /* Muhimlik */
+  --priority-1: #dc2626;
+  --priority-2: #ea580c;
+  --priority-3: #2563eb;
+  --priority-4: #9ca3af;
+
+  /* Xavfli harakatlar (o'chirish, chiqish) */
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+
+  /* Soya — qorong'ida quyuqroq bo'lishi uchun o'zgaruvchi */
+  --soya-rang: 0 57 51;
+  --soya-kuch: 1;
 }
 
+/* -------------------------------------------------------------
+   QORONG'I MAVZU
+
+   Ikki joyda takrorlanadi, chunki uch holat bor:
+     1. Tizim qorong'i + foydalanuvchi tanlamagan  → media so'rovi
+     2. Foydalanuvchi "qorong'i" deb tanlagan      → data-mavzu="dark"
+     3. Foydalanuvchi "yorug'" deb tanlagan        → tizim qorong'i
+        bo'lsa ham yorug' qoladi (`:not([data-mavzu='light'])`)
+   ------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mavzu='light']) {
+    color-scheme: dark;
+
+    --surface: #181c1a;
+    --surface-muted: #101312;
+    --surface-sunken: #232825;
+    --border-subtle: #2b312e;
+    --text-strong: #ecefed;
+    --text-muted: #9aa5a0;
+    --text-faint: #6b7571;
+
+    /* Oq matn uchun yetarlicha to'q (5.5:1), fondan esa ajralib turadi */
+    --brand-primary: #047857;
+    --brand-primary-hover: #03644a;
+    --brand-accent: #34d399;
+    --brand-accent-hover: #6ee7b7;
+    --brand-leaf: #34d399;
+    --brand-soft: #122e25;
+    /* Logodagi barg rangi — qorong'i fonda 9:1 dan yuqori kontrast */
+    --brand-onsoft: #6ee7b7;
+    --brand-ink: #000000;
+
+    --status-progress: #3a2f12;
+    --status-progress-line: #f59e0b;
+    --status-progress-text: #fcd34d;
+
+    --priority-1: #f87171;
+    --priority-2: #fb923c;
+    --priority-3: #60a5fa;
+    --priority-4: #9ca3af;
+
+    --danger: #f87171;
+    --danger-soft: #3a1b1b;
+
+    --soya-rang: 0 0 0;
+    --soya-kuch: 3;
+  }
+}
+
+:root[data-mavzu='dark'] {
+  color-scheme: dark;
+
+  --surface: #181c1a;
+  --surface-muted: #101312;
+  --surface-sunken: #232825;
+  --border-subtle: #2b312e;
+  --text-strong: #ecefed;
+  --text-muted: #9aa5a0;
+  --text-faint: #6b7571;
+
+  --brand-primary: #047857;
+  --brand-primary-hover: #03644a;
+  --brand-accent: #34d399;
+  --brand-accent-hover: #6ee7b7;
+  --brand-leaf: #34d399;
+  --brand-soft: #122e25;
+  --brand-onsoft: #6ee7b7;
+  --brand-ink: #000000;
+
+  --status-progress: #3a2f12;
+  --status-progress-line: #f59e0b;
+  --status-progress-text: #fcd34d;
+
+  --priority-1: #f87171;
+  --priority-2: #fb923c;
+  --priority-3: #60a5fa;
+  --priority-4: #9ca3af;
+
+  --danger: #f87171;
+  --danger-soft: #3a1b1b;
+
+  --soya-rang: 0 0 0;
+  --soya-kuch: 3;
+}
+
+/* Tailwind utilitalarini yuqoridagi o'zgaruvchilarga bog'laymiz */
 @theme inline {
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
@@ -59,6 +172,27 @@
   --color-text-strong: var(--text-strong);
   --color-text-muted: var(--text-muted);
   --color-text-faint: var(--text-faint);
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-hover: var(--brand-primary-hover);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-hover: var(--brand-accent-hover);
+  --color-brand-leaf: var(--brand-leaf);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-onsoft: var(--brand-onsoft);
+  --color-brand-ink: var(--brand-ink);
+
+  --color-status-progress: var(--status-progress);
+  --color-status-progress-line: var(--status-progress-line);
+  --color-status-progress-text: var(--status-progress-text);
+
+  --color-priority-1: var(--priority-1);
+  --color-priority-2: var(--priority-2);
+  --color-priority-3: var(--priority-3);
+  --color-priority-4: var(--priority-4);
+
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
 }
 
 /* -------------------------------------------------------------
@@ -88,7 +222,7 @@
 
   /* Fokus halqasi — klaviatura bilan yurganda ko'rinadi */
   :focus-visible {
-    outline: 2px solid var(--color-brand-accent);
+    outline: 2px solid var(--brand-accent);
     outline-offset: 2px;
     border-radius: 0.5rem;
   }
@@ -101,23 +235,25 @@
 }
 
 @layer utilities {
-  /* Kartochka va panellar uchun yumshoq soya */
+  /* Kartochka va panellar uchun yumshoq soya.
+     Qorong'i mavzuda `--soya-kuch` oshadi — aks holda soya
+     ko'rinmay qoladi va yuzalar bir-biridan ajralmaydi. */
   .shadow-card {
     box-shadow:
-      0 1px 2px rgb(0 57 51 / 0.04),
-      0 1px 3px rgb(0 57 51 / 0.06);
+      0 1px 2px rgb(var(--soya-rang) / calc(0.04 * var(--soya-kuch))),
+      0 1px 3px rgb(var(--soya-rang) / calc(0.06 * var(--soya-kuch)));
   }
 
   .shadow-raised {
     box-shadow:
-      0 4px 6px -1px rgb(0 57 51 / 0.08),
-      0 2px 4px -2px rgb(0 57 51 / 0.06);
+      0 4px 6px -1px rgb(var(--soya-rang) / calc(0.08 * var(--soya-kuch))),
+      0 2px 4px -2px rgb(var(--soya-rang) / calc(0.06 * var(--soya-kuch)));
   }
 
   .shadow-float {
     box-shadow:
-      0 10px 15px -3px rgb(0 57 51 / 0.12),
-      0 4px 6px -4px rgb(0 57 51 / 0.1);
+      0 10px 15px -3px rgb(var(--soya-rang) / calc(0.12 * var(--soya-kuch))),
+      0 4px 6px -4px rgb(var(--soya-rang) / calc(0.1 * var(--soya-kuch)));
   }
 
   /* Harakatni kamaytirish sozlamasi yoqilgan bo'lsa */

@@ -227,7 +227,7 @@ export function HisobotKorinishi() {
               aria-pressed={faol}
               className={`min-h-0 rounded-full border px-4 py-2 text-sm font-medium transition ${
                 faol
-                  ? 'border-brand-primary bg-brand-soft text-brand-primary'
+                  ? 'border-brand-onsoft bg-brand-soft text-brand-onsoft'
                   : 'border-border-subtle text-text-strong hover:bg-surface-muted'
               }`}
             >
@@ -639,7 +639,7 @@ function FoizTarixi({
                 style={{ width: `${Math.min(y.osish, 100)}%` }}
               />
             </div>
-            <span className="w-12 shrink-0 text-right text-sm font-semibold text-brand-primary">
+            <span className="w-12 shrink-0 text-right text-sm font-semibold text-brand-onsoft">
               +{y.osish}%
             </span>
           </li>

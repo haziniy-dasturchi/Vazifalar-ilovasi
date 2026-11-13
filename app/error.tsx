@@ -16,8 +16,8 @@ export default function Xato({
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-surface-muted px-6 text-center">
-      <span className="flex size-16 items-center justify-center rounded-2xl bg-red-50">
-        <TriangleAlert className="size-8 text-red-600" aria-hidden />
+      <span className="flex size-16 items-center justify-center rounded-2xl bg-danger-soft">
+        <TriangleAlert className="size-8 text-danger" aria-hidden />
       </span>
       <h1 className="mt-5 text-xl font-bold text-text-strong">
         Nimadir noto‘g‘ri ketdi

@@ -2,17 +2,22 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Archive, LogOut } from 'lucide-react'
+import { Archive, LogOut, Settings } from 'lucide-react'
 import { useFoydalanuvchi } from './foydalanuvchi'
 import { useChiqish } from './use-chiqish'
+import { useProfil } from '@/lib/queries/profil'
 
 /** Telefon uchun yuqori panel — brend va profil menyusi */
 export function MobilSarlavha() {
   const foydalanuvchi = useFoydalanuvchi()
+  const { data: profil } = useProfil()
   const chiqish = useChiqish()
   const [ochiq, setOchiq] = useState(false)
 
-  const bosh = foydalanuvchi.ism.trim().charAt(0).toUpperCase() || 'S'
+  // Foydalanuvchi o'zi qo'ygan ism va rasm ustun turadi
+  const ism = profil?.full_name?.trim() || foydalanuvchi.ism
+  const rasm = profil?.avatar_url ?? foydalanuvchi.rasm
+  const bosh = ism.trim().charAt(0).toUpperCase() || 'S'
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border-subtle bg-surface/95 px-4 py-2 backdrop-blur md:hidden">
@@ -35,11 +40,11 @@ export function MobilSarlavha() {
           aria-label="Profil menyusi"
           className="flex size-11 min-h-0 items-center justify-center rounded-full"
         >
-          {foydalanuvchi.rasm ? (
-            // Google avatari tashqi domendan keladi
+          {rasm ? (
+            // Avatar Google'dan yoki Supabase storage'dan keladi
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={foydalanuvchi.rasm}
+              src={rasm}
               alt=""
               width={32}
               height={32}
@@ -64,12 +69,20 @@ export function MobilSarlavha() {
             <div className="absolute right-0 z-20 mt-1 w-60 overflow-hidden rounded-xl border border-border-subtle bg-surface shadow-float">
               <div className="border-b border-border-subtle px-4 py-3">
                 <p className="truncate text-sm font-medium text-text-strong">
-                  {foydalanuvchi.ism}
+                  {ism}
                 </p>
                 <p className="truncate text-xs text-text-faint">
                   {foydalanuvchi.email}
                 </p>
               </div>
+              <Link
+                href="/sozlamalar"
+                onClick={() => setOchiq(false)}
+                className="flex min-h-touch items-center gap-3 px-4 text-sm text-text-strong transition hover:bg-surface-muted"
+              >
+                <Settings className="size-4" aria-hidden />
+                Sozlamalar
+              </Link>
               <Link
                 href="/arxiv"
                 onClick={() => setOchiq(false)}
@@ -81,7 +94,7 @@ export function MobilSarlavha() {
               <button
                 type="button"
                 onClick={chiqish}
-                className="flex w-full min-h-touch items-center gap-3 px-4 text-sm text-red-600 transition hover:bg-red-50"
+                className="flex w-full min-h-touch items-center gap-3 px-4 text-sm text-danger transition hover:bg-danger-soft"
               >
                 <LogOut className="size-4" aria-hidden />
                 Chiqish

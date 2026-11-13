@@ -60,7 +60,7 @@ export default function HisobniOchirishSahifasi() {
         <p className="mt-3">
           <a
             href={`mailto:${ALOQA_EMAIL}?subject=${encodeURIComponent('Hisobni o‘chirish so‘rovi')}`}
-            className="text-base font-semibold text-brand-primary underline"
+            className="text-base font-semibold text-brand-onsoft underline"
           >
             {ALOQA_EMAIL}
           </a>
@@ -86,8 +86,8 @@ export default function HisobniOchirishSahifasi() {
           <li>Bildirishnoma obunalari</li>
         </ul>
 
-        <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4">
-          <p className="text-base leading-relaxed text-red-800">
+        <div className="mt-5 rounded-xl border border-danger/35 bg-danger-soft p-4">
+          <p className="text-base leading-relaxed text-danger">
             <strong>Diqqat:</strong> o‘chirilgan ma’lumotlarni tiklab
             bo‘lmaydi. Zaxira nusxa saqlanmaydi. Muhim yozuvlaringiz bo‘lsa,
             o‘chirishdan oldin ko‘chirib oling.
@@ -117,7 +117,7 @@ function Qadam({
 }) {
   return (
     <li className="flex gap-3">
-      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand-primary">
+      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand-onsoft">
         {raqam}
       </span>
       <span className="flex-1">{children}</span>

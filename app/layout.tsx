@@ -34,7 +34,12 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#0b3d2e',
+  // Qorong'i mavzuda brauzer paneli ham qorayadi. Foydalanuvchi
+  // mavzuni qo'lda tanlasa, `lib/mavzu.ts` shu tegni yangilaydi.
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#0b3d2e' },
+    { media: '(prefers-color-scheme: dark)', color: '#101312' },
+  ],
 }
 
 export default function RootLayout({
@@ -45,6 +50,23 @@ export default function RootLayout({
   return (
     <html lang="uz" className={inter.variable}>
       <body className="antialiased">
+        {/*
+          Mavzu sahifa CHIZILISHIDAN OLDIN qo'llanishi shart: aks holda
+          qorong'i rejimdagi foydalanuvchi har safar bir lahza oq
+          ekranni ko'radi.
+
+          Oddiy <script> ishlatilgan — React uni hujjat boshiga o'zi
+          ko'taradi va hidratsiyadan oldin bajaradi. <head> tegini
+          qo'lda yozish MUMKIN EMAS: App Router'da u Next'ning o'z
+          boshqaruviga xalaqit berib, hidratsiyani butunlay to'xtatadi
+          (sinovda aniqlandi — sahifa chiziladi, lekin hech bir tugma
+          ishlamay qoladi).
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=localStorage.getItem('samara-mavzu');if(m==='dark'||m==='light'){document.documentElement.dataset.mavzu=m;}}catch(e){}})();`,
+          }}
+        />
         {/*
           "beforeinstallprompt" hodisasi sahifa yuklanishi davomida
           HAR QANDAY vaqtda kelishi mumkin — ko'pincha React hali

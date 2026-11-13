@@ -128,7 +128,7 @@ export default function MaxfiylikSahifasi() {
           Hisobni o‘chirish</strong> bo‘limiga o‘ting yoki{' '}
           <a
             href="/hisobni-ochirish"
-            className="font-medium text-brand-primary underline"
+            className="font-medium text-brand-onsoft underline"
           >
             shu sahifadagi
           </a>{' '}
@@ -155,7 +155,7 @@ export default function MaxfiylikSahifasi() {
           Savollaringiz bo‘lsa:{' '}
           <a
             href={`mailto:${ALOQA_EMAIL}`}
-            className="font-medium text-brand-primary underline"
+            className="font-medium text-brand-onsoft underline"
           >
             {ALOQA_EMAIL}
           </a>

@@ -269,6 +269,9 @@ export function useVazifaYaratish() {
       await qc.cancelQueries({ queryKey: kalit.vazifalar })
       const nusxa = keshNusxasi(qc)
 
+      const holat = yangi.status ?? 'planned'
+      const hozir = new Date().toISOString()
+
       const vaqtinchalik: Task = {
         id: `vaqtinchalik-${Date.now()}`,
         user_id: userId,
@@ -277,7 +280,7 @@ export function useVazifaYaratish() {
         parent_id: yangi.parent_id ?? null,
         title: yangi.title.trim(),
         description: null,
-        status: 'planned',
+        status: holat,
         progress: yangi.progress ?? 0,
         priority: yangi.priority ?? 4,
         due_date: yangi.due_date ?? null,
@@ -285,11 +288,11 @@ export function useVazifaYaratish() {
         deadline: null,
         recurrence: yangi.recurrence ?? null,
         sort_order: 9999,
-        started_at: null,
+        started_at: holat === 'in_progress' ? hozir : null,
         completed_at: null,
         notified_at: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        created_at: hozir,
+        updated_at: hozir,
       }
 
       // Yangi vazifa faqat mos ro'yxatlarga qo'shiladi
@@ -299,6 +302,14 @@ export function useVazifaYaratish() {
       )
       if (vaqtinchalik.due_date && vaqtinchalik.due_date <= bugunISO()) {
         qc.setQueryData<Task[]>(kalit.bugungi(), (eski) =>
+          eski ? [...eski, vaqtinchalik] : eski
+        )
+      }
+      // "Jarayonda" sahifasidan qo'shilgan vazifa shu ro'yxatda darhol
+      // ko'rinishi kerak — aks holda foydalanuvchi qo'shgan ishini
+      // server javob bergunicha ko'rmay turadi (offline bo'lsa — umuman)
+      if (holat === 'in_progress') {
+        qc.setQueryData<Task[]>(kalit.jarayondagi(), (eski) =>
           eski ? [...eski, vaqtinchalik] : eski
         )
       }

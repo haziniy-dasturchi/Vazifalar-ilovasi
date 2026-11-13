@@ -9,7 +9,6 @@ import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
 import {
   useBugungiVazifalar,
   useJarayondagiVazifalar,
-  useVazifaHolati,
 } from '@/lib/queries/vazifalar'
 import { usePapkalar } from '@/lib/queries/papkalar'
 import { useBolimNomlari } from '@/lib/queries/bolimlar'
@@ -31,7 +30,6 @@ export function JarayondaKorinishi() {
   const { data: papkalar } = usePapkalar()
   const bolimNomlari = useBolimNomlari()
   const papkaMap = new Map(papkalar?.map((p) => [p.id, p]))
-  const boshlash = useVazifaHolati()
   const [qoshishOchiq, setQoshishOchiq] = useState(false)
 
   const { otalar, bolalar } = iyerarxiya(data ?? [])
@@ -81,16 +79,17 @@ export function JarayondaKorinishi() {
         )}
       </Sahifa>
 
+      {/*
+        Shu sahifadan qo'shilgan vazifa darhol boshlangan bo'ladi —
+        odam "Jarayonda" bo'limida turib ish qo'shsa, uni aynan hozir
+        bajarmoqchi. Holat yaratishning o'zida beriladi (ikki qadamda
+        emas), shunda internet yo'q paytda ham to'g'ri ishlaydi.
+      */}
       {qoshishOchiq && (
         <VazifaOynasi
           yop={() => setQoshishOchiq(false)}
           defaultDate={bugunISO()}
-          onSuccess={(task) => {
-            boshlash.mutate({
-              id: task.id,
-              harakat: 'boshlash',
-            })
-          }}
+          defaultStatus="in_progress"
         />
       )}
     </>

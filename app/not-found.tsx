@@ -5,7 +5,7 @@ export default function TopilmadiSahifasi() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-surface-muted px-6 text-center">
       <span className="flex size-16 items-center justify-center rounded-2xl bg-brand-soft">
-        <Compass className="size-8 text-brand-primary" aria-hidden />
+        <Compass className="size-8 text-brand-onsoft" aria-hidden />
       </span>
       <h1 className="mt-5 text-xl font-bold text-text-strong">
         Bunday sahifa yo‘q

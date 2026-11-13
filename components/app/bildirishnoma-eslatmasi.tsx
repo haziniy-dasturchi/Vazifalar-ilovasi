@@ -102,7 +102,7 @@ export function BildirishnomaEslatmasi() {
       className="fixed inset-x-3 bottom-3 z-50 mx-auto flex max-w-md items-start gap-3 rounded-2xl border border-border-subtle bg-surface p-4 shadow-float sm:left-auto sm:right-4 sm:mx-0"
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft">
-        <Bell className="size-5 text-brand-primary" aria-hidden />
+        <Bell className="size-5 text-brand-onsoft" aria-hidden />
       </span>
 
       <div className="min-w-0 flex-1">

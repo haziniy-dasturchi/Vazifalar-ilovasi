@@ -45,8 +45,8 @@ export function HisobOchirish() {
   return (
     <>
       <div className="flex items-start gap-4 rounded-2xl bg-surface p-4 shadow-card">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-50">
-          <UserX className="size-5 text-red-600" aria-hidden />
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-danger-soft">
+          <UserX className="size-5 text-danger" aria-hidden />
         </span>
 
         <div className="min-w-0 flex-1">
@@ -60,7 +60,7 @@ export function HisobOchirish() {
         <button
           type="button"
           onClick={() => setOchiq(true)}
-          className="min-h-touch shrink-0 rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+          className="min-h-touch shrink-0 rounded-xl border border-danger/35 px-4 text-sm font-semibold text-danger transition hover:bg-danger-soft"
         >
           O‘chirish
         </button>
@@ -109,12 +109,12 @@ function TasdiqOynasi({ yop }: { yop: () => void }) {
       yop={bajarilmoqda ? () => {} : yop}
     >
       <div className="space-y-4">
-        <div className="flex gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+        <div className="flex gap-3 rounded-xl border border-danger/35 bg-danger-soft p-4">
           <TriangleAlert
-            className="mt-0.5 size-5 shrink-0 text-red-600"
+            className="mt-0.5 size-5 shrink-0 text-danger"
             aria-hidden
           />
-          <div className="text-sm leading-relaxed text-red-800">
+          <div className="text-sm leading-relaxed text-danger">
             <p className="font-semibold">Nimalar o‘chadi:</p>
             <ul className="mt-1.5 list-disc space-y-0.5 pl-4">
               <li>Hisobingiz va profilingiz</li>

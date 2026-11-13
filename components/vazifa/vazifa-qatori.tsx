@@ -25,7 +25,7 @@ import type { Task } from '@/types/vazifalar'
 
 /** Vaqt holatiga qarab rang: o'tgan — qizil, yaqin — sariq, kelgusi — yashil */
 const VAQT_RANGI: Record<VaqtHolati, string> = {
-  otgan: 'text-red-600',
+  otgan: 'text-danger',
   hozir: 'text-amber-600',
   kelgusi: 'text-emerald-600',
 }
@@ -128,7 +128,7 @@ export function VazifaQatori({
 
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             {vazifa.due_date && (
-              <span className={kechikkan ? 'font-medium text-red-600' : 'text-text-muted'}>
+              <span className={kechikkan ? 'font-medium text-danger' : 'text-text-muted'}>
                 {kechikkan
                   ? kechikishMatni(vazifa.due_date)
                   : sanaMatni(vazifa.due_date)}
@@ -183,7 +183,7 @@ export function VazifaQatori({
                   setOchiq((v) => !v)
                 }}
                 aria-expanded={ochiq}
-                className="flex min-h-0 items-center gap-1 rounded-md text-text-muted transition hover:text-brand-primary"
+                className="flex min-h-0 items-center gap-1 rounded-md text-text-muted transition hover:text-brand-onsoft"
               >
                 <ChevronRight
                   className={`size-3.5 transition ${ochiq ? 'rotate-90' : ''}`}
@@ -204,7 +204,7 @@ export function VazifaQatori({
             className={`flex size-11 min-h-0 shrink-0 items-center justify-center rounded-xl transition ${
               jarayonda
                 ? 'text-status-progress-text hover:bg-amber-200/60'
-                : 'text-text-faint hover:bg-surface-muted hover:text-brand-primary'
+                : 'text-text-faint hover:bg-surface-muted hover:text-brand-onsoft'
             }`}
           >
             {jarayonda ? (

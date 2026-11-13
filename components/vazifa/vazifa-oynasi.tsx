@@ -28,12 +28,18 @@ export function VazifaOynasi({
   vazifa,
   yop,
   defaultDate,
-  onSuccess,
+  defaultStatus,
 }: {
   vazifa?: Task
   yop: () => void
+  /** Yangi vazifa uchun oldindan qo‘yiladigan sana (tahrirlashda e'tiborsiz) */
   defaultDate?: string | null
-  onSuccess?: (createdTask: Task) => void
+  /**
+   * Yangi vazifa qaysi holatda tug‘ilsin. "Jarayonda" sahifasi buni
+   * 'in_progress' qilib beradi — shunda qo‘shilgan ish darhol o‘sha
+   * ro‘yxatda paydo bo‘ladi.
+   */
+  defaultStatus?: Task['status']
 }) {
   const tahrir = Boolean(vazifa)
   const subtaskmi = Boolean(vazifa?.parent_id)
@@ -120,24 +126,18 @@ export function VazifaOynasi({
       })
       korsat({ matn: 'Vazifa yangilandi', tone: 'muvaffaqiyat' })
     } else {
-      yaratish.mutate(
-        {
-          folder_id: papkaQiymati,
-          section_id: tanlanganBolim || null,
-          title: sarlavha,
-          due_date: sana,
-          due_time: vaqt,
-          recurrence: takrorlanish,
-          priority: muhimlik,
-          progress: foiz,
-        },
-        {
-          onSuccess: (createdTask) => {
-            korsat({ matn: 'Vazifa qo\'shildi', tone: 'muvaffaqiyat' })
-            onSuccess?.(createdTask as unknown as Task)
-          },
-        }
-      )
+      yaratish.mutate({
+        folder_id: papkaQiymati,
+        section_id: tanlanganBolim || null,
+        title: sarlavha,
+        due_date: sana,
+        due_time: vaqt,
+        recurrence: takrorlanish,
+        priority: muhimlik,
+        progress: foiz,
+        status: defaultStatus,
+      })
+      korsat({ matn: 'Vazifa qo‘shildi', tone: 'muvaffaqiyat' })
     }
     yop()
   }
@@ -146,11 +146,11 @@ export function VazifaOynasi({
     if (!vazifa) return
     try {
       await ochirish.mutateAsync(vazifa.id)
-      korsat({ matn: 'Vazifa o\'chirildi', tone: 'muvaffaqiyat' })
+      korsat({ matn: 'Vazifa o‘chirildi', tone: 'muvaffaqiyat' })
       setOchirishOchiq(false)
       yop()
     } catch {
-      korsat({ matn: 'O\'chirib bo\'lmadi. Qayta urinib ko\'ring.', tone: 'xato' })
+      korsat({ matn: 'O‘chirib bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
     }
   }
 
@@ -169,7 +169,7 @@ export function VazifaOynasi({
             placeholder="Nima qilish kerak?"
             maxLength={500}
             autoFocus
-            className="min-h-touch w-full rounded-xl border border-border-subtle bg-surface px-4 py-3 text-base text-text-strong outline-none placeholder:text-text-faint focus:border-brand-primary"
+            className="min-h-touch w-full rounded-xl border border-border-subtle bg-surface px-4 py-3 text-base text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft"
           />
 
           <fieldset className="mt-5">
@@ -221,10 +221,10 @@ export function VazifaOynasi({
           {!subtaskmi && bolimlar && bolimlar.length > 0 && (
             <div className="mt-5">
               <p className="mb-2 text-sm font-medium text-text-muted">
-                {tanlanganPapkaLoyihalarmi ? 'Loyiha' : 'Bo\'lim'}
+                {tanlanganPapkaLoyihalarmi ? 'Loyiha' : 'Bo‘lim'}
               </p>
               <Tanlagich
-                ariaLabel={tanlanganPapkaLoyihalarmi ? 'Loyiha' : 'Bo\'lim'}
+                ariaLabel={tanlanganPapkaLoyihalarmi ? 'Loyiha' : 'Bo‘lim'}
                 qiymat={tanlanganBolim}
                 onChange={setTanlanganBolim}
                 variantlar={[
@@ -232,7 +232,7 @@ export function VazifaOynasi({
                     qiymat: '',
                     nom: tanlanganPapkaLoyihalarmi
                       ? 'Loyihasiz'
-                      : 'Bo\'limsiz',
+                      : 'Bo‘limsiz',
                   },
                   ...bolimlar.map((b) => ({ qiymat: b.id, nom: b.name })),
                 ]}
@@ -245,11 +245,11 @@ export function VazifaOynasi({
               <button
                 type="button"
                 onClick={() => setOchirishOchiq(true)}
-                aria-label="Vazifani o'chirish"
-                className="flex min-h-touch shrink-0 items-center gap-2 rounded-xl border border-border-subtle px-4 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                aria-label="Vazifani o‘chirish"
+                className="flex min-h-touch shrink-0 items-center gap-2 rounded-xl border border-border-subtle px-4 text-sm font-semibold text-danger transition hover:bg-danger-soft"
               >
                 <Trash2 className="size-4" aria-hidden />
-                O'chirish
+                O‘chirish
               </button>
             )}
             <button
@@ -257,7 +257,7 @@ export function VazifaOynasi({
               disabled={!toliq || bajarilmoqda}
               className="min-h-touch flex-1 rounded-xl bg-brand-primary px-6 text-base font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-40"
             >
-              {bajarilmoqda ? 'Saqlanmoqda…' : tahrir ? 'Saqlash' : 'Qo\'shish'}
+              {bajarilmoqda ? 'Saqlanmoqda…' : tahrir ? 'Saqlash' : 'Qo‘shish'}
             </button>
           </div>
         </form>
@@ -265,8 +265,8 @@ export function VazifaOynasi({
 
       {ochirishOchiq && vazifa && (
         <Tasdiq
-          sarlavha="Vazifani o'chirish"
-          matn={`"${vazifa.title}" butunlay o'chadi. Buni qaytarib bo'lmaydi.`}
+          sarlavha="Vazifani o‘chirish"
+          matn={`"${vazifa.title}" butunlay o‘chadi. Buni qaytarib bo‘lmaydi.`}
           tasdiqla={ochirishniTasdiqla}
           yop={() => setOchirishOchiq(false)}
           bajarilmoqda={ochirish.isPending}

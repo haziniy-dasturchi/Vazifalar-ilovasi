@@ -11,12 +11,12 @@ import {
   Moon,
   Play,
   Plus,
+  Settings,
   TriangleAlert,
 } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
 import { Yuklanmoqda } from '@/components/ui/holatlar'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
-import { BildirishnomaSozlamasi } from '@/components/app/bildirishnoma-sozlamasi'
 import { HisobOchirish } from '@/components/app/hisob-ochirish'
 import {
   useBugungiVazifalar,
@@ -108,7 +108,14 @@ export function KorishKorinishi() {
               matn="Ilova qanday ishlashini qisqa va sodda tarzda bilib oling."
               href="/yoriqnoma"
             />
-            <BildirishnomaSozlamasi />
+            {/* Bildirishnoma va ko'rinish endi Sozlamalar sahifasida —
+                bir sozlama ikki joyda turgani chalkashlik tug'diradi */}
+            <KelgusiKarta
+              ikonka={Settings}
+              sarlavha="Sozlamalar"
+              matn="Profil rasmi, ko‘rinish, yon panel tartibi va bildirishnomalar."
+              href="/sozlamalar"
+            />
           </section>
 
           <section className="mt-7">
@@ -118,7 +125,7 @@ export function KorishKorinishi() {
                 type="button"
                 onClick={() => setPapkaOchiq(true)}
                 aria-label="Yangi papka"
-                className="-mr-2 flex size-9 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted hover:text-brand-primary"
+                className="-mr-2 flex size-9 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted hover:text-brand-onsoft"
               >
                 <Plus className="size-5" aria-hidden />
               </button>
@@ -241,7 +248,7 @@ function KelgusiKarta({
   const ichi = (
     <>
       <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft">
-        <Ikonka className="size-5 text-brand-primary" aria-hidden />
+        <Ikonka className="size-5 text-brand-onsoft" aria-hidden />
       </span>
       <div className="min-w-0 flex-1">
         <p className="font-semibold text-text-strong">

@@ -63,7 +63,7 @@ export function ArxivKorinishi() {
                   type="button"
                   onClick={() => qaytar(papka)}
                   aria-label="Qaytarish"
-                  className="flex size-11 min-h-0 items-center justify-center rounded-xl text-text-muted transition hover:bg-surface-muted hover:text-brand-primary"
+                  className="flex size-11 min-h-0 items-center justify-center rounded-xl text-text-muted transition hover:bg-surface-muted hover:text-brand-onsoft"
                 >
                   <ArchiveRestore className="size-5" aria-hidden />
                 </button>
@@ -71,7 +71,7 @@ export function ArxivKorinishi() {
                   type="button"
                   onClick={() => setOchiriladigan(papka)}
                   aria-label="O‘chirish"
-                  className="flex size-11 min-h-0 items-center justify-center rounded-xl text-text-muted transition hover:bg-red-50 hover:text-red-600"
+                  className="flex size-11 min-h-0 items-center justify-center rounded-xl text-text-muted transition hover:bg-danger-soft hover:text-danger"
                 >
                   <Trash2 className="size-5" aria-hidden />
                 </button>
