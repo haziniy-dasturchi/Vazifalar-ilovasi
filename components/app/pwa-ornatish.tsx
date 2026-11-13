@@ -169,13 +169,28 @@ export function PwaOrnatish() {
   return (
     <Oyna sarlavha="Ilovani o‘rnating" yop={yopish}>
       <div className="flex flex-col items-center gap-4 pb-2 text-center">
-        <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-brand-soft">
-          {qollanma ? (
+        {/*
+          Ikonka ham o'rnatishni boshlaydi.
+          Sababi: past ekranli telefonlarda pastdagi tugma ba'zan
+          ko'rinmay qolardi va odam nima bosishni bilmasdi. Endi
+          ekranning yuqorisidagi eng katta nishon ham bosiladi —
+          tugmagacha yetib bormasa ham o'rnata oladi.
+        */}
+        {qollanma ? (
+          <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-brand-soft">
             <Share className="size-7 text-brand-onsoft" aria-hidden />
-          ) : (
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={ornat}
+            disabled={ornatilmoqda || !taklif}
+            aria-label="Ilovani o‘rnatish"
+            className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-brand-soft transition hover:bg-brand-primary hover:text-white active:scale-95 disabled:opacity-60 [&:hover_svg]:text-white"
+          >
             <Download className="size-7 text-brand-onsoft" aria-hidden />
-          )}
-        </span>
+          </button>
+        )}
 
         <p className="text-base leading-relaxed text-text-muted">
           {MATN[usul]}
