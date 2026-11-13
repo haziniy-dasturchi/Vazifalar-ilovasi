@@ -37,8 +37,22 @@
   --surface-sunken: #eef2f1;
   --border-subtle: #e3e8e7;
   --text-strong: #1d1d1b;
-  --text-muted: #6b7280;
-  --text-faint: #9ca3af;
+  /*
+    Kulrang tonlar WCAG AA (4.5:1) bo'yicha tanlangan. Oldingi
+    qiymatlar (#6b7280 va #9ca3af) chiroyli ko'rinardi, lekin eng
+    och fonda (surface-sunken) 4.43:1 va 2.54:1 berardi — ya'ni
+    "Oxirgi yangilanish" kabi yozuvlarni ko'zi xiraroq odam o'qiy
+    olmasdi. Yangi tonlar eng qattiq holatda ham 6.4:1 va 5.0:1
+    beradi va brend yuzalariga mos — biroz yashil tusli.
+  */
+  --text-muted: #4f5a55;
+  --text-faint: #5f6a65;
+
+  /* Mavzuga qarab almashadigan rasmlar uchun (logo).
+     Rasm CSS o'zgaruvchisi bo'la olmaydi, shuning uchun ikkita
+     element qo'yiladi va biri shu qiymat bilan yashiriladi. */
+  --yorug-korinish: block;
+  --qorongi-korinish: none;
 
   /* Brend */
   --brand-primary: #0b3d2e;
@@ -94,7 +108,8 @@
     --surface: #181c1a;
     --surface-muted: #101312;
     --surface-sunken: #232825;
-    --border-subtle: #2b312e;
+    /* Chegara fondan ajralib tursin — #2b312e deyarli ko'rinmasdi */
+    --border-subtle: #363e3a;
     /* Qorong'ida kulrang matn tez "cho'kib" ketadi: #6b7571 fonda
        atigi 3.6:1 berardi (AA talabi — 4.5:1). Shuning uchun ikkala
        ton ham yorug'lashtirildi; eng past holatda (surface-sunken
@@ -102,6 +117,9 @@
     --text-strong: #ecefed;
     --text-muted: #a1aba6;
     --text-faint: #8b9490;
+
+    --yorug-korinish: none;
+    --qorongi-korinish: block;
 
     /* Oq matn uchun yetarlicha to'q (5.5:1), fondan esa ajralib turadi */
     --brand-primary: #047857;
@@ -137,11 +155,14 @@
   --surface: #181c1a;
   --surface-muted: #101312;
   --surface-sunken: #232825;
-  --border-subtle: #2b312e;
   /* Izoh yuqoridagi media blokda — qiymatlar ikkalasida bir xil */
+  --border-subtle: #363e3a;
   --text-strong: #ecefed;
   --text-muted: #a1aba6;
   --text-faint: #8b9490;
+
+  --yorug-korinish: none;
+  --qorongi-korinish: block;
 
   --brand-primary: #047857;
   --brand-primary-hover: #03644a;
@@ -240,6 +261,24 @@
 }
 
 @layer utilities {
+  /*
+    Mavzuga qarab almashadigan elementlar (logo).
+
+    Nega `dark:` varianti emas: bu loyihada mavzu CSS
+    o'zgaruvchilari bilan boshqariladi va `dark:` hech qayerda
+    ishlatilmaydi. Rasm manzili esa o'zgaruvchi bo'la olmaydi,
+    shuning uchun ikkita <img> qo'yib, keraksizini yashiramiz.
+    Ikkalasi ham SVG va 6 KB atrofida — qo'shimcha yuk sezilmaydi,
+    almashish esa JavaScript'siz, chaqnashsiz bo'ladi.
+  */
+  .faqat-yorug {
+    display: var(--yorug-korinish);
+  }
+
+  .faqat-qorongi {
+    display: var(--qorongi-korinish);
+  }
+
   /* Kartochka va panellar uchun yumshoq soya.
      Qorong'i mavzuda `--soya-kuch` oshadi — aks holda soya
      ko'rinmay qoladi va yuzalar bir-biridan ajralmaydi. */

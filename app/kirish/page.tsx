@@ -29,7 +29,16 @@ export default async function KirishSahifasi({
             alt="Samara"
             width={224}
             height={168}
-            className="mx-auto h-auto w-56"
+            className="faqat-yorug mx-auto h-auto w-56"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element -- SVG, next/image optimallashtirmaydi */}
+          <img
+            src="/brand/logo-login-dark.svg"
+            alt=""
+            aria-hidden
+            width={224}
+            height={168}
+            className="faqat-qorongi mx-auto h-auto w-56"
           />
           <p className="mt-2 text-sm font-semibold text-brand-onsoft">
             Har kun — samarali kun

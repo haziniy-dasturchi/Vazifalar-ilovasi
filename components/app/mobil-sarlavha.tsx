@@ -28,7 +28,16 @@ export function MobilSarlavha() {
           alt="Samara"
           width={96}
           height={26}
-          className="h-6 w-auto"
+          className="faqat-yorug h-6 w-auto"
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element -- SVG, next/image optimallashtirmaydi */}
+        <img
+          src="/brand/logo-sidebar-dark.svg"
+          alt=""
+          aria-hidden
+          width={96}
+          height={26}
+          className="faqat-qorongi h-6 w-auto"
         />
       </Link>
 

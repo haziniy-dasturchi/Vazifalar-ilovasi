@@ -28,13 +28,25 @@ export function YonPanel() {
   return (
     <aside className="hidden w-72 shrink-0 flex-col border-r border-border-subtle bg-surface md:flex">
       <div className="px-5 py-5">
+        {/* Qorong'i fonda to'q yashil yozuv o'qilmaydi — oq variantga
+            almashadi. Ikkinchi rasm `alt`siz: ikkalasi bir xil narsa,
+            skrinreader ikki marta o'qimasligi kerak. */}
         {/* eslint-disable-next-line @next/next/no-img-element -- SVG, next/image optimallashtirmaydi */}
         <img
           src="/brand/logo-sidebar-light.svg"
           alt="Samara"
           width={133}
           height={36}
-          className="h-9 w-auto"
+          className="faqat-yorug h-9 w-auto"
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element -- SVG, next/image optimallashtirmaydi */}
+        <img
+          src="/brand/logo-sidebar-dark.svg"
+          alt=""
+          aria-hidden
+          width={133}
+          height={36}
+          className="faqat-qorongi h-9 w-auto"
         />
       </div>
 
