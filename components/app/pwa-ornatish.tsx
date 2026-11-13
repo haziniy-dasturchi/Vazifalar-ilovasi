@@ -68,7 +68,7 @@ function usulniAniqla(): Usul {
 const MATN: Record<Usul, string> = {
   ios: 'iPhone’da o‘rnatish uch bosqichda bo‘ladi:',
   'ios-boshqa-brauzer':
-    'Bu brauzerda o‘rnatib bo‘lmaydi. Avval shu sahifani Safari’da oching — iPhone’da ilovani faqat Safari o‘rnata oladi.',
+    'Ulashish menyusida “Bosh ekranga qo‘shish” bandini qidiring. Topmasangiz — shu sahifani Safari’da oching, u yerda bu band doim bor.',
   'mac-safari':
     'Yuqoridagi menyudan Fayl → “Dockka qo‘shish” (File → Add to Dock) ni tanlang — Samara alohida ilova bo‘lib Dock’ingizda turadi.',
   avto: 'Bosh ekraningizga qo‘shib qo‘ying — tezroq ishlaydi va bitta bosish bilan ochiladi, xuddi oddiy ilova kabi.',
