@@ -42,7 +42,7 @@ function ornatilganmi(): boolean {
  * natijada Mac Safari va iPad foydalanuvchilariga o'rnatish haqida
  * hech qanday taklif ko'rsatilmasdi — ular ilovani o'rnata olmasdi.
  */
-type Usul = 'avto' | 'ios' | 'mac-safari'
+type Usul = 'avto' | 'ios' | 'ios-boshqa-brauzer' | 'mac-safari'
 
 function usulniAniqla(): Usul {
   const ua = navigator.userAgent
@@ -50,7 +50,12 @@ function usulniAniqla(): Usul {
   // iPadOS 13+ o'zini "Macintosh" deb tanishtiradi — uni faqat
   // sensorli ekran borligi bilan haqiqiy Mac'dan ajratish mumkin
   const ipad = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1
-  if (/iPhone|iPad|iPod/i.test(ua) || ipad) return 'ios'
+  if (/iPhone|iPad|iPod/i.test(ua) || ipad) {
+    // iOS'dagi Chrome/Firefox/Edge — Safari'ning o'zagida ishlaydi,
+    // lekin "Bosh ekranga qo'shish" ularda boshqa joyda yoki umuman
+    // yo'q. Odamni avval Safari'ga yo'naltirgan ma'qul.
+    return /CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua) ? 'ios-boshqa-brauzer' : 'ios'
+  }
 
   // Chrome/Edge/Firefox ham UA'da "Safari" so'zini yozadi, shuning
   // uchun ularni alohida chiqarib tashlaymiz
@@ -61,11 +66,20 @@ function usulniAniqla(): Usul {
 }
 
 const MATN: Record<Usul, string> = {
-  ios: 'Pastdagi Ulashish tugmasini bosing va “Bosh ekranga qo‘shish” (Add to Home Screen) ni tanlang — ilova bosh ekraningizda paydo bo‘ladi.',
+  ios: 'iPhone’da o‘rnatish uch bosqichda bo‘ladi:',
+  'ios-boshqa-brauzer':
+    'Bu brauzerda o‘rnatib bo‘lmaydi. Avval shu sahifani Safari’da oching — iPhone’da ilovani faqat Safari o‘rnata oladi.',
   'mac-safari':
     'Yuqoridagi menyudan Fayl → “Dockka qo‘shish” (File → Add to Dock) ni tanlang — Samara alohida ilova bo‘lib Dock’ingizda turadi.',
   avto: 'Bosh ekraningizga qo‘shib qo‘ying — tezroq ishlaydi va bitta bosish bilan ochiladi, xuddi oddiy ilova kabi.',
 }
+
+/** iPhone uchun aniq qadamlar — matn bilan tushuntirish yetarli emas edi */
+const IOS_QADAMLAR = [
+  'Ekranning pastidagi Ulashish belgisini bosing',
+  '“Bosh ekranga qo‘shish” (Add to Home Screen) gacha pastga suring',
+  'O‘ng yuqoridagi “Qo‘shish” (Add) ni bosing',
+]
 
 /**
  * Ilovani o'rnatishga taklif qiluvchi modal — telefonda ham,
@@ -195,6 +209,30 @@ export function PwaOrnatish() {
         <p className="text-base leading-relaxed text-text-muted">
           {MATN[usul]}
         </p>
+
+        {/* iPhone uchun aniq qadamlar.
+            Oldin bitta uzun jumla bor edi va mijozlar tushunmasdi —
+            Ulashish belgisi qayerdaligi ham aytilmagandi. */}
+        {usul === 'ios' && (
+          <ol className="w-full space-y-2 text-left">
+            {IOS_QADAMLAR.map((qadam, i) => (
+              <li key={qadam} className="flex items-start gap-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand-onsoft">
+                  {i + 1}
+                </span>
+                <span className="text-sm leading-relaxed text-text-strong">
+                  {qadam}
+                  {i === 0 && (
+                    <Share
+                      className="mx-1 inline size-4 align-text-bottom text-brand-onsoft"
+                      aria-hidden
+                    />
+                  )}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
 
         {qollanma ? (
           // Safari o'rnatishni dastur orqali boshlashga ruxsat bermaydi —
