@@ -95,18 +95,40 @@ export function useProfilYangilash() {
 }
 
 /**
+ * Ommaviy havoladan storage ichidagi yo'lni ajratib oladi.
+ * Faqat shu bucket'ga va shu foydalanuvchiga tegishli bo'lsa qaytaradi —
+ * aks holda `null`, ya'ni begona faylga hech qachon tegmaymiz.
+ */
+function avatarYoli(havola: string | null, foydalanuvchiId: string): string | null {
+  if (!havola) return null
+  const belgi = `/storage/v1/object/public/${AVATAR_BUCKET}/`
+  const i = havola.indexOf(belgi)
+  if (i === -1) return null
+  const yol = havola.slice(i + belgi.length).split('?')[0]
+  return yol.startsWith(`${foydalanuvchiId}/`) ? yol : null
+}
+
+/**
  * Avatarni yuklaydi va ommaviy havolasini qaytaradi.
  *
  * Fayl nomiga vaqt belgisi qo'shiladi: bir xil nom bilan qayta
  * yuklansa, brauzer eski rasmni keshdan ko'rsatib turardi va
  * foydalanuvchi "o'zgarmadi" deb o'ylardi.
+ *
+ * Yangisi muvaffaqiyatli yuklangach eskisi o'chiriladi. Aks holda har
+ * bir almashtirish storage'da yana bitta fayl qoldirib ketardi va
+ * bepul tarif chegarasi asta-sekin to'lib borardi. Tartib muhim:
+ * avval yuklash, keyin o'chirish — teskarisi bo'lsa, yuklash xato
+ * bersa foydalanuvchi rasmsiz qolardi.
  */
 export async function avatarniYukla(
   supabase: ReturnType<typeof useSupabase>,
   foydalanuvchiId: string,
-  fayl: File
+  fayl: File,
+  eskiHavola?: string | null
 ): Promise<string> {
-  const kengaytma = fayl.type === 'image/png' ? 'png' : fayl.type === 'image/webp' ? 'webp' : 'jpg'
+  const kengaytma =
+    fayl.type === 'image/png' ? 'png' : fayl.type === 'image/webp' ? 'webp' : 'jpg'
   const yol = `${foydalanuvchiId}/avatar-${Date.now()}.${kengaytma}`
 
   const { error } = await supabase.storage
@@ -114,6 +136,22 @@ export async function avatarniYukla(
     .upload(yol, fayl, { contentType: fayl.type, upsert: true })
   if (error) throw error
 
-  const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(yol)
-  return data.publicUrl
+  const eskiYol = avatarYoli(eskiHavola ?? null, foydalanuvchiId)
+  if (eskiYol && eskiYol !== yol) {
+    // Tozalash muvaffaqiyatsiz bo'lsa ham jim o'tamiz: rasm
+    // allaqachon almashdi, foydalanuvchiga ko'rsatadigan xato yo'q.
+    await supabase.storage.from(AVATAR_BUCKET).remove([eskiYol])
+  }
+
+  return supabase.storage.from(AVATAR_BUCKET).getPublicUrl(yol).data.publicUrl
+}
+
+/** Profil rasmini butunlay olib tashlaydi (fayl ham o'chadi) */
+export async function avatarniOchir(
+  supabase: ReturnType<typeof useSupabase>,
+  foydalanuvchiId: string,
+  havola: string | null
+): Promise<void> {
+  const yol = avatarYoli(havola, foydalanuvchiId)
+  if (yol) await supabase.storage.from(AVATAR_BUCKET).remove([yol])
 }

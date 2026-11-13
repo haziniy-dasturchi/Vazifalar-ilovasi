@@ -11,6 +11,7 @@ import { useSupabase } from '@/lib/supabase/use-supabase'
 import {
   AVATAR_ENG_KATTA_BAYT,
   AVATAR_TURLARI,
+  avatarniOchir,
   avatarniYukla,
   useProfil,
   useProfilYangilash,
@@ -49,7 +50,12 @@ export function HisobBolimi() {
 
     setYuklanmoqda(true)
     try {
-      const havola = await avatarniYukla(supabase, foydalanuvchi.id, fayl)
+      const havola = await avatarniYukla(
+        supabase,
+        foydalanuvchi.id,
+        fayl,
+        profil?.avatar_url
+      )
       await yangilash.mutateAsync({ avatar_url: havola })
       korsat({ matn: 'Profil rasmi yangilandi', tone: 'muvaffaqiyat' })
     } catch {
@@ -63,8 +69,11 @@ export function HisobBolimi() {
   }
 
   async function rasmniOlibTashla() {
+    const eski = profil?.avatar_url ?? null
     try {
       await yangilash.mutateAsync({ avatar_url: null })
+      // Fayl ham o'chadi — profilda havola qolmagach u keraksiz
+      await avatarniOchir(supabase, foydalanuvchi.id, eski)
       korsat({ matn: 'Profil rasmi olib tashlandi', tone: 'muvaffaqiyat' })
     } catch {
       korsat({ matn: 'Bajarib bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
