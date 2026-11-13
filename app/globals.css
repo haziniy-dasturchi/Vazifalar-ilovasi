@@ -95,9 +95,13 @@
     --surface-muted: #101312;
     --surface-sunken: #232825;
     --border-subtle: #2b312e;
+    /* Qorong'ida kulrang matn tez "cho'kib" ketadi: #6b7571 fonda
+       atigi 3.6:1 berardi (AA talabi — 4.5:1). Shuning uchun ikkala
+       ton ham yorug'lashtirildi; eng past holatda (surface-sunken
+       fonida) faint 4.8:1, muted 6.3:1 beradi. */
     --text-strong: #ecefed;
-    --text-muted: #9aa5a0;
-    --text-faint: #6b7571;
+    --text-muted: #a1aba6;
+    --text-faint: #8b9490;
 
     /* Oq matn uchun yetarlicha to'q (5.5:1), fondan esa ajralib turadi */
     --brand-primary: #047857;
@@ -134,9 +138,10 @@
   --surface-muted: #101312;
   --surface-sunken: #232825;
   --border-subtle: #2b312e;
+  /* Izoh yuqoridagi media blokda — qiymatlar ikkalasida bir xil */
   --text-strong: #ecefed;
-  --text-muted: #9aa5a0;
-  --text-faint: #6b7571;
+  --text-muted: #a1aba6;
+  --text-faint: #8b9490;
 
   --brand-primary: #047857;
   --brand-primary-hover: #03644a;
