@@ -6,9 +6,7 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import { del, get, set } from 'idb-keyval'
 import { useEffect, useState } from 'react'
 import { ToastProvider } from '@/components/ui/toast'
-import { PwaOrnatish } from '@/components/app/pwa-ornatish'
 import { OfflineBelgisi } from '@/components/app/offline-belgisi'
-import { BildirishnomaEslatmasi } from '@/components/app/bildirishnoma-eslatmasi'
 import { mutatsiyalarniRoyxatdanOtkaz } from '@/lib/queries/mutatsiya-sozlamalari'
 
 /** Kesh IndexedDB'da — localStorage'dan farqli, katta va bloklamaydi */
@@ -86,10 +84,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
         queryClient.resumePausedMutations()
       }}
     >
+      {/*
+        O'rnatish taklifi va bildirishnoma eslatmasi bu yerda EMAS,
+        `Shell` ichida — ya'ni faqat kirgan foydalanuvchiga ko'rinadi.
+
+        Sababi: bu yer butun ilovani, jumladan ochiq bosh sahifa va
+        kirish sahifasini ham o'raydi. Bildirishnomani kirishdan oldin
+        yoqib bo'lmaydi (obuna bazaga yoziladi, sessiya esa yo'q) —
+        tugma bosilsa xato berardi. O'rnatish oynasi esa qidiruvdan
+        endigina kelgan odamga sahifani o'qishdan oldin qalqib chiqib,
+        tanishtiruvni to'sib qo'yardi.
+      */}
       <ToastProvider>
         <OfflineBelgisi />
-        <PwaOrnatish />
-        <BildirishnomaEslatmasi />
         {children}
       </ToastProvider>
     </PersistQueryClientProvider>

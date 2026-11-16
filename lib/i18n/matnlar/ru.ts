@@ -206,6 +206,12 @@ export const ru: Record<MatnKaliti, string> = {
     'Этот браузер не поддерживает уведомления.',
   'sozlamalar.bildirishnoma.radEtilgan':
     'Уведомления запрещены в настройках браузера.',
+  // ---------- Напоминание об уведомлениях (нижняя панель) ----------
+  'eslatma.sarlavha': 'Включить напоминания?',
+  'eslatma.matn':
+    'Напомним о задачах, у которых указано время, — даже если приложение закрыто.',
+  'umumiy.keyinroq': 'Позже',
+
   'sozlamalar.bildirishnoma.yoqilgan':
     'Напомним о задачах, у которых указано время, — даже если приложение закрыто.',
   'sozlamalar.bildirishnoma.ochiq':

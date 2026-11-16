@@ -213,6 +213,12 @@ export const uz = {
     'Bu brauzer bildirishnomani qo‘llab-quvvatlamaydi.',
   'sozlamalar.bildirishnoma.radEtilgan':
     'Brauzer sozlamalarida ruxsat berilmagan.',
+  // ---------- Bildirishnoma eslatmasi (pastki lenta) ----------
+  'eslatma.sarlavha': 'Eslatmani yoqasizmi?',
+  'eslatma.matn':
+    'Vaqti belgilangan vazifalar haqida eslatib turamiz — ilova yopiq bo‘lsa ham.',
+  'umumiy.keyinroq': 'Keyinroq',
+
   'sozlamalar.bildirishnoma.yoqilgan':
     'Vaqti belgilangan vazifalar haqida eslatib turamiz — ilova yopiq bo‘lsa ham.',
   'sozlamalar.bildirishnoma.ochiq':

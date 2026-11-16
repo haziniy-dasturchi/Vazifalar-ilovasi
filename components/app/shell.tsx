@@ -7,6 +7,8 @@ import { YonPanel } from './yon-panel'
 import { PastkiMenyu } from './pastki-menyu'
 import { MobilSarlavha } from './mobil-sarlavha'
 import { TilProvayder, useT } from './til-provayder'
+import { PwaOrnatish } from './pwa-ornatish'
+import { BildirishnomaEslatmasi } from './bildirishnoma-eslatmasi'
 import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
 import { useFoydalanuvchiSorovi, useProfil } from '@/lib/queries/profil'
 import { useAsosiyRoyxatlarniOldindanYuklash } from '@/lib/queries/vazifalar'
@@ -60,6 +62,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <QoshishTugmasi onClick={() => setQoshishOchiq(true)} />
 
         <PastkiMenyu />
+
+        {/* Ikkalasi ham kirishni talab qiladi — izoh `providers.tsx` da */}
+        <PwaOrnatish />
+        <BildirishnomaEslatmasi />
 
         {qoshishOchiq && <VazifaOynasi yop={() => setQoshishOchiq(false)} />}
       </TilProvayder>

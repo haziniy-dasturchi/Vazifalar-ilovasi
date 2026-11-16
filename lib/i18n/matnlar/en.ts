@@ -206,6 +206,12 @@ export const en: Record<MatnKaliti, string> = {
     'This browser does not support notifications.',
   'sozlamalar.bildirishnoma.radEtilgan':
     'Notifications are blocked in your browser settings.',
+  // ---------- Notification nudge (bottom bar) ----------
+  'eslatma.sarlavha': 'Turn on reminders?',
+  'eslatma.matn':
+    'We will remind you about tasks that have a time — even when the app is closed.',
+  'umumiy.keyinroq': 'Later',
+
   'sozlamalar.bildirishnoma.yoqilgan':
     'We will remind you about tasks that have a time — even when the app is closed.',
   'sozlamalar.bildirishnoma.ochiq':
