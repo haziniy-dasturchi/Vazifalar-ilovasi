@@ -6,7 +6,8 @@ import { SozlamaKartasi } from './karta'
 import { useToast } from '@/components/ui/toast'
 import { useT, useTil } from '@/components/app/til-provayder'
 import { useProfil, useProfilYangilash } from '@/lib/queries/profil'
-import { TILLAR } from '@/lib/i18n'
+import { TILLAR, matn, type Til } from '@/lib/i18n'
+import { tilniSaqla } from '@/lib/til-saqlash'
 
 /** Brauzer ro'yxat bermasa — kamida shular bo'lsin */
 const ZAXIRA_MINTAQALAR = [
@@ -63,15 +64,34 @@ export function UmumiyBolimi() {
     }
   }
 
-  async function tilniOrnat(yangiTil: string) {
+  /**
+   * Til ikki joyga yoziladi, lekin ularning vazni boshqacha:
+   *
+   *  - Qurilma (localStorage) — ASOSIY. Darhol qo'llanadi, tarmoqqa
+   *    bog'liq emas va hech qachon xato bermaydi.
+   *  - Hisob (`profiles.lang`) — QO'SHIMCHA, boshqa qurilmada ham
+   *    o'sha til ochilishi uchun. Bu yozuv muvaffaqiyatsiz bo'lsa
+   *    foydalanuvchiga xato KO'RSATILMAYDI: u tanlagan til shu yerda
+   *    allaqachon ishlab turibdi, demak ko'rsatadigan nosozlik yo'q.
+   *
+   * Oldin faqat bazaga yozilardi va `lang` ustuni hali qo'shilmagani
+   * uchun til umuman almashmay, "Saqlab bo'lmadi" chiqardi.
+   */
+  function tilniOrnat(yangiTil: Til) {
     if (yangiTil === til) return
-    try {
-      await yangilash.mutateAsync({ lang: yangiTil })
-      // Xabar YANGI tilda ko'rinishi kerak — eskisida emas
-      korsat({ matn: t('sozlamalar.til.saqlandi'), tone: 'muvaffaqiyat' })
-    } catch {
-      korsat({ matn: t('umumiy.saqlanmadi'), tone: 'xato' })
-    }
+
+    tilniSaqla(yangiTil)
+    // Xabar YANGI tilda ko'rinishi kerak — eskisida emas
+    korsat({ matn: matn(yangiTil, 'sozlamalar.til.saqlandi'), tone: 'muvaffaqiyat' })
+
+    yangilash.mutate(
+      { lang: yangiTil },
+      {
+        onError: () => {
+          // Ustun hali yo'q bo'lishi mumkin — jim o'tamiz
+        },
+      }
+    )
   }
 
   const hozir = new Date().toLocaleTimeString(til, {
@@ -91,13 +111,15 @@ export function UmumiyBolimi() {
             const tanlangan = kod === til
             return (
               <li key={kod}>
+                {/* `disabled` yo'q: tanlov qurilmada bir zumda
+                    saqlanadi, hisobga yozilishini kutib turish shart
+                    emas — aks holda tugmalar sababsiz bloklanardi */}
                 <button
                   type="button"
                   onClick={() => tilniOrnat(kod)}
-                  disabled={yangilash.isPending}
                   aria-pressed={tanlangan}
                   lang={kod}
-                  className={`flex min-h-touch w-full items-center gap-3 px-4 text-left text-base transition disabled:opacity-50 ${
+                  className={`flex min-h-touch w-full items-center gap-3 px-4 text-left text-base transition ${
                     tanlangan
                       ? 'bg-brand-soft font-semibold text-brand-onsoft'
                       : 'text-text-strong hover:bg-surface-muted'

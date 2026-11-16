@@ -177,7 +177,7 @@ export const en: Record<MatnKaliti, string> = {
 
   'sozlamalar.til.sarlavha': 'Language',
   'sozlamalar.til.tavsif':
-    'The language of the app. Your choice is saved to your account, so other devices follow it too.',
+    'The language of the app. Your choice applies on this device right away and is saved to your account too.',
   'sozlamalar.til.saqlandi': 'Language changed',
 
   'sozlamalar.korinish.sarlavha': 'Appearance',

@@ -1,15 +1,22 @@
 'use client'
 
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useSyncExternalStore } from 'react'
 import { STANDART_TIL, tarjimon, tilmi, type Tarjimon, type Til } from '@/lib/i18n'
+import { serverTili, tilgaObuna, tilniOqi } from '@/lib/til-saqlash'
 
 /**
  * Ilova ichidagi interfeys tili.
  *
+ * Qaysi qiymat ustun turadi:
+ *   1. Shu qurilmada qilingan tanlov (localStorage) — eng ishonchli,
+ *      darhol ishlaydi va tarmoqqa bog'liq emas;
+ *   2. Hisobdagi til (`profiles.lang`) — boshqa qurilmada tanlangan
+ *      bo'lsa, shu yerda ham o'sha til ochiladi;
+ *   3. O'zbekcha.
+ *
  * Mavzudan farqi: til sahifa chizilishidan oldin bilinishi SHART
- * emas — matn qaysi tilda bo'lsa ham, joylashuv bir xil, shuning
- * uchun "chaqnash" muammosi yo'q. Shu sababli bu yerda oddiy
- * kontekst yetarli va `localStorage` dan erta o'qish kerak emas.
+ * emas — matn qaysi tilda bo'lsa ham joylashuv bir xil, shuning
+ * uchun "chaqnash" muammosi yo'q.
  */
 const TilContext = createContext<{ til: Til; t: Tarjimon }>({
   til: STANDART_TIL,
@@ -17,14 +24,18 @@ const TilContext = createContext<{ til: Til; t: Tarjimon }>({
 })
 
 export function TilProvayder({
-  til,
+  profilTili,
   children,
 }: {
-  til: unknown
+  /** `profiles.lang` — ustun hali qo'shilmagan bo'lsa `undefined` */
+  profilTili: unknown
   children: React.ReactNode
 }) {
-  // Bazadan noma'lum qiymat kelsa ham ilova buzilmasin
-  const tanlangan: Til = tilmi(til) ? til : STANDART_TIL
+  const qurilmaTili = useSyncExternalStore(tilgaObuna, tilniOqi, serverTili)
+
+  const tanlangan: Til =
+    qurilmaTili ?? (tilmi(profilTili) ? profilTili : STANDART_TIL)
+
   return (
     <TilContext.Provider value={{ til: tanlangan, t: tarjimon(tanlangan) }}>
       {children}

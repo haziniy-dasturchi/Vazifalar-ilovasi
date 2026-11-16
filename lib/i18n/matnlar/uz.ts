@@ -185,7 +185,7 @@ export const uz = {
 
   'sozlamalar.til.sarlavha': 'Til',
   'sozlamalar.til.tavsif':
-    'Ilova interfeysi tili. Tanlov hisobingizga saqlanadi — boshqa qurilmada ham o‘sha til bo‘ladi.',
+    'Ilova interfeysi tili. Tanlov shu qurilmada darhol qo‘llanadi va hisobingizga ham saqlanadi.',
   'sozlamalar.til.saqlandi': 'Til o‘zgartirildi',
 
   'sozlamalar.korinish.sarlavha': 'Ko‘rinish',

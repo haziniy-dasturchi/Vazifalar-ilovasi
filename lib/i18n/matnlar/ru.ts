@@ -177,7 +177,7 @@ export const ru: Record<MatnKaliti, string> = {
 
   'sozlamalar.til.sarlavha': 'Язык',
   'sozlamalar.til.tavsif':
-    'Язык интерфейса. Выбор сохраняется в аккаунте — на других устройствах будет тот же язык.',
+    'Язык приложения. Выбор применяется на этом устройстве сразу и сохраняется в аккаунт.',
   'sozlamalar.til.saqlandi': 'Язык изменён',
 
   'sozlamalar.korinish.sarlavha': 'Внешний вид',

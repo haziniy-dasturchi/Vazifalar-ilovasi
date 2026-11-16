@@ -48,7 +48,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <FoydalanuvchiProvider qiymat={foydalanuvchi}>
-      <TilProvayder til={profil?.lang}>
+      <TilProvayder profilTili={profil?.lang}>
         <div className="flex min-h-dvh">
           <YonPanel />
 
