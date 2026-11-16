@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { DOMEN } from '@/lib/huquqiy'
+import { TILLAR, tilPrefiksi } from '@/lib/i18n'
 
 /**
  * Sayt xaritasi — faqat kirishsiz ochiladigan sahifalar.
@@ -11,13 +12,24 @@ import { DOMEN } from '@/lib/huquqiy'
 export default function sitemap(): MetadataRoute.Sitemap {
   const bugun = new Date()
 
+  // Bosh sahifaning har bir tildagi nusxasi bir-biriga hreflang
+  // orqali bog'lanadi — aks holda Google ularni takroriy mazmun deb
+  // hisoblab, faqat bittasini ko'rsatishi mumkin.
+  const tillar: Record<string, string> = {}
+  for (const { kod } of TILLAR) {
+    tillar[kod] = `${DOMEN}${tilPrefiksi(kod)}` || DOMEN
+  }
+
+  const boshSahifalar: MetadataRoute.Sitemap = TILLAR.map(({ kod }) => ({
+    url: `${DOMEN}${tilPrefiksi(kod)}` || DOMEN,
+    lastModified: bugun,
+    changeFrequency: 'weekly' as const,
+    priority: kod === 'uz' ? 1 : 0.9,
+    alternates: { languages: tillar },
+  }))
+
   return [
-    {
-      url: DOMEN,
-      lastModified: bugun,
-      changeFrequency: 'weekly',
-      priority: 1,
-    },
+    ...boshSahifalar,
     {
       url: `${DOMEN}/maxfiylik`,
       lastModified: bugun,

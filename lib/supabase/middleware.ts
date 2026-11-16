@@ -15,6 +15,9 @@ const PUBLIC_PATHS = [
   // Bosh sahifa — tanishtiruv. Qidiruv roboti indekslaydigan yagona
   // mazmunli sahifa, shuning uchun kirishsiz ochilishi SHART.
   '/',
+  // Bosh sahifaning inglizcha va ruscha nusxalari
+  '/en',
+  '/ru',
   '/kirish',
   '/auth',
   '/maxfiylik',
