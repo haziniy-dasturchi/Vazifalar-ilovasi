@@ -169,7 +169,7 @@ export function VazifaOynasi({
             placeholder="Nima qilish kerak?"
             maxLength={500}
             autoFocus
-            className="min-h-touch w-full rounded-xl border border-border-subtle bg-surface px-4 py-3 text-base text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft"
+            className="min-h-touch w-full rounded-xl border border-border-control bg-surface px-4 py-3 text-base text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft"
           />
 
           <fieldset className="mt-5">

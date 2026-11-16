@@ -163,7 +163,7 @@ export function HisobBolimi() {
             onChange={(e) => setIsm(e.target.value)}
             maxLength={80}
             aria-label="Ism"
-            className="min-h-touch min-w-0 flex-1 rounded-xl border border-border-subtle bg-surface px-4 text-base text-text-strong outline-none focus:border-brand-onsoft"
+            className="min-h-touch min-w-0 flex-1 rounded-xl border border-border-control bg-surface px-4 text-base text-text-strong outline-none focus:border-brand-onsoft"
           />
           <button
             type="button"

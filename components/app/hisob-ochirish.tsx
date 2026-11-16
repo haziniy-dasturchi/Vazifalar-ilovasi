@@ -140,7 +140,7 @@ function TasdiqOynasi({ yop }: { yop: () => void }) {
             disabled={bajarilmoqda}
             autoComplete="off"
             autoFocus
-            className="mt-2 min-h-touch w-full rounded-xl border border-border-subtle bg-surface px-3 text-base text-text-strong outline-none focus:border-red-400"
+            className="mt-2 min-h-touch w-full rounded-xl border border-border-control bg-surface px-3 text-base text-text-strong outline-none focus:border-red-400"
           />
         </div>
 

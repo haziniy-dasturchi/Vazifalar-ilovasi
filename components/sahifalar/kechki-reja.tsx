@@ -158,7 +158,7 @@ function ErtangaQoshish({
           value={vaqt}
           onChange={(e) => setVaqt(e.target.value)}
           aria-label="Vaqt (ixtiyoriy)"
-          className="min-h-touch rounded-xl border border-border-subtle bg-surface px-3 text-sm text-text-strong outline-none focus:border-brand-onsoft"
+          className="min-h-touch rounded-xl border border-border-control bg-surface px-3 text-sm text-text-strong outline-none focus:border-brand-onsoft"
         />
 
         <button

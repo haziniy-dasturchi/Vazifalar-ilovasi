@@ -35,7 +35,16 @@
   --surface: #ffffff;
   --surface-muted: #f6f8f7;
   --surface-sunken: #eef2f1;
+  /* Ajratuvchi chiziqlar — ataylab nozik, kontrast talab qilinmaydi */
   --border-subtle: #e3e8e7;
+  /*
+    Kiritish maydonlari va boshqaruv elementlari chegarasi.
+    WCAG 1.4.11 bunday elementlar uchun 3:1 talab qiladi — foydalanuvchi
+    maydon qayerda boshlanib, qayerda tugashini ko'rishi kerak.
+    `--border-subtle` bilan (oq fonda 1.18:1) maydonlar deyarli
+    ko'rinmay turardi.
+  */
+  --border-control: #8b9590;
   --text-strong: #1d1d1b;
   /*
     Kulrang tonlar WCAG AA (4.5:1) bo'yicha tanlangan. Oldingi
@@ -110,6 +119,7 @@
     --surface-sunken: #232825;
     /* Chegara fondan ajralib tursin — #2b312e deyarli ko'rinmasdi */
     --border-subtle: #363e3a;
+    --border-control: #616c67;
     /* Qorong'ida kulrang matn tez "cho'kib" ketadi: #6b7571 fonda
        atigi 3.6:1 berardi (AA talabi — 4.5:1). Shuning uchun ikkala
        ton ham yorug'lashtirildi; eng past holatda (surface-sunken
@@ -157,6 +167,7 @@
   --surface-sunken: #232825;
   /* Izoh yuqoridagi media blokda — qiymatlar ikkalasida bir xil */
   --border-subtle: #363e3a;
+  --border-control: #616c67;
   --text-strong: #ecefed;
   --text-muted: #a1aba6;
   --text-faint: #8b9490;
@@ -195,6 +206,7 @@
   --color-surface-muted: var(--surface-muted);
   --color-surface-sunken: var(--surface-sunken);
   --color-border-subtle: var(--border-subtle);
+  --color-border-control: var(--border-control);
   --color-text-strong: var(--text-strong);
   --color-text-muted: var(--text-muted);
   --color-text-faint: var(--text-faint);

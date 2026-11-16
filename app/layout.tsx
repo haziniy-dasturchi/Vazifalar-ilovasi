@@ -11,15 +11,67 @@ const inter = Inter({
   display: 'swap',
 })
 
+const TAVSIF =
+  'Samara — o‘zbek tilidagi bepul vazifalar va kunlik reja ilovasi. ' +
+  'To-do ro‘yxati, vaqtli eslatmalar, papkalar va kunlik hisobot. ' +
+  'Reklamasiz, internetsiz ham ishlaydi.'
+
 export const metadata: Metadata = {
   metadataBase: new URL(DOMEN),
   title: {
-    default: 'Samara',
+    default: 'Samara — vazifalar va kunlik reja ilovasi',
     template: '%s · Samara',
   },
-  description:
-    'Kunlik vazifalarni rejalashtirish va bajarish uchun sodda ilova. Hamma uchun bepul. Har kun — samarali kun.',
+  description: TAVSIF,
   applicationName: 'Samara',
+  /*
+    `keywords` ataylab qisqa va halol: Google bu tegni 2009-yildan
+    beri reyting uchun umuman hisobga olmaydi, lekin ba'zi kichik
+    qidiruv tizimlari va ichki qidiruvlar o'qiydi. Shuning uchun bu
+    yerga faqat ilova HAQIQATAN mos keladigan so'zlar yoziladi —
+    begona brend nomlari emas.
+  */
+  keywords: [
+    'vazifalar ilovasi',
+    'kunlik reja',
+    'to-do ro‘yxati',
+    'rejalashtirish',
+    'eslatma ilovasi',
+    'vaqtni boshqarish',
+    'pomodoro',
+    'o‘zbek tilida ilova',
+    'bepul vazifalar ilovasi',
+    'Samara',
+  ],
+  authors: [{ name: 'Haziniy ilm maskani' }],
+  creator: 'Haziniy ilm maskani',
+  publisher: 'Haziniy ilm maskani',
+  category: 'productivity',
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    siteName: 'Samara',
+    locale: 'uz_UZ',
+    url: DOMEN,
+    title: 'Samara — vazifalar va kunlik reja ilovasi',
+    description: TAVSIF,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Samara — vazifalar va kunlik reja ilovasi',
+    description: TAVSIF,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
   appleWebApp: {
     capable: true,
     title: 'Samara',

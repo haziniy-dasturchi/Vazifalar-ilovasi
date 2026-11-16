@@ -527,7 +527,7 @@ function SanaPaneli({
                     value={vaqt ?? ''}
                     onChange={(e) => onVaqtChange(e.target.value || null)}
                     aria-label="Boshqa vaqt kiriting"
-                    className="min-h-0 w-full rounded-lg border border-border-subtle bg-surface px-2 py-1.5 text-sm text-text-strong outline-none focus:border-brand-onsoft"
+                    className="min-h-0 w-full rounded-lg border border-border-control bg-surface px-2 py-1.5 text-sm text-text-strong outline-none focus:border-brand-onsoft"
                   />
                 </div>
               )}

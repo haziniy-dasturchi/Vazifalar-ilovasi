@@ -12,12 +12,20 @@ import { supabaseAnonKey, supabaseUrl } from '@/lib/env'
  * olmaydi. Kirish talab qilinsa, ariza rad etiladi.
  */
 const PUBLIC_PATHS = [
+  // Bosh sahifa — tanishtiruv. Qidiruv roboti indekslaydigan yagona
+  // mazmunli sahifa, shuning uchun kirishsiz ochilishi SHART.
+  '/',
   '/kirish',
   '/auth',
   '/maxfiylik',
   '/shartlar',
   '/hisobni-ochirish',
   '/.well-known',
+  // Qidiruv robotlari uchun. Bular ro'yxatda bo'lmasa, middleware
+  // ularni ham kirish sahifasiga yo'naltiradi va Google na qoidalarni,
+  // na sayt xaritasini o'qiy oladi — butun SEO ishi behuda ketadi.
+  '/robots.txt',
+  '/sitemap.xml',
 ]
 
 function isPublic(pathname: string) {
@@ -239,7 +247,9 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (user && pathname === '/kirish') {
+  // Kirgan odamga tanishtiruv sahifasi ham, kirish sahifasi ham kerak
+  // emas — uni to'g'ridan-to'g'ri ish joyiga o'tkazamiz
+  if (user && (pathname === '/kirish' || pathname === '/')) {
     const url = request.nextUrl.clone()
     url.pathname = '/jarayonda'
     url.search = ''

@@ -77,7 +77,7 @@ export function UmumiyBolimi() {
             onChange={(e) => ornat(e.target.value)}
             disabled={saqlanmoqda}
             aria-label="Vaqt mintaqasi"
-            className="min-h-touch w-full rounded-xl border border-border-subtle bg-surface px-4 text-base text-text-strong outline-none focus:border-brand-onsoft disabled:opacity-50"
+            className="min-h-touch w-full rounded-xl border border-border-control bg-surface px-4 text-base text-text-strong outline-none focus:border-brand-onsoft disabled:opacity-50"
           >
             {variantlar.map((m) => (
               <option key={m} value={m}>
