@@ -10,10 +10,11 @@
  */
 export const uz = {
   // ---------- Bosh sahifa (ochiq, qidiruv uchun) ----------
-  'bosh.meta.sarlavha': 'Samara — o‘zbek tilidagi vazifalar va kunlik reja ilovasi',
+  'bosh.meta.sarlavha': 'Samara — vazifalar, to-do ro‘yxat va kunlik reja ilovasi',
   'bosh.meta.qisqaSarlavha': 'Samara — vazifalar va kunlik reja ilovasi',
+  // Tavsif 155 belgidan oshmasligi kerak — Google qolganini kesadi
   'bosh.meta.tavsif':
-    'Samara — o‘zbek tilidagi bepul vazifalar va kunlik reja ilovasi. To-do ro‘yxati, eslatmalar, papkalar va kunlik hisobot. Reklamasiz, internetsiz ham ishlaydi.',
+    'Bepul to-do ro‘yxat va kunlik reja ilovasi — o‘zbek tilida. Vazifalar, vaqtli eslatmalar, papkalar va kunlik hisobot. Reklamasiz, internetsiz ishlaydi.',
 
   'bosh.h1': 'Vazifalar va kunlik reja ilovasi — o‘zbek tilida',
   'bosh.kirish':

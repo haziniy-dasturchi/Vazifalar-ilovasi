@@ -3,10 +3,10 @@ import type { MatnKaliti } from './uz'
 /** Inglizcha matnlar. Kalitlar `uz.ts` bilan bir xil bo'lishi shart. */
 export const en: Record<MatnKaliti, string> = {
   // ---------- Landing page (public, for search engines) ----------
-  'bosh.meta.sarlavha': 'Samara — free to-do list and daily planner app',
+  'bosh.meta.sarlavha': 'Samara — free to-do list, task manager and daily planner',
   'bosh.meta.qisqaSarlavha': 'Samara — to-do list and daily planner',
   'bosh.meta.tavsif':
-    'Samara is a free to-do list and daily planner. Tasks, timed reminders, folders and a daily report. No ads, no tracking, works offline.',
+    'A free to-do list and daily planner. Tasks, timed reminders, folders, progress tracking and a daily report. No ads, no tracking, works offline.',
 
   'bosh.h1': 'A to-do list and daily planner that keeps you moving',
   'bosh.kirish':

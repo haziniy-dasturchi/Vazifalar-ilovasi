@@ -23,7 +23,9 @@ export function MobilSarlavha() {
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border-subtle bg-surface/95 px-4 py-2 backdrop-blur md:hidden">
-      <Link href="/jarayonda" className="flex items-center">
+      {/* Logo "Bugun" ga olib boradi — odam logoni bosganda odatda
+          kunlik ro'yxatga qaytmoqchi bo'ladi */}
+      <Link href="/bugun" className="flex items-center">
         {/* eslint-disable-next-line @next/next/no-img-element -- SVG, next/image optimallashtirmaydi */}
         <img
           src="/brand/logo-sidebar-light.svg"

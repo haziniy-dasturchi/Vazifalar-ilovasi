@@ -29,7 +29,13 @@ export function YonPanel() {
 
   return (
     <aside className="hidden w-72 shrink-0 flex-col border-r border-border-subtle bg-surface md:flex">
-      <div className="px-5 py-5">
+      {/* Logo "Bugun" ga olib boradi. Oldin u umuman bosilmasdi —
+          odam esa logoni bosib kunlik ro'yxatga qaytishga o'rgangan. */}
+      <Link
+        href="/bugun"
+        aria-label={t('nav.bugun')}
+        className="block px-5 py-5 transition hover:opacity-80"
+      >
         {/* Qorong'i fonda to'q yashil yozuv o'qilmaydi — oq variantga
             almashadi. Ikkinchi rasm `alt`siz: ikkalasi bir xil narsa,
             skrinreader ikki marta o'qimasligi kerak. */}
@@ -50,7 +56,7 @@ export function YonPanel() {
           height={36}
           className="faqat-qorongi h-9 w-auto"
         />
-      </div>
+      </Link>
 
       <nav aria-label={t('nav.asosiyBolimlar')} className="px-3">
         <ul className="space-y-1">
