@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Bell, BellOff, TriangleAlert } from 'lucide-react'
 import { SozlamaKartasi } from './karta'
 import { useToast } from '@/components/ui/toast'
+import { useT } from '@/components/app/til-provayder'
 import {
   bildirishnomaHolati,
   bildirishnomaniOchirish,
@@ -15,6 +16,7 @@ export function BildirishnomaBolimi() {
   const [holat, setHolat] = useState<BildirishnomaHolati | null>(null)
   const [band, setBand] = useState(false)
   const { korsat } = useToast()
+  const t = useT()
 
   useEffect(() => {
     bildirishnomaHolati().then(setHolat)
@@ -34,27 +36,36 @@ export function BildirishnomaBolimi() {
       setHolat(yangi)
 
       if (yangi === 'yoqilgan') {
-        korsat({ matn: 'Bildirishnoma yoqildi', tone: 'muvaffaqiyat' })
-      } else if (yangi === 'rad-etilgan') {
         korsat({
-          matn: 'Brauzer ruxsat bermadi. Sozlamalardan yoqing.',
-          tone: 'xato',
+          matn: t('sozlamalar.bildirishnoma.yoqildi'),
+          tone: 'muvaffaqiyat',
         })
+      } else if (yangi === 'rad-etilgan') {
+        korsat({ matn: t('sozlamalar.bildirishnoma.ruxsatYoq'), tone: 'xato' })
       } else if (yoqilgan) {
-        korsat({ matn: 'Bildirishnoma o‘chirildi', tone: 'muvaffaqiyat' })
+        korsat({
+          matn: t('sozlamalar.bildirishnoma.ochirildi'),
+          tone: 'muvaffaqiyat',
+        })
       }
     } catch {
-      korsat({ matn: 'Bajarib bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
+      korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
     } finally {
       setBand(false)
     }
   }
 
   if (holat === null) {
-    return (
-      <div className="h-28 animate-pulse rounded-2xl bg-surface-sunken" />
-    )
+    return <div className="h-28 animate-pulse rounded-2xl bg-surface-sunken" />
   }
+
+  const tavsif = qollamaydi
+    ? t('sozlamalar.bildirishnoma.qollamaydi')
+    : radEtilgan
+      ? t('sozlamalar.bildirishnoma.radEtilgan')
+      : yoqilgan
+        ? t('sozlamalar.bildirishnoma.yoqilgan')
+        : t('sozlamalar.bildirishnoma.ochiq')
 
   return (
     <div className="space-y-4">
@@ -70,16 +81,10 @@ export function BildirishnomaBolimi() {
 
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-text-strong">
-              Vazifa eslatmalari
+              {t('sozlamalar.bildirishnoma.sarlavha')}
             </p>
             <p className="mt-1 text-sm leading-relaxed text-text-muted">
-              {qollamaydi
-                ? 'Bu brauzer bildirishnomani qo‘llab-quvvatlamaydi.'
-                : radEtilgan
-                  ? 'Brauzer sozlamalarida ruxsat berilmagan.'
-                  : yoqilgan
-                    ? 'Vaqti belgilangan vazifalar haqida eslatib turamiz — ilova yopiq bo‘lsa ham.'
-                    : 'Vaqti belgilangan vazifalar haqida eslatma olish uchun yoqing.'}
+              {tavsif}
             </p>
           </div>
 
@@ -90,7 +95,7 @@ export function BildirishnomaBolimi() {
               disabled={band}
               role="switch"
               aria-checked={yoqilgan}
-              aria-label="Vazifa eslatmalari"
+              aria-label={t('sozlamalar.bildirishnoma.sarlavha')}
               className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-50 ${
                 yoqilgan ? 'bg-brand-primary' : 'bg-surface-sunken'
               }`}
@@ -115,8 +120,8 @@ export function BildirishnomaBolimi() {
       */}
       {!yoqilgan && !radEtilgan && !qollamaydi && (
         <SozlamaKartasi
-          sarlavha="Tavsiya etiladi"
-          tavsif="Eslatmalarsiz vaqti belgilangan vazifalar e'tibordan chetda qolishi mumkin. Yoqish uchun brauzer bir marta ruxsat so‘raydi."
+          sarlavha={t('sozlamalar.bildirishnoma.tavsiya')}
+          tavsif={t('sozlamalar.bildirishnoma.tavsiyaMatn')}
         />
       )}
 
@@ -124,8 +129,7 @@ export function BildirishnomaBolimi() {
         <div className="flex gap-3 rounded-2xl border border-danger/35 bg-danger-soft p-4">
           <TriangleAlert className="size-5 shrink-0 text-danger" aria-hidden />
           <p className="text-sm leading-relaxed text-danger">
-            Ruxsatni qaytarish uchun brauzer manzil qatoridagi qulf belgisini
-            bosing va «Bildirishnomalar» ni ruxsat etilgan holatga o‘tkazing.
+            {t('sozlamalar.bildirishnoma.qaytarish')}
           </p>
         </div>
       )}

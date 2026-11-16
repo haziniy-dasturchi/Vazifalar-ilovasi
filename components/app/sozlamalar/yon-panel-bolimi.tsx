@@ -3,13 +3,15 @@
 import { ArrowDown, ArrowUp, RotateCcw } from 'lucide-react'
 import { SozlamaKartasi } from './karta'
 import { useToast } from '@/components/ui/toast'
+import { useT } from '@/components/app/til-provayder'
 import { useProfil, useProfilYangilash } from '@/lib/queries/profil'
-import { BOLIMLAR, tartiblanganBolimlar } from '@/lib/bolimlar'
+import { tartiblanganBolimlar } from '@/lib/bolimlar'
 
 export function YonPanelBolimi() {
   const { data: profil } = useProfil()
   const yangilash = useProfilYangilash()
   const { korsat } = useToast()
+  const t = useT()
 
   const tartib = tartiblanganBolimlar(profil?.sidebar_order ?? [])
   const sukutdami = (profil?.sidebar_order ?? []).length === 0
@@ -18,7 +20,7 @@ export function YonPanelBolimi() {
     try {
       await yangilash.mutateAsync({ sidebar_order: yangiTartib })
     } catch {
-      korsat({ matn: 'Saqlab bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
+      korsat({ matn: t('umumiy.saqlanmadi'), tone: 'xato' })
     }
   }
 
@@ -33,12 +35,15 @@ export function YonPanelBolimi() {
   return (
     <div className="space-y-4">
       <SozlamaKartasi
-        sarlavha="Bo‘limlar tartibi"
-        tavsif={`Eng yuqoridagi bo‘lim ilova ochilganda birinchi ko‘rinadi. Hozir — «${tartib[0].nom}».`}
+        sarlavha={t('sozlamalar.yonPanel.sarlavha')}
+        tavsif={t('sozlamalar.yonPanel.tavsif', {
+          bolim: t(tartib[0].nom),
+        })}
       >
         <ul className="divide-y divide-border-subtle overflow-hidden rounded-xl border border-border-subtle">
           {tartib.map((bolim, i) => {
             const Ikonka = bolim.ikonka
+            const nom = t(bolim.nom)
             return (
               <li
                 key={bolim.yol}
@@ -49,11 +54,11 @@ export function YonPanelBolimi() {
                   aria-hidden
                 />
                 <span className="min-w-0 flex-1 truncate text-base text-text-strong">
-                  {bolim.nom}
+                  {nom}
                 </span>
                 {i === 0 && (
                   <span className="shrink-0 rounded-full bg-brand-soft px-2 py-0.5 text-xs font-medium text-brand-onsoft">
-                    birinchi
+                    {t('sozlamalar.yonPanel.birinchi')}
                   </span>
                 )}
                 <div className="flex shrink-0 gap-1">
@@ -61,7 +66,7 @@ export function YonPanelBolimi() {
                     type="button"
                     onClick={() => kochir(i, -1)}
                     disabled={i === 0 || yangilash.isPending}
-                    aria-label={`${bolim.nom} — yuqoriga`}
+                    aria-label={t('sozlamalar.yonPanel.yuqoriga', { nom })}
                     className="flex size-9 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted hover:text-text-strong disabled:opacity-30"
                   >
                     <ArrowUp className="size-4" aria-hidden />
@@ -70,7 +75,7 @@ export function YonPanelBolimi() {
                     type="button"
                     onClick={() => kochir(i, 1)}
                     disabled={i === tartib.length - 1 || yangilash.isPending}
-                    aria-label={`${bolim.nom} — pastga`}
+                    aria-label={t('sozlamalar.yonPanel.pastga', { nom })}
                     className="flex size-9 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted hover:text-text-strong disabled:opacity-30"
                   >
                     <ArrowDown className="size-4" aria-hidden />
@@ -89,15 +94,13 @@ export function YonPanelBolimi() {
             className="mt-3 flex min-h-touch items-center gap-2 rounded-xl border border-border-subtle px-4 text-sm font-medium text-text-strong transition hover:bg-surface-muted disabled:opacity-50"
           >
             <RotateCcw className="size-4" aria-hidden />
-            Sukut tartibini qaytarish
+            {t('sozlamalar.yonPanel.sukut')}
           </button>
         )}
       </SozlamaKartasi>
 
       <p className="px-1 text-sm leading-relaxed text-text-muted">
-        Tartib hisobingizga saqlanadi — telefonda ham, kompyuterda ham bir xil
-        bo‘ladi. Pastki menyu ({BOLIMLAR.length} ta bo‘lim) ham shu tartibda
-        chiqadi.
+        {t('sozlamalar.yonPanel.izoh')}
       </p>
     </div>
   )

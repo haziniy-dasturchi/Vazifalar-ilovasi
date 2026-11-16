@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Archive, LogOut, Settings } from 'lucide-react'
 import { useFoydalanuvchi } from './foydalanuvchi'
 import { useChiqish } from './use-chiqish'
+import { useT } from './til-provayder'
 import { useProfil } from '@/lib/queries/profil'
 
 /** Telefon uchun yuqori panel — brend va profil menyusi */
@@ -12,6 +13,7 @@ export function MobilSarlavha() {
   const foydalanuvchi = useFoydalanuvchi()
   const { data: profil } = useProfil()
   const chiqish = useChiqish()
+  const t = useT()
   const [ochiq, setOchiq] = useState(false)
 
   // Foydalanuvchi o'zi qo'ygan ism va rasm ustun turadi
@@ -46,7 +48,7 @@ export function MobilSarlavha() {
           type="button"
           onClick={() => setOchiq((v) => !v)}
           aria-expanded={ochiq}
-          aria-label="Profil menyusi"
+          aria-label={t('nav.profilMenyusi')}
           className="flex size-11 min-h-0 items-center justify-center rounded-full"
         >
           {rasm ? (
@@ -71,7 +73,7 @@ export function MobilSarlavha() {
           <>
             <button
               type="button"
-              aria-label="Menyuni yopish"
+              aria-label={t('umumiy.yopish')}
               onClick={() => setOchiq(false)}
               className="fixed inset-0 z-10 min-h-0 cursor-default"
             />
@@ -90,7 +92,7 @@ export function MobilSarlavha() {
                 className="flex min-h-touch items-center gap-3 px-4 text-sm text-text-strong transition hover:bg-surface-muted"
               >
                 <Settings className="size-4" aria-hidden />
-                Sozlamalar
+                {t('nav.sozlamalar')}
               </Link>
               <Link
                 href="/arxiv"
@@ -98,7 +100,7 @@ export function MobilSarlavha() {
                 className="flex min-h-touch items-center gap-3 px-4 text-sm text-text-strong transition hover:bg-surface-muted"
               >
                 <Archive className="size-4" aria-hidden />
-                Arxivlangan papkalar
+                {t('nav.arxiv')}
               </Link>
               <button
                 type="button"
@@ -106,7 +108,7 @@ export function MobilSarlavha() {
                 className="flex w-full min-h-touch items-center gap-3 px-4 text-sm text-danger transition hover:bg-danger-soft"
               >
                 <LogOut className="size-4" aria-hidden />
-                Chiqish
+                {t('nav.chiqish')}
               </button>
             </div>
           </>

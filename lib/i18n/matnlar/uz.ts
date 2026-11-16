@@ -74,6 +74,158 @@ export const uz = {
   'bosh.havola.shartlar': 'Foydalanish shartlari',
   'bosh.havola.hisobOchirish': 'Hisobni o‘chirish',
   'bosh.tilTanlash': 'Til',
+
+  // ---------- Umumiy harakatlar ----------
+  'umumiy.saqlash': 'Saqlash',
+  'umumiy.saqlanmoqda': 'Saqlanmoqda…',
+  'umumiy.qoshish': 'Qo‘shish',
+  'umumiy.ochirish': 'O‘chirish',
+  'umumiy.yopish': 'Yopish',
+  'umumiy.bekor': 'Bekor qilish',
+  'umumiy.tayyor': 'Tayyor',
+  'umumiy.kuting': 'Kuting…',
+  'umumiy.yoqish': 'Yoqish',
+  'umumiy.qaytaUrinish': 'Qayta urinish',
+  'umumiy.yuklanmoqda': 'Yuklanmoqda…',
+  'umumiy.xato': 'Xatolik yuz berdi',
+  'umumiy.xatoMatn': 'Ma’lumotni yuklab bo‘lmadi. Internetni tekshirib ko‘ring.',
+  'umumiy.bajarilmadi': 'Bajarib bo‘lmadi. Qayta urinib ko‘ring.',
+  'umumiy.saqlanmadi': 'Saqlab bo‘lmadi. Qayta urinib ko‘ring.',
+
+  // ---------- Navigatsiya ----------
+  'nav.jarayonda': 'Jarayonda',
+  'nav.bugun': 'Bugun',
+  'nav.kelgusi': 'Kelgusi',
+  'nav.korish': 'Ko‘rish',
+  'nav.papkalar': 'Papkalar',
+  'nav.yangiPapka': 'Yangi papka',
+  'nav.arxiv': 'Arxivlangan papkalar',
+  'nav.sozlamalar': 'Sozlamalar',
+  'nav.chiqish': 'Chiqish',
+  'nav.profilMenyusi': 'Profil menyusi',
+  'nav.asosiyBolimlar': 'Asosiy bo‘limlar',
+
+  // ---------- Vazifa ----------
+  'vazifa.yangi': 'Yangi vazifa',
+  'vazifa.tahrirlash': 'Vazifani tahrirlash',
+  'vazifa.nomiJoy': 'Nima qilish kerak?',
+  'vazifa.qachon': 'Qachon',
+  'vazifa.muhimlik': 'Muhimlik',
+  'vazifa.bajarildi': 'Bajarildi',
+  'vazifa.papka': 'Papka',
+  'vazifa.bolim': 'Bo‘lim',
+  'vazifa.bolimsiz': 'Bo‘limsiz',
+  'vazifa.loyiha': 'Loyiha',
+  'vazifa.loyihasiz': 'Loyihasiz',
+  'vazifa.qoshildi': 'Vazifa qo‘shildi',
+  'vazifa.yangilandi': 'Vazifa yangilandi',
+  'vazifa.ochirildi': 'Vazifa o‘chirildi',
+  'vazifa.ochirishSarlavha': 'Vazifani o‘chirish',
+  'vazifa.ochirishTasdiq':
+    '"{nom}" butunlay o‘chadi. Buni qaytarib bo‘lmaydi.',
+  'vazifa.ochirilmadi': 'O‘chirib bo‘lmadi. Qayta urinib ko‘ring.',
+
+  // ---------- Sana tanlagich ----------
+  'sana.tanlash': 'Sana tanlash',
+  'sana.bugun': 'Bugun',
+  'sana.ertaga': 'Ertaga',
+  'sana.keyingiHafta': 'Keyingi hafta',
+  'sana.damOlish': 'Dam olish',
+  'sana.sanasiz': 'Sanasiz',
+  'sana.vaqtQoshish': 'Vaqt qo‘shish',
+  'sana.vaqtniOlib': 'Vaqtni olib tashlash',
+  'sana.boshqaVaqt': 'Boshqa vaqt kiriting',
+  'sana.takrorlanish': 'Takrorlanish',
+  'sana.takrorniOlib': 'Takrorlanishni olib tashlash',
+  'sana.harKuni': 'Har kuni',
+  'sana.ishKunlari': 'Ish kunlari',
+  'sana.harHafta': 'Har hafta',
+  'sana.harOy': 'Har oy',
+  'sana.oldingiOy': 'Oldingi oy',
+  'sana.keyingiOy': 'Keyingi oy',
+
+  // ---------- Sozlamalar ----------
+  'sozlamalar.sarlavha': 'Sozlamalar',
+  'sozlamalar.tavsif':
+    'Profil, ko‘rinish va bildirishnomalarni shu yerdan boshqaring.',
+  'sozlamalar.bolimlar': 'Sozlamalar bo‘limlari',
+  'sozlamalar.yuklanmadi':
+    'Sozlamalarni yuklab bo‘lmadi. Internetni tekshirib, sahifani yangilang.',
+  'sozlamalar.tab.profil': 'Profil',
+  'sozlamalar.tab.umumiy': 'Umumiy',
+  'sozlamalar.tab.korinish': 'Ko‘rinish',
+  'sozlamalar.tab.yonPanel': 'Yon panel',
+  'sozlamalar.tab.bildirishnoma': 'Bildirishnoma',
+
+  'sozlamalar.rasm.sarlavha': 'Profil rasmi',
+  'sozlamalar.rasm.tavsif': 'JPG, PNG yoki WebP. Eng katta hajm — 2 MB.',
+  'sozlamalar.rasm.yuklash': 'Rasm yuklash',
+  'sozlamalar.rasm.yuklanmoqda': 'Yuklanmoqda…',
+  'sozlamalar.rasm.olibTashlash': 'Olib tashlash',
+  'sozlamalar.rasm.yangilandi': 'Profil rasmi yangilandi',
+  'sozlamalar.rasm.olindi': 'Profil rasmi olib tashlandi',
+  'sozlamalar.rasm.notogriTur': 'Faqat JPG, PNG yoki WebP rasm yuklash mumkin',
+  'sozlamalar.rasm.kattaHajm': 'Rasm 2 MB dan katta bo‘lmasin',
+  'sozlamalar.rasm.yuklanmadi':
+    'Rasmni yuklab bo‘lmadi. Internetni tekshirib, qayta urining.',
+
+  'sozlamalar.ism.sarlavha': 'Ism',
+  'sozlamalar.ism.saqlandi': 'Ism saqlandi',
+  'sozlamalar.ism.bosh': 'Ism bo‘sh bo‘lmasin',
+  'sozlamalar.email.sarlavha': 'Email',
+  'sozlamalar.email.tavsif':
+    '{email} — Google hisobiga bog‘langan, shu yerdan o‘zgartirib bo‘lmaydi.',
+
+  'sozlamalar.mintaqa.sarlavha': 'Vaqt mintaqasi',
+  'sozlamalar.mintaqa.tavsif':
+    'Eslatmalar shu mintaqa bo‘yicha yuboriladi. Hozir u yerda soat {vaqt}.',
+  'sozlamalar.mintaqa.qurilmadagi': 'Qurilmadagisini olish ({mintaqa})',
+  'sozlamalar.mintaqa.saqlandi': 'Vaqt mintaqasi saqlandi',
+
+  'sozlamalar.til.sarlavha': 'Til',
+  'sozlamalar.til.tavsif':
+    'Ilova interfeysi tili. Tanlov hisobingizga saqlanadi — boshqa qurilmada ham o‘sha til bo‘ladi.',
+  'sozlamalar.til.saqlandi': 'Til o‘zgartirildi',
+
+  'sozlamalar.korinish.sarlavha': 'Ko‘rinish',
+  'sozlamalar.korinish.tizim': 'Tizim',
+  'sozlamalar.korinish.yorug': 'Yorug‘',
+  'sozlamalar.korinish.qorongi': 'Qorong‘i',
+  'sozlamalar.korinish.tizimTavsif':
+    'Qurilma sozlamasiga moslashadi — hozir {holat}.',
+  'sozlamalar.korinish.qorongiTavsif':
+    'Doim qorong‘i — qurilma yorug‘ rejimda bo‘lsa ham.',
+  'sozlamalar.korinish.yorugTavsif':
+    'Doim yorug‘ — qurilma qorong‘i rejimda bo‘lsa ham.',
+
+  'sozlamalar.yonPanel.sarlavha': 'Bo‘limlar tartibi',
+  'sozlamalar.yonPanel.tavsif':
+    'Eng yuqoridagi bo‘lim ilova ochilganda birinchi ko‘rinadi. Hozir — «{bolim}».',
+  'sozlamalar.yonPanel.birinchi': 'birinchi',
+  'sozlamalar.yonPanel.yuqoriga': '{nom} — yuqoriga',
+  'sozlamalar.yonPanel.pastga': '{nom} — pastga',
+  'sozlamalar.yonPanel.sukut': 'Sukut tartibini qaytarish',
+  'sozlamalar.yonPanel.izoh':
+    'Tartib hisobingizga saqlanadi — telefonda ham, kompyuterda ham bir xil bo‘ladi.',
+
+  'sozlamalar.bildirishnoma.sarlavha': 'Vazifa eslatmalari',
+  'sozlamalar.bildirishnoma.qollamaydi':
+    'Bu brauzer bildirishnomani qo‘llab-quvvatlamaydi.',
+  'sozlamalar.bildirishnoma.radEtilgan':
+    'Brauzer sozlamalarida ruxsat berilmagan.',
+  'sozlamalar.bildirishnoma.yoqilgan':
+    'Vaqti belgilangan vazifalar haqida eslatib turamiz — ilova yopiq bo‘lsa ham.',
+  'sozlamalar.bildirishnoma.ochiq':
+    'Vaqti belgilangan vazifalar haqida eslatma olish uchun yoqing.',
+  'sozlamalar.bildirishnoma.tavsiya': 'Tavsiya etiladi',
+  'sozlamalar.bildirishnoma.tavsiyaMatn':
+    'Eslatmalarsiz vaqti belgilangan vazifalar e’tibordan chetda qolishi mumkin. Yoqish uchun brauzer bir marta ruxsat so‘raydi.',
+  'sozlamalar.bildirishnoma.qaytarish':
+    'Ruxsatni qaytarish uchun brauzer manzil qatoridagi qulf belgisini bosing va «Bildirishnomalar» ni ruxsat etilgan holatga o‘tkazing.',
+  'sozlamalar.bildirishnoma.yoqildi': 'Bildirishnoma yoqildi',
+  'sozlamalar.bildirishnoma.ochirildi': 'Bildirishnoma o‘chirildi',
+  'sozlamalar.bildirishnoma.ruxsatYoq':
+    'Brauzer ruxsat bermadi. Sozlamalardan yoqing.',
 } as const
 
 export type MatnKaliti = keyof typeof uz

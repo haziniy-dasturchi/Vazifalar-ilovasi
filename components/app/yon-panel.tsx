@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { ProfilMenyu } from './profil-menyu'
+import { useT } from './til-provayder'
 import { useBolimTartibi } from '@/lib/queries/bolim-tartibi'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
@@ -15,6 +16,7 @@ import { useBolimlarniOldindanYuklash } from '@/lib/queries/bolimlar'
 export function YonPanel() {
   const yol = usePathname()
   const BOLIMLAR = useBolimTartibi()
+  const t = useT()
   const { data: papkalar, isPending } = useFaolPapkalar()
   const [oynaOchiq, setOynaOchiq] = useState(false)
   const papkaniOldindanYukla = usePapkaniOldindanYuklash()
@@ -50,7 +52,7 @@ export function YonPanel() {
         />
       </div>
 
-      <nav aria-label="Asosiy bo‘limlar" className="px-3">
+      <nav aria-label={t('nav.asosiyBolimlar')} className="px-3">
         <ul className="space-y-1">
           {BOLIMLAR.map(({ yol: manzil, nom, ikonka: Ikonka }) => {
             const faol = yol === manzil
@@ -66,7 +68,7 @@ export function YonPanel() {
                   }`}
                 >
                   <Ikonka className="size-5 shrink-0" aria-hidden />
-                  {nom}
+                  {t(nom)}
                 </Link>
               </li>
             )
@@ -76,19 +78,22 @@ export function YonPanel() {
 
       <div className="mt-7 flex items-center justify-between px-6 pb-1">
         <h2 className="text-xs font-semibold tracking-wide text-text-faint uppercase">
-          Papkalar
+          {t('nav.papkalar')}
         </h2>
         <button
           type="button"
           onClick={() => setOynaOchiq(true)}
-          aria-label="Yangi papka"
+          aria-label={t('nav.yangiPapka')}
           className="-mr-2 flex size-9 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted hover:text-brand-onsoft"
         >
           <Plus className="size-5" aria-hidden />
         </button>
       </div>
 
-      <nav aria-label="Papkalar" className="flex-1 overflow-y-auto px-3 pb-4">
+      <nav
+        aria-label={t('nav.papkalar')}
+        className="flex-1 overflow-y-auto px-3 pb-4"
+      >
         {isPending ? (
           <ul className="space-y-1 px-3 py-2">
             {[0, 1, 2].map((i) => (

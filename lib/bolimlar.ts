@@ -1,4 +1,5 @@
 import { CalendarDays, ClipboardCheck, Play, Sun } from 'lucide-react'
+import type { MatnKaliti } from '@/lib/i18n'
 
 /**
  * Asosiy bo'limlar.
@@ -11,11 +12,16 @@ import { CalendarDays, ClipboardCheck, Play, Sun } from 'lucide-react'
  * Foydalanuvchi bu tartibni sozlamalardan o'zgartirishi mumkin.
  */
 export const BOLIMLAR = [
-  { yol: '/jarayonda', nom: 'Jarayonda', ikonka: Play },
-  { yol: '/bugun', nom: 'Bugun', ikonka: Sun },
-  { yol: '/kelgusi', nom: 'Kelgusi', ikonka: CalendarDays },
-  { yol: '/korish', nom: 'Ko‘rish', ikonka: ClipboardCheck },
-] as const
+  { yol: '/jarayonda', nom: 'nav.jarayonda', ikonka: Play },
+  { yol: '/bugun', nom: 'nav.bugun', ikonka: Sun },
+  { yol: '/kelgusi', nom: 'nav.kelgusi', ikonka: CalendarDays },
+  { yol: '/korish', nom: 'nav.korish', ikonka: ClipboardCheck },
+] as const satisfies readonly {
+  yol: string
+  /** Nom tarjima kaliti sifatida saqlanadi — ko'rsatishda `t()` qo'llanadi */
+  nom: MatnKaliti
+  ikonka: typeof Play
+}[]
 
 export type Bolim = (typeof BOLIMLAR)[number]
 

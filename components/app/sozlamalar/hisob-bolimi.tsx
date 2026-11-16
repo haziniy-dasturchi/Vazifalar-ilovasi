@@ -7,6 +7,7 @@ import { SozlamaKartasi } from './karta'
 import { useToast } from '@/components/ui/toast'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { HisobOchirish } from '@/components/app/hisob-ochirish'
+import { useT } from '@/components/app/til-provayder'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import {
   AVATAR_ENG_KATTA_BAYT,
@@ -23,6 +24,7 @@ export function HisobBolimi() {
   const yangilash = useProfilYangilash()
   const supabase = useSupabase()
   const { korsat } = useToast()
+  const t = useT()
 
   const faylRef = useRef<HTMLInputElement>(null)
   const [yuklanmoqda, setYuklanmoqda] = useState(false)
@@ -40,11 +42,11 @@ export function HisobBolimi() {
     if (!fayl) return
 
     if (!AVATAR_TURLARI.includes(fayl.type)) {
-      korsat({ matn: 'Faqat JPG, PNG yoki WebP rasm yuklash mumkin', tone: 'xato' })
+      korsat({ matn: t('sozlamalar.rasm.notogriTur'), tone: 'xato' })
       return
     }
     if (fayl.size > AVATAR_ENG_KATTA_BAYT) {
-      korsat({ matn: 'Rasm 2 MB dan katta bo‘lmasin', tone: 'xato' })
+      korsat({ matn: t('sozlamalar.rasm.kattaHajm'), tone: 'xato' })
       return
     }
 
@@ -57,10 +59,10 @@ export function HisobBolimi() {
         profil?.avatar_url
       )
       await yangilash.mutateAsync({ avatar_url: havola })
-      korsat({ matn: 'Profil rasmi yangilandi', tone: 'muvaffaqiyat' })
+      korsat({ matn: t('sozlamalar.rasm.yangilandi'), tone: 'muvaffaqiyat' })
     } catch {
       korsat({
-        matn: 'Rasmni yuklab bo‘lmadi. Internetni tekshirib, qayta urining.',
+        matn: t('sozlamalar.rasm.yuklanmadi'),
         tone: 'xato',
       })
     } finally {
@@ -74,31 +76,31 @@ export function HisobBolimi() {
       await yangilash.mutateAsync({ avatar_url: null })
       // Fayl ham o'chadi — profilda havola qolmagach u keraksiz
       await avatarniOchir(supabase, foydalanuvchi.id, eski)
-      korsat({ matn: 'Profil rasmi olib tashlandi', tone: 'muvaffaqiyat' })
+      korsat({ matn: t('sozlamalar.rasm.olindi'), tone: 'muvaffaqiyat' })
     } catch {
-      korsat({ matn: 'Bajarib bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
+      korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
     }
   }
 
   async function ismniSaqla() {
     const tozalangan = ism.trim()
     if (!tozalangan) {
-      korsat({ matn: 'Ism bo‘sh bo‘lmasin', tone: 'xato' })
+      korsat({ matn: t('sozlamalar.ism.bosh'), tone: 'xato' })
       return
     }
     try {
       await yangilash.mutateAsync({ full_name: tozalangan })
-      korsat({ matn: 'Ism saqlandi', tone: 'muvaffaqiyat' })
+      korsat({ matn: t('sozlamalar.ism.saqlandi'), tone: 'muvaffaqiyat' })
     } catch {
-      korsat({ matn: 'Saqlab bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
+      korsat({ matn: t('umumiy.saqlanmadi'), tone: 'xato' })
     }
   }
 
   return (
     <div className="space-y-4">
       <SozlamaKartasi
-        sarlavha="Profil rasmi"
-        tavsif="JPG, PNG yoki WebP. Eng katta hajm — 2 MB."
+        sarlavha={t('sozlamalar.rasm.sarlavha')}
+        tavsif={t('sozlamalar.rasm.tavsif')}
       >
         <div className="flex items-center gap-4">
           {rasm ? (
@@ -138,7 +140,9 @@ export function HisobBolimi() {
               ) : (
                 <Camera className="size-4" aria-hidden />
               )}
-              {yuklanmoqda ? 'Yuklanmoqda…' : 'Rasm yuklash'}
+              {yuklanmoqda
+                ? t('sozlamalar.rasm.yuklanmoqda')
+                : t('sozlamalar.rasm.yuklash')}
             </button>
 
             {profil?.avatar_url && (
@@ -149,20 +153,20 @@ export function HisobBolimi() {
                 className="flex min-h-touch items-center gap-2 rounded-xl border border-border-subtle px-4 text-sm font-semibold text-danger transition hover:bg-danger-soft disabled:opacity-50"
               >
                 <Trash2 className="size-4" aria-hidden />
-                Olib tashlash
+                {t('sozlamalar.rasm.olibTashlash')}
               </button>
             )}
           </div>
         </div>
       </SozlamaKartasi>
 
-      <SozlamaKartasi sarlavha="Ism">
+      <SozlamaKartasi sarlavha={t('sozlamalar.ism.sarlavha')}>
         <div className="flex flex-wrap items-center gap-2">
           <input
             value={ism}
             onChange={(e) => setIsm(e.target.value)}
             maxLength={80}
-            aria-label="Ism"
+            aria-label={t('sozlamalar.ism.sarlavha')}
             className="min-h-touch min-w-0 flex-1 rounded-xl border border-border-control bg-surface px-4 text-base text-text-strong outline-none focus:border-brand-onsoft"
           />
           <button
@@ -171,19 +175,19 @@ export function HisobBolimi() {
             disabled={!ismOzgardi || yangilash.isPending}
             className="min-h-touch shrink-0 rounded-xl bg-brand-primary px-5 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-40"
           >
-            Saqlash
+            {t('umumiy.saqlash')}
           </button>
         </div>
       </SozlamaKartasi>
 
       <SozlamaKartasi
-        sarlavha="Email"
-        tavsif={`${foydalanuvchi.email} — Google hisobiga bog‘langan, shu yerdan o‘zgartirib bo‘lmaydi.`}
+        sarlavha={t('sozlamalar.email.sarlavha')}
+        tavsif={t('sozlamalar.email.tavsif', { email: foydalanuvchi.email })}
       />
 
       <div className="overflow-hidden rounded-2xl bg-surface shadow-card">
-        <HuquqiyHavola href="/maxfiylik" matn="Maxfiylik siyosati" />
-        <HuquqiyHavola href="/shartlar" matn="Foydalanish shartlari" />
+        <HuquqiyHavola href="/maxfiylik" matn={t('bosh.havola.maxfiylik')} />
+        <HuquqiyHavola href="/shartlar" matn={t('bosh.havola.shartlar')} />
       </div>
 
       <HisobOchirish />

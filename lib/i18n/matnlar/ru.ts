@@ -67,4 +67,156 @@ export const ru: Record<MatnKaliti, string> = {
   'bosh.havola.shartlar': 'Условия использования',
   'bosh.havola.hisobOchirish': 'Удалить аккаунт',
   'bosh.tilTanlash': 'Язык',
+
+  // ---------- Общие действия ----------
+  'umumiy.saqlash': 'Сохранить',
+  'umumiy.saqlanmoqda': 'Сохранение…',
+  'umumiy.qoshish': 'Добавить',
+  'umumiy.ochirish': 'Удалить',
+  'umumiy.yopish': 'Закрыть',
+  'umumiy.bekor': 'Отмена',
+  'umumiy.tayyor': 'Готово',
+  'umumiy.kuting': 'Подождите…',
+  'umumiy.yoqish': 'Включить',
+  'umumiy.qaytaUrinish': 'Повторить',
+  'umumiy.yuklanmoqda': 'Загрузка…',
+  'umumiy.xato': 'Произошла ошибка',
+  'umumiy.xatoMatn': 'Не удалось загрузить данные. Проверьте подключение.',
+  'umumiy.bajarilmadi': 'Не получилось. Попробуйте ещё раз.',
+  'umumiy.saqlanmadi': 'Не удалось сохранить. Попробуйте ещё раз.',
+
+  // ---------- Навигация ----------
+  'nav.jarayonda': 'В работе',
+  'nav.bugun': 'Сегодня',
+  'nav.kelgusi': 'Предстоящие',
+  'nav.korish': 'Обзор',
+  'nav.papkalar': 'Папки',
+  'nav.yangiPapka': 'Новая папка',
+  'nav.arxiv': 'Архив папок',
+  'nav.sozlamalar': 'Настройки',
+  'nav.chiqish': 'Выйти',
+  'nav.profilMenyusi': 'Меню профиля',
+  'nav.asosiyBolimlar': 'Основные разделы',
+
+  // ---------- Задача ----------
+  'vazifa.yangi': 'Новая задача',
+  'vazifa.tahrirlash': 'Изменить задачу',
+  'vazifa.nomiJoy': 'Что нужно сделать?',
+  'vazifa.qachon': 'Когда',
+  'vazifa.muhimlik': 'Приоритет',
+  'vazifa.bajarildi': 'Выполнено',
+  'vazifa.papka': 'Папка',
+  'vazifa.bolim': 'Раздел',
+  'vazifa.bolimsiz': 'Без раздела',
+  'vazifa.loyiha': 'Проект',
+  'vazifa.loyihasiz': 'Без проекта',
+  'vazifa.qoshildi': 'Задача добавлена',
+  'vazifa.yangilandi': 'Задача обновлена',
+  'vazifa.ochirildi': 'Задача удалена',
+  'vazifa.ochirishSarlavha': 'Удалить задачу',
+  'vazifa.ochirishTasdiq':
+    '«{nom}» будет удалена безвозвратно. Это действие нельзя отменить.',
+  'vazifa.ochirilmadi': 'Не удалось удалить. Попробуйте ещё раз.',
+
+  // ---------- Выбор даты ----------
+  'sana.tanlash': 'Выбрать дату',
+  'sana.bugun': 'Сегодня',
+  'sana.ertaga': 'Завтра',
+  'sana.keyingiHafta': 'Следующая неделя',
+  'sana.damOlish': 'Выходные',
+  'sana.sanasiz': 'Без даты',
+  'sana.vaqtQoshish': 'Добавить время',
+  'sana.vaqtniOlib': 'Убрать время',
+  'sana.boshqaVaqt': 'Укажите другое время',
+  'sana.takrorlanish': 'Повтор',
+  'sana.takrorniOlib': 'Убрать повтор',
+  'sana.harKuni': 'Каждый день',
+  'sana.ishKunlari': 'По будням',
+  'sana.harHafta': 'Каждую неделю',
+  'sana.harOy': 'Каждый месяц',
+  'sana.oldingiOy': 'Предыдущий месяц',
+  'sana.keyingiOy': 'Следующий месяц',
+
+  // ---------- Настройки ----------
+  'sozlamalar.sarlavha': 'Настройки',
+  'sozlamalar.tavsif':
+    'Здесь можно управлять профилем, внешним видом и уведомлениями.',
+  'sozlamalar.bolimlar': 'Разделы настроек',
+  'sozlamalar.yuklanmadi':
+    'Не удалось загрузить настройки. Проверьте подключение и обновите страницу.',
+  'sozlamalar.tab.profil': 'Профиль',
+  'sozlamalar.tab.umumiy': 'Общие',
+  'sozlamalar.tab.korinish': 'Внешний вид',
+  'sozlamalar.tab.yonPanel': 'Боковая панель',
+  'sozlamalar.tab.bildirishnoma': 'Уведомления',
+
+  'sozlamalar.rasm.sarlavha': 'Фото профиля',
+  'sozlamalar.rasm.tavsif': 'JPG, PNG или WebP. До 2 МБ.',
+  'sozlamalar.rasm.yuklash': 'Загрузить фото',
+  'sozlamalar.rasm.yuklanmoqda': 'Загрузка…',
+  'sozlamalar.rasm.olibTashlash': 'Убрать',
+  'sozlamalar.rasm.yangilandi': 'Фото профиля обновлено',
+  'sozlamalar.rasm.olindi': 'Фото профиля удалено',
+  'sozlamalar.rasm.notogriTur': 'Загрузить можно только JPG, PNG или WebP',
+  'sozlamalar.rasm.kattaHajm': 'Размер изображения не должен превышать 2 МБ',
+  'sozlamalar.rasm.yuklanmadi':
+    'Не удалось загрузить изображение. Проверьте подключение и попробуйте снова.',
+
+  'sozlamalar.ism.sarlavha': 'Имя',
+  'sozlamalar.ism.saqlandi': 'Имя сохранено',
+  'sozlamalar.ism.bosh': 'Имя не может быть пустым',
+  'sozlamalar.email.sarlavha': 'Эл. почта',
+  'sozlamalar.email.tavsif':
+    '{email} — привязана к аккаунту Google, изменить её здесь нельзя.',
+
+  'sozlamalar.mintaqa.sarlavha': 'Часовой пояс',
+  'sozlamalar.mintaqa.tavsif':
+    'Напоминания приходят по этому поясу. Сейчас там {vaqt}.',
+  'sozlamalar.mintaqa.qurilmadagi': 'Взять с устройства ({mintaqa})',
+  'sozlamalar.mintaqa.saqlandi': 'Часовой пояс сохранён',
+
+  'sozlamalar.til.sarlavha': 'Язык',
+  'sozlamalar.til.tavsif':
+    'Язык интерфейса. Выбор сохраняется в аккаунте — на других устройствах будет тот же язык.',
+  'sozlamalar.til.saqlandi': 'Язык изменён',
+
+  'sozlamalar.korinish.sarlavha': 'Внешний вид',
+  'sozlamalar.korinish.tizim': 'Система',
+  'sozlamalar.korinish.yorug': 'Светлая',
+  'sozlamalar.korinish.qorongi': 'Тёмная',
+  'sozlamalar.korinish.tizimTavsif':
+    'Как настроено на устройстве — сейчас {holat}.',
+  'sozlamalar.korinish.qorongiTavsif':
+    'Всегда тёмная, даже если на устройстве выбрана светлая.',
+  'sozlamalar.korinish.yorugTavsif':
+    'Всегда светлая, даже если на устройстве выбрана тёмная.',
+
+  'sozlamalar.yonPanel.sarlavha': 'Порядок разделов',
+  'sozlamalar.yonPanel.tavsif':
+    'Верхний раздел открывается при запуске приложения. Сейчас — «{bolim}».',
+  'sozlamalar.yonPanel.birinchi': 'первый',
+  'sozlamalar.yonPanel.yuqoriga': '{nom} — выше',
+  'sozlamalar.yonPanel.pastga': '{nom} — ниже',
+  'sozlamalar.yonPanel.sukut': 'Вернуть порядок по умолчанию',
+  'sozlamalar.yonPanel.izoh':
+    'Порядок сохраняется в аккаунте — он одинаков и на телефоне, и на компьютере.',
+
+  'sozlamalar.bildirishnoma.sarlavha': 'Напоминания о задачах',
+  'sozlamalar.bildirishnoma.qollamaydi':
+    'Этот браузер не поддерживает уведомления.',
+  'sozlamalar.bildirishnoma.radEtilgan':
+    'Уведомления запрещены в настройках браузера.',
+  'sozlamalar.bildirishnoma.yoqilgan':
+    'Напомним о задачах, у которых указано время, — даже если приложение закрыто.',
+  'sozlamalar.bildirishnoma.ochiq':
+    'Включите, чтобы получать напоминания о задачах с указанным временем.',
+  'sozlamalar.bildirishnoma.tavsiya': 'Рекомендуем',
+  'sozlamalar.bildirishnoma.tavsiyaMatn':
+    'Без напоминаний задачи с указанным временем легко пропустить. Браузер один раз спросит разрешение.',
+  'sozlamalar.bildirishnoma.qaytarish':
+    'Чтобы вернуть разрешение, нажмите значок замка в адресной строке браузера и переведите «Уведомления» в разрешённые.',
+  'sozlamalar.bildirishnoma.yoqildi': 'Уведомления включены',
+  'sozlamalar.bildirishnoma.ochirildi': 'Уведомления выключены',
+  'sozlamalar.bildirishnoma.ruxsatYoq':
+    'Браузер отказал. Разрешите уведомления в его настройках.',
 }

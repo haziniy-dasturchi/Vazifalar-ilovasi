@@ -134,6 +134,7 @@ export type Database = {
           evening_review_time: string
           full_name: string | null
           id: string
+          lang: string
           pomodoro_cycles_before_long: number
           pomodoro_focus_min: number
           pomodoro_long_break_min: number
@@ -151,6 +152,7 @@ export type Database = {
           evening_review_time?: string
           full_name?: string | null
           id: string
+          lang?: string
           pomodoro_cycles_before_long?: number
           pomodoro_focus_min?: number
           pomodoro_long_break_min?: number
@@ -168,6 +170,7 @@ export type Database = {
           evening_review_time?: string
           full_name?: string | null
           id?: string
+          lang?: string
           pomodoro_cycles_before_long?: number
           pomodoro_focus_min?: number
           pomodoro_long_break_min?: number

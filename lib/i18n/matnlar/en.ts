@@ -67,4 +67,156 @@ export const en: Record<MatnKaliti, string> = {
   'bosh.havola.shartlar': 'Terms of use',
   'bosh.havola.hisobOchirish': 'Delete account',
   'bosh.tilTanlash': 'Language',
+
+  // ---------- Common actions ----------
+  'umumiy.saqlash': 'Save',
+  'umumiy.saqlanmoqda': 'Saving…',
+  'umumiy.qoshish': 'Add',
+  'umumiy.ochirish': 'Delete',
+  'umumiy.yopish': 'Close',
+  'umumiy.bekor': 'Cancel',
+  'umumiy.tayyor': 'Done',
+  'umumiy.kuting': 'Please wait…',
+  'umumiy.yoqish': 'Turn on',
+  'umumiy.qaytaUrinish': 'Try again',
+  'umumiy.yuklanmoqda': 'Loading…',
+  'umumiy.xato': 'Something went wrong',
+  'umumiy.xatoMatn': 'Could not load the data. Check your connection.',
+  'umumiy.bajarilmadi': 'That did not work. Please try again.',
+  'umumiy.saqlanmadi': 'Could not save. Please try again.',
+
+  // ---------- Navigation ----------
+  'nav.jarayonda': 'In progress',
+  'nav.bugun': 'Today',
+  'nav.kelgusi': 'Upcoming',
+  'nav.korish': 'Overview',
+  'nav.papkalar': 'Folders',
+  'nav.yangiPapka': 'New folder',
+  'nav.arxiv': 'Archived folders',
+  'nav.sozlamalar': 'Settings',
+  'nav.chiqish': 'Sign out',
+  'nav.profilMenyusi': 'Profile menu',
+  'nav.asosiyBolimlar': 'Main sections',
+
+  // ---------- Task ----------
+  'vazifa.yangi': 'New task',
+  'vazifa.tahrirlash': 'Edit task',
+  'vazifa.nomiJoy': 'What needs doing?',
+  'vazifa.qachon': 'When',
+  'vazifa.muhimlik': 'Priority',
+  'vazifa.bajarildi': 'Progress',
+  'vazifa.papka': 'Folder',
+  'vazifa.bolim': 'Section',
+  'vazifa.bolimsiz': 'No section',
+  'vazifa.loyiha': 'Project',
+  'vazifa.loyihasiz': 'No project',
+  'vazifa.qoshildi': 'Task added',
+  'vazifa.yangilandi': 'Task updated',
+  'vazifa.ochirildi': 'Task deleted',
+  'vazifa.ochirishSarlavha': 'Delete task',
+  'vazifa.ochirishTasdiq':
+    '“{nom}” will be deleted for good. This cannot be undone.',
+  'vazifa.ochirilmadi': 'Could not delete. Please try again.',
+
+  // ---------- Date picker ----------
+  'sana.tanlash': 'Pick a date',
+  'sana.bugun': 'Today',
+  'sana.ertaga': 'Tomorrow',
+  'sana.keyingiHafta': 'Next week',
+  'sana.damOlish': 'This weekend',
+  'sana.sanasiz': 'No date',
+  'sana.vaqtQoshish': 'Add a time',
+  'sana.vaqtniOlib': 'Remove time',
+  'sana.boshqaVaqt': 'Enter another time',
+  'sana.takrorlanish': 'Repeat',
+  'sana.takrorniOlib': 'Remove repeat',
+  'sana.harKuni': 'Every day',
+  'sana.ishKunlari': 'Weekdays',
+  'sana.harHafta': 'Every week',
+  'sana.harOy': 'Every month',
+  'sana.oldingiOy': 'Previous month',
+  'sana.keyingiOy': 'Next month',
+
+  // ---------- Settings ----------
+  'sozlamalar.sarlavha': 'Settings',
+  'sozlamalar.tavsif':
+    'Manage your profile, appearance and notifications here.',
+  'sozlamalar.bolimlar': 'Settings sections',
+  'sozlamalar.yuklanmadi':
+    'Could not load your settings. Check your connection and reload the page.',
+  'sozlamalar.tab.profil': 'Profile',
+  'sozlamalar.tab.umumiy': 'General',
+  'sozlamalar.tab.korinish': 'Appearance',
+  'sozlamalar.tab.yonPanel': 'Sidebar',
+  'sozlamalar.tab.bildirishnoma': 'Notifications',
+
+  'sozlamalar.rasm.sarlavha': 'Profile photo',
+  'sozlamalar.rasm.tavsif': 'JPG, PNG or WebP. Up to 2 MB.',
+  'sozlamalar.rasm.yuklash': 'Upload photo',
+  'sozlamalar.rasm.yuklanmoqda': 'Uploading…',
+  'sozlamalar.rasm.olibTashlash': 'Remove',
+  'sozlamalar.rasm.yangilandi': 'Profile photo updated',
+  'sozlamalar.rasm.olindi': 'Profile photo removed',
+  'sozlamalar.rasm.notogriTur': 'Only JPG, PNG or WebP images can be uploaded',
+  'sozlamalar.rasm.kattaHajm': 'The image must be under 2 MB',
+  'sozlamalar.rasm.yuklanmadi':
+    'Could not upload the image. Check your connection and try again.',
+
+  'sozlamalar.ism.sarlavha': 'Name',
+  'sozlamalar.ism.saqlandi': 'Name saved',
+  'sozlamalar.ism.bosh': 'Name cannot be empty',
+  'sozlamalar.email.sarlavha': 'Email',
+  'sozlamalar.email.tavsif':
+    '{email} — tied to your Google account and cannot be changed here.',
+
+  'sozlamalar.mintaqa.sarlavha': 'Time zone',
+  'sozlamalar.mintaqa.tavsif':
+    'Reminders are sent according to this zone. It is {vaqt} there right now.',
+  'sozlamalar.mintaqa.qurilmadagi': 'Use this device’s zone ({mintaqa})',
+  'sozlamalar.mintaqa.saqlandi': 'Time zone saved',
+
+  'sozlamalar.til.sarlavha': 'Language',
+  'sozlamalar.til.tavsif':
+    'The language of the app. Your choice is saved to your account, so other devices follow it too.',
+  'sozlamalar.til.saqlandi': 'Language changed',
+
+  'sozlamalar.korinish.sarlavha': 'Appearance',
+  'sozlamalar.korinish.tizim': 'System',
+  'sozlamalar.korinish.yorug': 'Light',
+  'sozlamalar.korinish.qorongi': 'Dark',
+  'sozlamalar.korinish.tizimTavsif':
+    'Follows your device — currently {holat}.',
+  'sozlamalar.korinish.qorongiTavsif':
+    'Always dark, even when your device is set to light.',
+  'sozlamalar.korinish.yorugTavsif':
+    'Always light, even when your device is set to dark.',
+
+  'sozlamalar.yonPanel.sarlavha': 'Section order',
+  'sozlamalar.yonPanel.tavsif':
+    'The section at the top is what you see when the app opens. Right now — “{bolim}”.',
+  'sozlamalar.yonPanel.birinchi': 'first',
+  'sozlamalar.yonPanel.yuqoriga': 'Move {nom} up',
+  'sozlamalar.yonPanel.pastga': 'Move {nom} down',
+  'sozlamalar.yonPanel.sukut': 'Restore default order',
+  'sozlamalar.yonPanel.izoh':
+    'The order is saved to your account, so it is the same on your phone and your computer.',
+
+  'sozlamalar.bildirishnoma.sarlavha': 'Task reminders',
+  'sozlamalar.bildirishnoma.qollamaydi':
+    'This browser does not support notifications.',
+  'sozlamalar.bildirishnoma.radEtilgan':
+    'Notifications are blocked in your browser settings.',
+  'sozlamalar.bildirishnoma.yoqilgan':
+    'We will remind you about tasks that have a time — even when the app is closed.',
+  'sozlamalar.bildirishnoma.ochiq':
+    'Turn this on to get reminders for tasks that have a time.',
+  'sozlamalar.bildirishnoma.tavsiya': 'Recommended',
+  'sozlamalar.bildirishnoma.tavsiyaMatn':
+    'Without reminders, tasks with a set time are easy to miss. Your browser will ask for permission once.',
+  'sozlamalar.bildirishnoma.qaytarish':
+    'To allow them again, click the lock icon in your browser’s address bar and set “Notifications” to allowed.',
+  'sozlamalar.bildirishnoma.yoqildi': 'Notifications turned on',
+  'sozlamalar.bildirishnoma.ochirildi': 'Notifications turned off',
+  'sozlamalar.bildirishnoma.ruxsatYoq':
+    'The browser refused. Allow notifications in its settings.',
 }

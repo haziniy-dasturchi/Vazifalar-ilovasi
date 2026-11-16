@@ -6,6 +6,7 @@ import { FoydalanuvchiProvider } from './foydalanuvchi'
 import { YonPanel } from './yon-panel'
 import { PastkiMenyu } from './pastki-menyu'
 import { MobilSarlavha } from './mobil-sarlavha'
+import { TilProvayder, useT } from './til-provayder'
 import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
 import { useFoydalanuvchiSorovi, useProfil } from '@/lib/queries/profil'
 import { useAsosiyRoyxatlarniOldindanYuklash } from '@/lib/queries/vazifalar'
@@ -45,28 +46,41 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <FoydalanuvchiProvider qiymat={foydalanuvchi}>
-      <div className="flex min-h-dvh">
-        <YonPanel />
+      <TilProvayder til={profil?.lang}>
+        <div className="flex min-h-dvh">
+          <YonPanel />
 
-        <div className="min-w-0 flex-1 pb-24 md:pb-0">
-          <MobilSarlavha />
-          {children}
+          <div className="min-w-0 flex-1 pb-24 md:pb-0">
+            <MobilSarlavha />
+            {children}
+          </div>
         </div>
-      </div>
 
-      {/* Telefonda asosiy harakat — har doim ko'rinib turadi */}
-      <button
-        type="button"
-        onClick={() => setQoshishOchiq(true)}
-        aria-label="Yangi vazifa"
-        className="fixed right-5 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 flex size-14 items-center justify-center rounded-full bg-brand-primary text-white shadow-float transition active:scale-95 md:right-8 md:bottom-8"
-      >
-        <Plus className="size-7" aria-hidden />
-      </button>
+        {/* Telefonda asosiy harakat — har doim ko'rinib turadi */}
+        <QoshishTugmasi onClick={() => setQoshishOchiq(true)} />
 
-      <PastkiMenyu />
+        <PastkiMenyu />
 
-      {qoshishOchiq && <VazifaOynasi yop={() => setQoshishOchiq(false)} />}
+        {qoshishOchiq && <VazifaOynasi yop={() => setQoshishOchiq(false)} />}
+      </TilProvayder>
     </FoydalanuvchiProvider>
+  )
+}
+
+/**
+ * Alohida komponent, chunki `useT()` faqat `TilProvayder` ichida
+ * ishlaydi — `Shell` ning o'zi provayderdan tashqarida turadi.
+ */
+function QoshishTugmasi({ onClick }: { onClick: () => void }) {
+  const t = useT()
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={t('vazifa.yangi')}
+      className="fixed right-5 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 flex size-14 items-center justify-center rounded-full bg-brand-primary text-white shadow-float transition active:scale-95 md:right-8 md:bottom-8"
+    >
+      <Plus className="size-7" aria-hidden />
+    </button>
   )
 }

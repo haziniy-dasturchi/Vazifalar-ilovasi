@@ -2,6 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from 'react'
 import { Monitor, Moon, Sun } from 'lucide-react'
+import { useT } from '@/components/app/til-provayder'
 import {
   amaldagiMavzu,
   mavzugaObuna,
@@ -9,16 +10,17 @@ import {
   mavzuniOrnat,
   mavzuniQolla,
 } from '@/lib/mavzu'
+import type { MatnKaliti } from '@/lib/i18n'
 import type { Theme } from '@/types/vazifalar'
 
 const VARIANTLAR: {
   qiymat: Theme
-  nom: string
+  nom: MatnKaliti
   ikonka: typeof Sun
 }[] = [
-  { qiymat: 'system', nom: 'Tizim', ikonka: Monitor },
-  { qiymat: 'light', nom: 'Yorug‘', ikonka: Sun },
-  { qiymat: 'dark', nom: 'Qorong‘i', ikonka: Moon },
+  { qiymat: 'system', nom: 'sozlamalar.korinish.tizim', ikonka: Monitor },
+  { qiymat: 'light', nom: 'sozlamalar.korinish.yorug', ikonka: Sun },
+  { qiymat: 'dark', nom: 'sozlamalar.korinish.qorongi', ikonka: Moon },
 ]
 
 /**
@@ -36,6 +38,7 @@ export function MavzuSozlamasi({
   onOzgarish?: (mavzu: Theme) => void
 } = {}) {
   const mavzu = useSyncExternalStore(mavzugaObuna, mavzuniOqi, () => 'system')
+  const t = useT()
 
   /**
    * Tizim sozlamasi ish paytida o'zgarsa ("tizim" tanlangan bo'lsa)
@@ -50,6 +53,18 @@ export function MavzuSozlamasi({
 
   const hozir = amaldagiMavzu(mavzu as Theme)
 
+  const tavsif =
+    mavzu === 'system'
+      ? t('sozlamalar.korinish.tizimTavsif', {
+          holat:
+            hozir === 'dark'
+              ? t('sozlamalar.korinish.qorongi')
+              : t('sozlamalar.korinish.yorug'),
+        })
+      : mavzu === 'dark'
+        ? t('sozlamalar.korinish.qorongiTavsif')
+        : t('sozlamalar.korinish.yorugTavsif')
+
   return (
     <div className="rounded-2xl bg-surface p-4 shadow-card">
       <div className="flex items-start gap-4">
@@ -62,22 +77,18 @@ export function MavzuSozlamasi({
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-text-strong">Ko‘rinish</p>
+          <p className="font-semibold text-text-strong">
+            {t('sozlamalar.korinish.sarlavha')}
+          </p>
           <p className="mt-1 text-sm leading-relaxed text-text-muted">
-            {mavzu === 'system'
-              ? 'Qurilma sozlamasiga moslashadi — hozir ' +
-                (hozir === 'dark' ? 'qorong‘i' : 'yorug‘') +
-                '.'
-              : mavzu === 'dark'
-                ? 'Doim qorong‘i — qurilma yorug‘ rejimda bo‘lsa ham.'
-                : 'Doim yorug‘ — qurilma qorong‘i rejimda bo‘lsa ham.'}
+            {tavsif}
           </p>
         </div>
       </div>
 
       <div
         role="radiogroup"
-        aria-label="Ko‘rinish"
+        aria-label={t('sozlamalar.korinish.sarlavha')}
         className="mt-4 grid grid-cols-3 gap-1 rounded-xl bg-surface-muted p-1"
       >
         {VARIANTLAR.map((v) => {
@@ -99,7 +110,7 @@ export function MavzuSozlamasi({
               }`}
             >
               <v.ikonka className="size-4 shrink-0" aria-hidden />
-              {v.nom}
+              {t(v.nom)}
             </button>
           )
         })}

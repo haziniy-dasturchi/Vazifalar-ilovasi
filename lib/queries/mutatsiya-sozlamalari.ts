@@ -135,6 +135,7 @@ export type ProfilOzgarishi = {
   theme?: Theme
   timezone?: string
   sidebar_order?: string[]
+  lang?: string
 }
 
 export type HolatHarakati = 'boshlash' | 'rejaga' | 'bajarish' | 'qaytarish'

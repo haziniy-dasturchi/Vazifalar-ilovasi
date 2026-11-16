@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useT } from './til-provayder'
 import { useBolimTartibi } from '@/lib/queries/bolim-tartibi'
 
 // Ro'yxatning o'zi `lib/bolimlar.ts` ga ko'chirildi: uni sozlamalar
@@ -12,10 +13,11 @@ export { BOLIMLAR } from '@/lib/bolimlar'
 export function PastkiMenyu() {
   const yol = usePathname()
   const BOLIMLAR = useBolimTartibi()
+  const t = useT()
 
   return (
     <nav
-      aria-label="Asosiy bo‘limlar"
+      aria-label={t('nav.asosiyBolimlar')}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border-subtle bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       <ul className="flex">
@@ -34,7 +36,7 @@ export function PastkiMenyu() {
                   className={`size-6 ${faol ? 'stroke-[2.4]' : ''}`}
                   aria-hidden
                 />
-                {nom}
+                {t(nom)}
               </Link>
             </li>
           )
