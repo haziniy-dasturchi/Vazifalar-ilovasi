@@ -70,6 +70,21 @@ export function boshMetadata(til: Til): Metadata {
   }
   tillar['x-default'] = DOMEN
 
+  /*
+    Ulashish rasmi ANIQ ko'rsatiladi.
+
+    Next `app/opengraph-image.png` ni avtomatik qo'shadi, lekin faqat
+    sahifa o'zining `openGraph` obyektini belgilamagan bo'lsa.
+    Belgilansa — ildizdagi rasm meros bo'lmaydi va `/en`, `/ru`
+    ijtimoiy tarmoqda rasmsiz ulashilardi (sinovda aniqlandi).
+  */
+  const rasm = {
+    url: `${DOMEN}/opengraph-image.png`,
+    width: 1200,
+    height: 630,
+    alt: 'Samara',
+  }
+
   return {
     /*
       `absolute` ataylab: ildiz layout'da `'%s · Samara'` shabloni bor
@@ -87,11 +102,13 @@ export function boshMetadata(til: Til): Metadata {
       locale: tilMalumoti(til).ogLocale,
       title: t('bosh.meta.qisqaSarlavha'),
       description: t('bosh.meta.tavsif'),
+      images: [rasm],
     },
     twitter: {
       card: 'summary_large_image',
       title: t('bosh.meta.qisqaSarlavha'),
       description: t('bosh.meta.tavsif'),
+      images: [rasm],
     },
   }
 }
