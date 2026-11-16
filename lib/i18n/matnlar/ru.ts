@@ -3,8 +3,8 @@ import type { MatnKaliti } from './uz'
 /** Ruscha matnlar. Kalitlar `uz.ts` bilan bir xil bo'lishi shart. */
 export const ru: Record<MatnKaliti, string> = {
   // ---------- Главная страница (открытая, для поисковиков) ----------
-  'bosh.meta.sarlavha': 'Samara — бесплатный список дел, задачи и планировщик дня',
-  'bosh.meta.qisqaSarlavha': 'Samara — список задач и ежедневник',
+  'bosh.meta.sarlavha': 'Samara — бесплатный менеджер задач и планировщик',
+  'bosh.meta.qisqaSarlavha': 'Samara — бесплатный менеджер задач',
   'bosh.meta.tavsif':
     'Бесплатный список дел и планировщик дня. Задачи, напоминания по времени, папки, прогресс и отчёт за день. Без рекламы и слежки, работает офлайн.',
 
