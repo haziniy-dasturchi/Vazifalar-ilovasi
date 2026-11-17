@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { OsuvchiMaydon } from '@/components/ui/osuvchi-maydon'
 import { Plus } from 'lucide-react'
 import { useVazifaYaratish } from '@/lib/queries/vazifalar'
 import { useToast } from '@/components/ui/toast'
@@ -63,23 +64,33 @@ export function InlineQoshish({
       }}
       className="rounded-xl bg-surface p-2 shadow-card"
     >
-      <input
-        value={sarlavha}
-        onChange={(e) => setSarlavha(e.target.value)}
-        onBlur={() => {
-          if (!sarlavha.trim()) setOchiq(false)
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            setSarlavha('')
+      {/* Uzun nom to'liq ko'rinishi uchun o'suvchi maydon.
+          `onBlur` shu yerda emas, o'rab turgan <div> da: maydon
+          balandligi o'zgarganda brauzer fokusni qayta hisoblaydi va
+          ba'zan blur hodisasi kelib, forma o'z-o'zidan yopilardi. */}
+      <div
+        onBlur={(e) => {
+          if (!sarlavha.trim() && !e.currentTarget.contains(e.relatedTarget)) {
             setOchiq(false)
           }
         }}
-        placeholder="Nima qilish kerak?"
-        maxLength={500}
-        autoFocus
-        className="min-h-touch w-full bg-transparent px-2 text-base text-text-strong outline-none placeholder:text-text-faint"
-      />
+      >
+        <OsuvchiMaydon
+          qiymat={sarlavha}
+          onChange={setSarlavha}
+          onEnter={qoshish}
+          onEscape={() => {
+            setSarlavha('')
+            setOchiq(false)
+          }}
+          placeholder="Nima qilish kerak?"
+          ariaLabel="Nima qilish kerak?"
+          maxLength={500}
+          autoFocus
+          engKattaBalandlik={160}
+          className="min-h-touch bg-transparent px-2 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint"
+        />
+      </div>
       <div className="flex justify-end gap-2 px-1 pb-1">
         <button
           type="button"
