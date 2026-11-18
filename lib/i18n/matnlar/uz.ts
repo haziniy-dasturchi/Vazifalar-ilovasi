@@ -144,6 +144,17 @@ export const uz = {
   'sana.harOy': 'Har oy',
   'sana.oldingiOy': 'Oldingi oy',
   'sana.keyingiOy': 'Keyingi oy',
+  // ---------- Hafta kunlari (takrorlanish uchun) ----------
+  'kun.1.qisqa': 'Du', 'kun.2.qisqa': 'Se', 'kun.3.qisqa': 'Chor',
+  'kun.4.qisqa': 'Pay', 'kun.5.qisqa': 'Ju', 'kun.6.qisqa': 'Sha',
+  'kun.7.qisqa': 'Yak',
+  'kun.1.toliq': 'Dushanba', 'kun.2.toliq': 'Seshanba',
+  'kun.3.toliq': 'Chorshanba', 'kun.4.toliq': 'Payshanba',
+  'kun.5.toliq': 'Juma', 'kun.6.toliq': 'Shanba', 'kun.7.toliq': 'Yakshanba',
+  'sana.tanlanganKunlar': 'Tanlangan kunlar',
+  'sana.kunlarniTanlang': 'Kunlarni tanlang',
+  'sana.haftaKunlari': 'Hafta kunlari',
+
 
   // ---------- Sozlamalar ----------
   'sozlamalar.sarlavha': 'Sozlamalar',

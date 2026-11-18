@@ -18,7 +18,19 @@ export const TASK_PRIORITIES = [1, 2, 3, 4] as const
 export type TaskPriority = (typeof TASK_PRIORITIES)[number]
 
 export const RECURRENCES = ['daily', 'weekdays', 'weekly', 'monthly'] as const
-export type Recurrence = (typeof RECURRENCES)[number]
+export type OddiyTakrorlanish = (typeof RECURRENCES)[number]
+
+/**
+ * Tanlangan hafta kunlari: `days:2,3,4` (ISO — 1 dushanba ... 7 yakshanba).
+ *
+ * Nega shablon tipi: shu bilan TypeScript `'days:2,3'` ni qabul qiladi,
+ * lekin `'days:'` yoki `'kunlar:2'` ni rad etadi. Aniq raqamlarni
+ * tekshirish tip darajasida imkonsiz — buni `takrorKunlari()` va
+ * bazadagi CHECK cheklovi bajaradi.
+ */
+export type KunlarTakrorlanishi = `days:${string}`
+
+export type Recurrence = OddiyTakrorlanish | KunlarTakrorlanishi
 
 export const POMODORO_KINDS = ['focus', 'short_break', 'long_break'] as const
 export type PomodoroKind = (typeof POMODORO_KINDS)[number]

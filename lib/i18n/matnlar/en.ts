@@ -136,6 +136,17 @@ export const en: Record<MatnKaliti, string> = {
   'sana.harOy': 'Every month',
   'sana.oldingiOy': 'Previous month',
   'sana.keyingiOy': 'Next month',
+  // ---------- Weekdays (for recurrence) ----------
+  'kun.1.qisqa': 'Mon', 'kun.2.qisqa': 'Tue', 'kun.3.qisqa': 'Wed',
+  'kun.4.qisqa': 'Thu', 'kun.5.qisqa': 'Fri', 'kun.6.qisqa': 'Sat',
+  'kun.7.qisqa': 'Sun',
+  'kun.1.toliq': 'Monday', 'kun.2.toliq': 'Tuesday',
+  'kun.3.toliq': 'Wednesday', 'kun.4.toliq': 'Thursday',
+  'kun.5.toliq': 'Friday', 'kun.6.toliq': 'Saturday', 'kun.7.toliq': 'Sunday',
+  'sana.tanlanganKunlar': 'Selected days',
+  'sana.kunlarniTanlang': 'Pick the days',
+  'sana.haftaKunlari': 'Days of the week',
+
 
   // ---------- Settings ----------
   'sozlamalar.sarlavha': 'Settings',

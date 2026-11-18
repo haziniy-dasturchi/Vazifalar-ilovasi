@@ -136,6 +136,17 @@ export const ru: Record<MatnKaliti, string> = {
   'sana.harOy': 'Каждый месяц',
   'sana.oldingiOy': 'Предыдущий месяц',
   'sana.keyingiOy': 'Следующий месяц',
+  // ---------- Дни недели (для повтора) ----------
+  'kun.1.qisqa': 'Пн', 'kun.2.qisqa': 'Вт', 'kun.3.qisqa': 'Ср',
+  'kun.4.qisqa': 'Чт', 'kun.5.qisqa': 'Пт', 'kun.6.qisqa': 'Сб',
+  'kun.7.qisqa': 'Вс',
+  'kun.1.toliq': 'Понедельник', 'kun.2.toliq': 'Вторник',
+  'kun.3.toliq': 'Среда', 'kun.4.toliq': 'Четверг',
+  'kun.5.toliq': 'Пятница', 'kun.6.toliq': 'Суббота', 'kun.7.toliq': 'Воскресенье',
+  'sana.tanlanganKunlar': 'Выбранные дни',
+  'sana.kunlarniTanlang': 'Выберите дни',
+  'sana.haftaKunlari': 'Дни недели',
+
 
   // ---------- Настройки ----------
   'sozlamalar.sarlavha': 'Настройки',

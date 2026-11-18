@@ -30,27 +30,37 @@ import {
   X,
 } from 'lucide-react'
 import { OYLAR, isoDan, isoGa, toliqSana } from '@/lib/sana'
-import type { Recurrence } from '@/types/vazifalar'
+import { useT } from '@/components/app/til-provayder'
+import {
+  kunlardanTakrorlanish,
+  soddalashtir,
+  takrorKunlari,
+  takrorMatni,
+} from '@/lib/takrorlanish'
+import type { MatnKaliti } from '@/lib/i18n'
+import type { OddiyTakrorlanish, Recurrence } from '@/types/vazifalar'
 
 /** Dushanbadan boshlab hafta kunlari qisqartmasi (kalendar sarlavhasi uchun) */
-const HAFTA_KUNLARI = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya']
+const HAFTA_KUNLARI: MatnKaliti[] = [
+  'kun.1.qisqa', 'kun.2.qisqa', 'kun.3.qisqa', 'kun.4.qisqa',
+  'kun.5.qisqa', 'kun.6.qisqa', 'kun.7.qisqa',
+]
 
 /** Tez tanlash uchun eng ko'p ishlatiladigan vaqtlar */
 const TEZ_VAQTLAR = ['09:00', '12:00', '15:00', '18:00', '21:00']
 
-const TAKRORLANISH_VARIANTLARI: { nom: string; qiymat: Recurrence }[] = [
-  { nom: 'Har kuni', qiymat: 'daily' },
-  { nom: 'Ish kunlari', qiymat: 'weekdays' },
-  { nom: 'Har hafta', qiymat: 'weekly' },
-  { nom: 'Har oy', qiymat: 'monthly' },
+const TAKRORLANISH_VARIANTLARI: {
+  kalit: MatnKaliti
+  qiymat: OddiyTakrorlanish
+}[] = [
+  { kalit: 'sana.harKuni', qiymat: 'daily' },
+  { kalit: 'sana.ishKunlari', qiymat: 'weekdays' },
+  { kalit: 'sana.harHafta', qiymat: 'weekly' },
+  { kalit: 'sana.harOy', qiymat: 'monthly' },
 ]
 
-const TAKRORLANISH_QISQA: Record<Recurrence, string> = {
-  daily: 'Har kuni',
-  weekdays: 'Ish kunlari',
-  weekly: 'Har hafta',
-  monthly: 'Har oy',
-}
+/** ISO tartibi: 1 dushanba ... 7 yakshanba */
+const KUN_RAQAMLARI = [1, 2, 3, 4, 5, 6, 7] as const
 
 /** Kompyuterdagi tushuvchi panel kengligi (telefonda pastki varaq) */
 const PANEL_KENGLIGI = 340
@@ -79,6 +89,7 @@ export function SanaTanlagich({
   onVaqtChange: (hhmm: string | null) => void
   onTakrorlanishChange: (r: Recurrence | null) => void
 }) {
+  const t = useT()
   const [ochiq, setOchiq] = useState(false)
   const [vaqtOchiq, setVaqtOchiq] = useState(false)
   const [takrorOchiq, setTakrorOchiq] = useState(false)
@@ -132,7 +143,7 @@ export function SanaTanlagich({
         onClick={() => (ochiq ? setOchiq(false) : ochish())}
         aria-expanded={ochiq}
         aria-pressed={Boolean(sana)}
-        title={takrorlanish ? TAKRORLANISH_QISQA[takrorlanish] : undefined}
+        title={takrorlanish ? takrorMatni(takrorlanish, t) : undefined}
         className={`flex min-h-0 items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition ${
           sana
             ? 'border-brand-onsoft bg-brand-soft text-brand-onsoft'
@@ -140,7 +151,9 @@ export function SanaTanlagich({
         }`}
       >
         <Calendar className="size-4" aria-hidden />
-        {sana ? `${toliqSana(sana)}${vaqt ? ` · ${vaqt}` : ''}` : 'Sana tanlash'}
+        {sana
+          ? `${toliqSana(sana)}${vaqt ? ` · ${vaqt}` : ''}`
+          : t('sana.tanlash')}
         {takrorlanish && <Repeat2 className="size-3.5" aria-hidden />}
       </button>
 
@@ -210,6 +223,7 @@ function SanaPaneli({
   setTakrorOchiq: (v: boolean) => void
   yopish: () => void
 }) {
+  const t = useT()
   const ichkiRef = useRef<HTMLDivElement>(null)
   const futerRef = useRef<HTMLDivElement>(null)
   const [kattaEkran, setKattaEkran] = useState(true)
@@ -295,24 +309,44 @@ function SanaPaneli({
     return () => kuzatuvchi.disconnect()
   }, [kattaEkran, joylashtir])
 
+  const tanlanganKunlar = takrorKunlari(takrorlanish)
+
+  /**
+   * Kunni belgilash/olib tashlash.
+   *
+   * `soddalashtir` natijani tozalaydi: hamma kun belgilansa "Har
+   * kuni", du-ju belgilansa "Ish kunlari" bo'ladi. Aks holda bir xil
+   * jadval ikki xil nom bilan ko'rinardi.
+   */
+  function kunniAlmashtir(kun: number) {
+    const yangi = tanlanganKunlar.includes(kun)
+      ? tanlanganKunlar.filter((k) => k !== kun)
+      : [...tanlanganKunlar, kun]
+
+    const qiymat = soddalashtir(kunlardanTakrorlanish(yangi))
+    // Takrorlanish boshlanish sanasisiz ma'nosiz
+    if (qiymat && !sana) onSanaChange(isoGa(new Date()))
+    onTakrorlanishChange(qiymat)
+  }
+
   const bugun = new Date()
 
   const TEZ_QATORLAR = [
-    { nom: 'Bugun', ikonka: Sun, rang: '#f59e0b', sana: bugun },
+    { nom: t('sana.bugun'), ikonka: Sun, rang: '#f59e0b', sana: bugun },
     {
-      nom: 'Ertaga',
+      nom: t('sana.ertaga'),
       ikonka: Sunrise,
       rang: '#f97316',
       sana: kunQoshish(bugun, 1),
     },
     {
-      nom: 'Keyingi hafta',
+      nom: t('sana.keyingiHafta'),
       ikonka: ArrowRight,
       rang: '#8b5cf6',
       sana: nextMonday(bugun),
     },
     {
-      nom: 'Dam olish',
+      nom: t('sana.damOlish'),
       ikonka: Coffee,
       rang: '#2563eb',
       sana: nextSaturday(bugun),
@@ -397,7 +431,7 @@ function SanaPaneli({
             >
               <Ban className="size-4 shrink-0 text-text-faint" aria-hidden />
               <span className="flex-1 font-medium text-text-strong">
-                Sanasiz
+                {t('sana.sanasiz')}
               </span>
             </button>
           </div>
@@ -407,7 +441,7 @@ function SanaPaneli({
             <button
               type="button"
               onClick={() => setKorinishOy((d) => subMonths(d, 1))}
-              aria-label="Oldingi oy"
+              aria-label={t('sana.oldingiOy')}
               className="flex size-8 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted"
             >
               <ChevronLeft className="size-4" aria-hidden />
@@ -418,7 +452,7 @@ function SanaPaneli({
             <button
               type="button"
               onClick={() => setKorinishOy((d) => addMonths(d, 1))}
-              aria-label="Keyingi oy"
+              aria-label={t('sana.keyingiOy')}
               className="flex size-8 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted"
             >
               <ChevronRight className="size-4" aria-hidden />
@@ -427,12 +461,12 @@ function SanaPaneli({
 
           {/* Hafta kunlari sarlavhasi */}
           <div className="grid grid-cols-7 gap-1 px-1">
-            {HAFTA_KUNLARI.map((k) => (
+            {HAFTA_KUNLARI.map((kalit) => (
               <span
-                key={k}
+                key={kalit}
                 className="py-1 text-center text-xs font-medium text-text-faint"
               >
-                {k}
+                {t(kalit)}
               </span>
             ))}
           </div>
@@ -475,7 +509,7 @@ function SanaPaneli({
               >
                 <Clock className="size-4 shrink-0 text-text-faint" aria-hidden />
                 <span className="flex-1 font-medium text-text-strong">
-                  {vaqt ?? 'Vaqt qo‘shish'}
+                  {vaqt ?? t('sana.vaqtQoshish')}
                 </span>
                 {vaqt && (
                   <span
@@ -492,7 +526,7 @@ function SanaPaneli({
                         onVaqtChange(null)
                       }
                     }}
-                    aria-label="Vaqtni olib tashlash"
+                    aria-label={t('sana.vaqtniOlib')}
                     className="flex size-7 min-h-0 shrink-0 items-center justify-center rounded-full text-text-faint transition hover:bg-surface-sunken hover:text-text-strong"
                   >
                     <X className="size-3.5" aria-hidden />
@@ -526,7 +560,7 @@ function SanaPaneli({
                     type="time"
                     value={vaqt ?? ''}
                     onChange={(e) => onVaqtChange(e.target.value || null)}
-                    aria-label="Boshqa vaqt kiriting"
+                    aria-label={t('sana.boshqaVaqt')}
                     className="min-h-0 w-full rounded-lg border border-border-control bg-surface px-2 py-1.5 text-sm text-text-strong outline-none focus:border-brand-onsoft"
                   />
                 </div>
@@ -546,9 +580,7 @@ function SanaPaneli({
             >
               <Repeat2 className="size-4 shrink-0 text-text-faint" aria-hidden />
               <span className="flex-1 font-medium text-text-strong">
-                {takrorlanish
-                  ? TAKRORLANISH_QISQA[takrorlanish]
-                  : 'Takrorlanish'}
+                {takrorlanish ? takrorMatni(takrorlanish, t) : t('sana.takrorlanish')}
               </span>
               {takrorlanish && (
                 <span
@@ -565,7 +597,7 @@ function SanaPaneli({
                       onTakrorlanishChange(null)
                     }
                   }}
-                  aria-label="Takrorlanishni olib tashlash"
+                  aria-label={t('sana.takrorniOlib')}
                   className="flex size-7 min-h-0 shrink-0 items-center justify-center rounded-full text-text-faint transition hover:bg-surface-sunken hover:text-text-strong"
                 >
                   <X className="size-3.5" aria-hidden />
@@ -574,30 +606,66 @@ function SanaPaneli({
             </button>
 
             {takrorOchiq && (
-              <div className="flex flex-wrap gap-1.5 px-2 pb-1">
-                {TAKRORLANISH_VARIANTLARI.map((t) => {
-                  const tanlangan = takrorlanish === t.qiymat
-                  return (
-                    <button
-                      key={t.nom}
-                      type="button"
-                      onClick={() => {
-                        // Takrorlanish boshlanish sanasisiz ma'nosiz —
-                        // sana tanlanmagan bo'lsa bugundan boshlaymiz
-                        if (!sana) onSanaChange(isoGa(new Date()))
-                        onTakrorlanishChange(t.qiymat)
-                      }}
-                      aria-pressed={tanlangan}
-                      className={`min-h-0 rounded-full border px-2.5 py-1 text-xs font-medium transition ${
-                        tanlangan
-                          ? 'border-brand-onsoft bg-brand-soft text-brand-onsoft'
-                          : 'border-border-subtle text-text-muted hover:bg-surface-muted'
-                      }`}
-                    >
-                      {t.nom}
-                    </button>
-                  )
-                })}
+              <div className="px-2 pb-1">
+                <div className="flex flex-wrap gap-1.5">
+                  {TAKRORLANISH_VARIANTLARI.map((v) => {
+                    const tanlangan = takrorlanish === v.qiymat
+                    return (
+                      <button
+                        key={v.qiymat}
+                        type="button"
+                        onClick={() => {
+                          // Takrorlanish boshlanish sanasisiz ma'nosiz —
+                          // sana tanlanmagan bo'lsa bugundan boshlaymiz
+                          if (!sana) onSanaChange(isoGa(new Date()))
+                          onTakrorlanishChange(v.qiymat)
+                        }}
+                        aria-pressed={tanlangan}
+                        className={`min-h-0 rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                          tanlangan
+                            ? 'border-brand-onsoft bg-brand-soft text-brand-onsoft'
+                            : 'border-border-subtle text-text-muted hover:bg-surface-muted'
+                        }`}
+                      >
+                        {t(v.kalit)}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/*
+                  O'z jadvalini yig'ish: kerakli kunlarni bosib
+                  belgilanadi ("har se, chor, pay").
+
+                  Nega alohida oyna emas: mijoz "sodda ko'rinishda"
+                  so'ragan, va bu yerda bor-yo'g'i yetti tugma kerak —
+                  ularni shu panelning o'ziga sig'dirish mumkin, ya'ni
+                  qo'shimcha modal ochib-yopish shart emas.
+                */}
+                <p className="mt-3 mb-1.5 text-xs font-medium text-text-muted">
+                  {t('sana.kunlarniTanlang')}
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {KUN_RAQAMLARI.map((kun) => {
+                    const belgilangan = tanlanganKunlar.includes(kun)
+                    return (
+                      <button
+                        key={kun}
+                        type="button"
+                        onClick={() => kunniAlmashtir(kun)}
+                        aria-pressed={belgilangan}
+                        aria-label={t(`kun.${kun}.toliq` as MatnKaliti)}
+                        className={`min-h-0 min-w-9 rounded-lg border px-2 py-1.5 text-xs font-medium transition ${
+                          belgilangan
+                            ? 'border-brand-onsoft bg-brand-soft text-brand-onsoft'
+                            : 'border-border-subtle text-text-muted hover:bg-surface-muted'
+                        }`}
+                      >
+                        {t(`kun.${kun}.qisqa` as MatnKaliti)}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>

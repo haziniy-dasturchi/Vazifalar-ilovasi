@@ -21,6 +21,8 @@ import {
   vaqtMatni,
   type VaqtHolati,
 } from '@/lib/sana'
+import { takrorMatni } from '@/lib/takrorlanish'
+import { useT } from '@/components/app/til-provayder'
 import type { Task } from '@/types/vazifalar'
 
 /** Vaqt holatiga qarab rang: o'tgan — qizil, yaqin — sariq, kelgusi — yashil */
@@ -44,6 +46,7 @@ export function VazifaQatori({
   /** Papka ichidagi bo'lim (Loyihalar papkasida — loyiha nomi) */
   bolimNomi?: string
 }) {
+  const t = useT()
   const holat = useVazifaHolati()
   const { korsat } = useToast()
   const [ochiq, setOchiq] = useState(false)
@@ -150,7 +153,7 @@ export function VazifaQatori({
             {vazifa.recurrence && (
               <span
                 className="flex items-center gap-1 text-text-muted"
-                title="Takrorlanadi"
+                title={takrorMatni(vazifa.recurrence, t)}
               >
                 <Repeat2 className="size-3.5" aria-hidden />
               </span>
