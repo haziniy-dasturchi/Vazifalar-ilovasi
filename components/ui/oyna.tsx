@@ -37,25 +37,43 @@ export function Oyna({
     }
   }, [id])
 
+  /*
+    `yop` ref'da saqlanadi, chunki quyidagi effekt FAQAT bir marta —
+    oyna ochilganda ishlashi kerak.
+
+    Muammo (mijoz aytgan): oyna ichida matn yozilganda telefonda
+    klaviatura har harfdan keyin yopilib qolardi. Sabab zanjiri:
+    chaqiruvchilar `yop={() => setOchiq(false)}` deb inline funksiya
+    beradi → u har renderda YANGI bo'ladi → effekt `[yop]` ga
+    bog'langani uchun qayta ishga tushadi → ichidagi
+    `panelRef.current?.focus()` fokusni kiritish maydonidan oynaga
+    tortib oladi → brauzer klaviaturani yopadi.
+
+    Ref bilan effekt bog'liqligidan `yop` chiqib ketadi, lekin
+    Escape bosilganda doim eng oxirgi funksiya chaqiriladi.
+  */
+  const yopRef = useRef(yop)
+  yopRef.current = yop
+
   // Escape bilan yopish (faqat eng tepadagi oyna uchun) va orqa fonni qotirish
   useEffect(() => {
     function klavisha(e: KeyboardEvent) {
       const engTepadagi = ochiqOynalarStegi[ochiqOynalarStegi.length - 1]
-      if (e.key === 'Escape' && engTepadagi === id) yop()
+      if (e.key === 'Escape' && engTepadagi === id) yopRef.current()
     }
     document.addEventListener('keydown', klavisha)
 
     const oldingiOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
-    // Fokusni oyna ichiga olib kiramiz
+    // Fokusni oyna ichiga olib kiramiz — faqat ochilganda
     panelRef.current?.focus()
 
     return () => {
       document.removeEventListener('keydown', klavisha)
       document.body.style.overflow = oldingiOverflow
     }
-  }, [yop, id])
+  }, [id])
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
