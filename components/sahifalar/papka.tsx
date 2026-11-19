@@ -428,7 +428,28 @@ function BolimBloki({
   }
 
   return (
-    <section className="mb-7">
+    /*
+      Loyiha alohida kartada — chegara, fon va soya bilan.
+
+      Nega: loyihalar bir ro'yxatda ketma-ket turganda qaysi vazifa
+      qaysi loyihaga tegishli ekani ko'rinmasdi; progress chizig'i ham
+      yuqoridagi loyihanikimi yoki pastdagisinikimi — ajratib
+      bo'lmasdi. Oddiy bo'limlar esa kartaga o'ralmaydi: ular bitta
+      papka ichidagi guruhlar, ularni bir-biridan ajratish shart emas
+      va karta ortiqcha "shovqin" qo'shardi.
+    */
+    <section
+      className={
+        loyihami
+          ? // `shadow-raised` ataylab kuchliroq: o'lchab ko'rilganda
+            // yorug' mavzuda chegara fondan atigi 1.16 farq qiladi —
+            // bu odatiy karta uchun yetarli, lekin loyihalar
+            // bir-biridan aniq ajralib turishi kerak, shuning uchun
+            // asosiy ajratuvchi vazifani soya bajaradi.
+            'mb-5 rounded-2xl border border-border-subtle bg-surface p-3 shadow-raised md:p-4'
+          : 'mb-7'
+      }
+    >
       <div className="mb-2 flex items-center gap-1 px-1">
         <button
           type="button"
