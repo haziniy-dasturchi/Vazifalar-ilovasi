@@ -114,7 +114,28 @@ export function YonPanel() {
         </ul>
       </nav>
 
-      <div className="mt-7 flex items-center justify-between px-6 pb-1">
+      {/*
+        Loyihalar — papkalardan YUQORIDA, alohida guruhda.
+
+        Nega yuqorida: u hammada sukut bo'yicha turadi va oddiy
+        papkadan boshqacha ishlaydi (ichidagi har bir bo'lim —
+        alohida loyiha, o'z bajarilish foizi bilan). Papkalar
+        ro'yxatining ichida, bir xil ko'rinishda turganda bu farq
+        umuman sezilmasdi — odam uni yana bitta papka deb o'ylardi.
+      */}
+      {loyihalarPapkasi && (
+        <nav
+          aria-label={t('loyiha.bolimi')}
+          className="mt-6 shrink-0 px-3"
+        >
+          <h2 className="mb-1 px-3 text-xs font-semibold tracking-wide text-text-faint uppercase">
+            {t('loyiha.bolimi')}
+          </h2>
+          <ul className="space-y-1">{papkaQatori(loyihalarPapkasi)}</ul>
+        </nav>
+      )}
+
+      <div className="mt-6 flex items-center justify-between px-6 pb-1">
         <h2 className="text-xs font-semibold tracking-wide text-text-faint uppercase">
           {t('nav.papkalar')}
         </h2>
@@ -145,28 +166,6 @@ export function YonPanel() {
           <ul className="space-y-1">{oddiyPapkalar.map(papkaQatori)}</ul>
         )}
       </nav>
-
-      {/*
-        Loyihalar papkasi — ALOHIDA guruhda.
-
-        Nega: u hammada sukut bo'yicha turadi va oddiy papkadan
-        boshqacha ishlaydi (ichidagi har bir bo'lim — alohida loyiha,
-        o'z bajarilish foizi bilan). Bir xil ro'yxatda, bir xil
-        ko'rinishda turganda bu farq umuman sezilmasdi — odam uni
-        yana bitta papka deb o'ylardi. Endi o'z sarlavhasi, ajratuvchi
-        chizig'i va loyihalar soni bilan ko'rinadi.
-      */}
-      {loyihalarPapkasi && (
-        <nav
-          aria-label={t('loyiha.bolimi')}
-          className="shrink-0 border-t border-border-subtle px-3 pt-3 pb-4"
-        >
-          <h2 className="mb-1 px-3 text-xs font-semibold tracking-wide text-text-faint uppercase">
-            {t('loyiha.bolimi')}
-          </h2>
-          <ul className="space-y-1">{papkaQatori(loyihalarPapkasi)}</ul>
-        </nav>
-      )}
 
       <ProfilMenyu />
 

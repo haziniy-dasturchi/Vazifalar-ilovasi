@@ -18,6 +18,7 @@ import { Sahifa } from '@/components/app/sahifa'
 import { Yuklanmoqda } from '@/components/ui/holatlar'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
 import { HisobOchirish } from '@/components/app/hisob-ochirish'
+import { useT } from '@/components/app/til-provayder'
 import {
   useBugungiVazifalar,
   useJarayondagiVazifalar,
@@ -28,6 +29,7 @@ import { bugunISO, sarlavhaSana } from '@/lib/sana'
 import { iyerarxiya } from '@/lib/vazifa-yordam'
 
 export function KorishKorinishi() {
+  const t = useT()
   const { data, isPending } = useBugungiVazifalar()
   const { data: jarayondaData, isPending: jarayondaYuklanmoqda } =
     useJarayondagiVazifalar()
@@ -36,6 +38,31 @@ export function KorishKorinishi() {
 
   const bugun = bugunISO()
   const vazifalar = data ?? []
+
+  // Loyihalar papkasi alohida ko'rsatiladi — yon paneldagidek
+  const loyihalarPapkasi = papkalar?.find((p) => p.is_projects)
+  const oddiyPapkalar = papkalar?.filter((p) => !p.is_projects) ?? []
+
+  function papkaQatori(papka: (typeof oddiyPapkalar)[number]) {
+    const Ikonka = papkaIkonkasi(papka.icon, papka.is_inbox)
+    return (
+      <li key={papka.id} className="border-b border-border-subtle last:border-0">
+        <Link
+          href={`/papka/${papka.id}`}
+          className="flex min-h-touch items-center gap-3 px-4 py-3 transition hover:bg-surface-muted"
+        >
+          <Ikonka
+            className="size-5 shrink-0"
+            style={{ color: papka.color }}
+            aria-hidden
+          />
+          <span className="flex-1 truncate text-base text-text-strong">
+            {papka.name}
+          </span>
+        </Link>
+      </li>
+    )
+  }
 
   // "Jarayonda" sahifasi bilan bir xil sanaladi (iyerarxiya bo'yicha),
   // aks holda ikki joyda ikki xil son chiqib, ishonchni yo'qotardi.
@@ -118,44 +145,38 @@ export function KorishKorinishi() {
             />
           </section>
 
+          {/* Loyihalar — papkalardan YUQORIDA, alohida bo'limda.
+              Yon paneldagi tartib bilan bir xil bo'lishi kerak:
+              ikki joyda ikki xil joylashuv chalkashlik tug'diradi. */}
+          {loyihalarPapkasi && (
+            <section className="mt-7">
+              <h2 className="mb-2 px-1 text-sm font-semibold text-text-muted">
+                {t('loyiha.bolimi')}
+              </h2>
+              <ul className="overflow-hidden rounded-2xl bg-surface shadow-card">
+                {papkaQatori(loyihalarPapkasi)}
+              </ul>
+            </section>
+          )}
+
           <section className="mt-7">
             <div className="mb-2 flex items-center justify-between px-1">
-              <h2 className="text-sm font-semibold text-text-muted">Papkalar</h2>
+              <h2 className="text-sm font-semibold text-text-muted">
+                {t('nav.papkalar')}
+              </h2>
               <button
                 type="button"
                 onClick={() => setPapkaOchiq(true)}
-                aria-label="Yangi papka"
+                aria-label={t('nav.yangiPapka')}
                 className="-mr-2 flex size-9 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted hover:text-brand-onsoft"
               >
                 <Plus className="size-5" aria-hidden />
               </button>
             </div>
 
-            {papkalar && papkalar.length > 0 && (
+            {oddiyPapkalar.length > 0 && (
               <ul className="overflow-hidden rounded-2xl bg-surface shadow-card">
-                {papkalar.map((papka) => {
-                  const Ikonka = papkaIkonkasi(papka.icon, papka.is_inbox)
-                  return (
-                    <li
-                      key={papka.id}
-                      className="border-b border-border-subtle last:border-0"
-                    >
-                      <Link
-                        href={`/papka/${papka.id}`}
-                        className="flex min-h-touch items-center gap-3 px-4 py-3 transition hover:bg-surface-muted"
-                      >
-                        <Ikonka
-                          className="size-5 shrink-0"
-                          style={{ color: papka.color }}
-                          aria-hidden
-                        />
-                        <span className="flex-1 truncate text-base text-text-strong">
-                          {papka.name}
-                        </span>
-                      </Link>
-                    </li>
-                  )
-                })}
+                {oddiyPapkalar.map(papkaQatori)}
               </ul>
             )}
           </section>
