@@ -11,6 +11,7 @@ import {
   Moon,
   Play,
   Plus,
+  Send,
   Settings,
   TriangleAlert,
 } from 'lucide-react'
@@ -24,6 +25,7 @@ import {
   useJarayondagiVazifalar,
 } from '@/lib/queries/vazifalar'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
+import { useKelganTopshiriqlar } from '@/lib/queries/topshiriqlar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
 import { bugunISO, sarlavhaSana } from '@/lib/sana'
 import { iyerarxiya } from '@/lib/vazifa-yordam'
@@ -34,6 +36,9 @@ export function KorishKorinishi() {
   const { data: jarayondaData, isPending: jarayondaYuklanmoqda } =
     useJarayondagiVazifalar()
   const { data: papkalar } = useFaolPapkalar()
+  const { data: kelganTopshiriqlar } = useKelganTopshiriqlar()
+  const kutilayotganTopshiriq =
+    kelganTopshiriqlar?.filter((x) => x.holat === 'kutilmoqda').length ?? 0
   const [papkaOchiq, setPapkaOchiq] = useState(false)
 
   const bugun = bugunISO()
@@ -137,6 +142,20 @@ export function KorishKorinishi() {
             />
             {/* Bildirishnoma va ko'rinish endi Sozlamalar sahifasida —
                 bir sozlama ikki joyda turgani chalkashlik tug'diradi */}
+            {/* Telefonda yon panel yo'q — topshiriqlarga shu yerdan
+                o'tiladi. Javob kutayotganlari soni ham ko'rinadi. */}
+            <KelgusiKarta
+              ikonka={Send}
+              sarlavha={t('topshiriq.bolimi')}
+              matn={
+                kutilayotganTopshiriq > 0
+                  ? t('topshiriq.holat.kutilmoqda') +
+                    ' — ' +
+                    kutilayotganTopshiriq
+                  : t('topshiriq.boshKelganMatn')
+              }
+              href="/topshiriqlar"
+            />
             <KelgusiKarta
               ikonka={Settings}
               sarlavha="Sozlamalar"

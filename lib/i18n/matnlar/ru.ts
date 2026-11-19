@@ -155,6 +155,46 @@ export const ru: Record<MatnKaliti, string> = {
   'loyiha.belgisi': 'Проект',
   'loyiha.soni': 'проектов: {son}',
   'loyiha.yangi': 'Новый проект',
+  // ---------- Поручения ----------
+  'topshiriq.bolimi': 'Поручения',
+  'topshiriq.kelgan': 'Входящие',
+  'topshiriq.yuborilgan': 'Отправленные',
+  'topshiriq.yangi': 'Отправить поручение',
+  'topshiriq.kimga': 'Кому (email)',
+  'topshiriq.kimgaJoy': 'colleague@example.com',
+  'topshiriq.sarlavha': 'Что нужно сделать',
+  'topshiriq.izoh': 'Примечание (необязательно)',
+  'topshiriq.izohJoy': 'Дополнительные детали…',
+  'topshiriq.muddat': 'Срок',
+  'topshiriq.yubor': 'Отправить',
+  'topshiriq.yuborildi': 'Поручение отправлено',
+  'topshiriq.yuborilmadi': 'Не удалось отправить. Попробуйте ещё раз.',
+  'topshiriq.ozigaBolmaydi': 'Нельзя отправить поручение самому себе',
+  'topshiriq.emailNotogri': 'Адрес электронной почты указан неверно',
+  'topshiriq.yuborishIzohi':
+    'Поручение дойдёт только до пользователя Samara. Если аккаунта с этим адресом пока нет, человек увидит его после регистрации.',
+  'topshiriq.qabul': 'Принять',
+  'topshiriq.rad': 'Отклонить',
+  'topshiriq.radSababi': 'Почему отклоняете?',
+  'topshiriq.radSababiJoy': 'Например: нет времени, это не моя задача…',
+  'topshiriq.radYubor': 'Отправить отказ',
+  'topshiriq.qabulQilindi': 'Принято — добавлено во «Входящие»',
+  'topshiriq.radEtildi': 'Отклонено',
+  'topshiriq.bekor': 'Отменить',
+  'topshiriq.bekorQilindi': 'Поручение отменено',
+  'topshiriq.holat.kutilmoqda': 'Ожидает ответа',
+  'topshiriq.holat.qabul': 'Принято',
+  'topshiriq.holat.rad': 'Отклонено',
+  'topshiriq.holat.bajarildi': 'Выполнено',
+  'topshiriq.kimdan': 'от {kim}',
+  'topshiriq.boshKelgan': 'Поручений пока нет',
+  'topshiriq.boshKelganMatn':
+    'Когда вам отправят поручение, оно появится здесь и придёт уведомление.',
+  'topshiriq.boshYuborilgan': 'Вы ещё не отправляли поручений',
+  'topshiriq.boshYuborilganMatn':
+    'Нажмите кнопку выше, чтобы поручить работу другому пользователю Samara.',
+  'topshiriq.tavsiyalar': 'Использованные ранее',
+
 
 
 

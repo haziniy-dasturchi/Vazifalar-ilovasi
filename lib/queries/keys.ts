@@ -17,6 +17,10 @@ export const kalit = {
   jarayondagi: () => ['vazifalar', 'jarayonda'] as const,
   kelgusi: () => ['vazifalar', 'kelgusi'] as const,
   ertangi: () => ['vazifalar', 'ertangi'] as const,
+  /** Barcha topshiriq so'rovlari shu prefiks bilan boshlanadi */
+  topshiriqlarPrefiks: ['topshiriqlar'] as const,
+  kelganTopshiriqlar: () => ['topshiriqlar', 'kelgan'] as const,
+  yuborilganTopshiriqlar: () => ['topshiriqlar', 'yuborilgan'] as const,
   hisobot: (boshlanish: string, tugash: string) =>
     ['vazifalar', 'hisobot', boshlanish, tugash] as const,
   foizJurnali: (boshlanish: string, tugash: string) =>

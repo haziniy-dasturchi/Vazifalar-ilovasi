@@ -163,6 +163,46 @@ export const uz = {
   'loyiha.belgisi': 'Loyiha',
   'loyiha.soni': '{son} ta loyiha',
   'loyiha.yangi': 'Yangi loyiha',
+  // ---------- Topshiriqlar ----------
+  'topshiriq.bolimi': 'Topshiriqlar',
+  'topshiriq.kelgan': 'Menga kelgan',
+  'topshiriq.yuborilgan': 'Men yuborgan',
+  'topshiriq.yangi': 'Topshiriq yuborish',
+  'topshiriq.kimga': 'Kimga (email)',
+  'topshiriq.kimgaJoy': 'hamkasb@example.com',
+  'topshiriq.sarlavha': 'Nima qilish kerak',
+  'topshiriq.izoh': 'Izoh (ixtiyoriy)',
+  'topshiriq.izohJoy': 'Qo‘shimcha tafsilotlar…',
+  'topshiriq.muddat': 'Muddat',
+  'topshiriq.yubor': 'Yuborish',
+  'topshiriq.yuborildi': 'Topshiriq yuborildi',
+  'topshiriq.yuborilmadi': 'Yuborib bo‘lmadi. Qayta urinib ko‘ring.',
+  'topshiriq.ozigaBolmaydi': 'O‘zingizga topshiriq yubora olmaysiz',
+  'topshiriq.emailNotogri': 'Email manzili to‘g‘ri yozilmagan',
+  'topshiriq.yuborishIzohi':
+    'Topshiriq faqat Samara foydalanuvchisiga yetib boradi. Agar bu manzil bilan hisob bo‘lmasa, u ro‘yxatdan o‘tgach ko‘radi.',
+  'topshiriq.qabul': 'Qabul qilish',
+  'topshiriq.rad': 'Rad etish',
+  'topshiriq.radSababi': 'Nega rad etyapsiz?',
+  'topshiriq.radSababiJoy': 'Masalan: vaqtim yo‘q, bu mening ishim emas…',
+  'topshiriq.radYubor': 'Rad etishni yuborish',
+  'topshiriq.qabulQilindi': 'Qabul qilindi — Kiruvchi papkangizga qo‘shildi',
+  'topshiriq.radEtildi': 'Rad etildi',
+  'topshiriq.bekor': 'Bekor qilish',
+  'topshiriq.bekorQilindi': 'Topshiriq bekor qilindi',
+  'topshiriq.holat.kutilmoqda': 'Javob kutilmoqda',
+  'topshiriq.holat.qabul': 'Qabul qilingan',
+  'topshiriq.holat.rad': 'Rad etilgan',
+  'topshiriq.holat.bajarildi': 'Bajarilgan',
+  'topshiriq.kimdan': '{kim} dan',
+  'topshiriq.boshKelgan': 'Sizga hali topshiriq kelmagan',
+  'topshiriq.boshKelganMatn':
+    'Kimdir sizga topshiriq yuborsa, u shu yerda paydo bo‘ladi va bildirishnoma keladi.',
+  'topshiriq.boshYuborilgan': 'Hali topshiriq yubormagansiz',
+  'topshiriq.boshYuborilganMatn':
+    'Boshqa Samara foydalanuvchisiga ish topshirish uchun yuqoridagi tugmani bosing.',
+  'topshiriq.tavsiyalar': 'Avval yuborganlaringiz',
+
 
 
 

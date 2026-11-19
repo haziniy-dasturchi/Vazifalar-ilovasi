@@ -119,3 +119,35 @@ export type ReportResult = {
   by_day: ReportDay[]
   by_folder: ReportFolder[]
 }
+
+// -------------------------------------------------------------
+// Topshiriqlar — foydalanuvchidan foydalanuvchiga
+// -------------------------------------------------------------
+export const TOPSHIRIQ_HOLATLARI = [
+  'kutilmoqda',
+  'qabul',
+  'rad',
+  'bajarildi',
+] as const
+export type TopshiriqHolati = (typeof TOPSHIRIQ_HOLATLARI)[number]
+
+/**
+ * Qo'lda yozilgan tip: `types/database.ts` Supabase'dan generatsiya
+ * qilinadi va bu jadval unga hali tushmagan. Generatsiya qayta
+ * ishga tushirilganda bu yerdagi tip o'rniga o'shanisi ishlatiladi.
+ */
+export type Topshiriq = {
+  id: string
+  yuboruvchi_id: string
+  qabul_qiluvchi_email: string
+  sarlavha: string
+  izoh: string | null
+  muddat: string | null
+  muhimlik: TaskPriority
+  holat: TopshiriqHolati
+  rad_sababi: string | null
+  vazifa_id: string | null
+  bildirildi_at: string | null
+  created_at: string
+  javob_at: string | null
+}

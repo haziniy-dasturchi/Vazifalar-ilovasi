@@ -82,9 +82,74 @@ Deno.serve(async () => {
       .in('endpoint', eskirganObunalar)
   }
 
+  // -----------------------------------------------------------
+  // Yangi topshiriqlar
+  // -----------------------------------------------------------
+  // Alohida RPC: `kutilayotgan_eslatmalar` ga tegilmagan, shuning
+  // uchun bu funksiya eski holida ham ishlayveradi — faqat topshiriq
+  // bildirishnomalari bo'lmaydi.
+  const topshiriqNatija = await topshiriqlarniYubor(sb)
+
   return Response.json({
     yuborildi,
     vazifalar: muvaffaqiyatli.size,
     tozalangan: eskirganObunalar.length,
+    topshiriqlar: topshiriqNatija,
   })
 })
+
+type TopshiriqXabari = {
+  topshiriq_id: string
+  sarlavha: string
+  yuboruvchi: string
+  endpoint: string
+  p256dh: string
+  auth: string
+}
+
+async function topshiriqlarniYubor(
+  sb: ReturnType<typeof createClient>
+): Promise<{ yuborildi: number; topshiriqlar: number }> {
+  const { data, error } = await sb.rpc('kutilayotgan_topshiriqlar')
+  // Migratsiya hali qo'llanmagan bo'lsa shu yerda to'xtaymiz —
+  // oddiy eslatmalar baribir yuborilgan bo'ladi
+  if (error) return { yuborildi: 0, topshiriqlar: 0 }
+
+  const xabarlar = (data ?? []) as TopshiriqXabari[]
+  if (xabarlar.length === 0) return { yuborildi: 0, topshiriqlar: 0 }
+
+  let yuborildi = 0
+  const belgilanadi = new Set<string>()
+  const eskirgan: string[] = []
+
+  await Promise.all(
+    xabarlar.map(async (x) => {
+      try {
+        await webpush.sendNotification(
+          { endpoint: x.endpoint, keys: { p256dh: x.p256dh, auth: x.auth } },
+          JSON.stringify({
+            sarlavha: x.yuboruvchi
+              ? `Yangi topshiriq — ${x.yuboruvchi}`
+              : 'Yangi topshiriq',
+            matn: x.sarlavha,
+            yol: '/topshiriqlar',
+          })
+        )
+        yuborildi++
+        belgilanadi.add(x.topshiriq_id)
+      } catch (xato) {
+        const kod = (xato as { statusCode?: number }).statusCode
+        if (kod === 404 || kod === 410) eskirgan.push(x.endpoint)
+      }
+    })
+  )
+
+  if (belgilanadi.size > 0) {
+    await sb.rpc('topshiriq_bildirildi', { topshiriqlar: [...belgilanadi] })
+  }
+  if (eskirgan.length > 0) {
+    await sb.from('push_subscriptions').delete().in('endpoint', eskirgan)
+  }
+
+  return { yuborildi, topshiriqlar: belgilanadi.size }
+}

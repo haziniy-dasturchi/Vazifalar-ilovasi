@@ -14,6 +14,14 @@ export const ALOQA_EMAIL = 'haziniyilmmaskani2025@gmail.com'
 export const DOMEN = 'https://samarali-kun.uz'
 
 /** Huquqiy matnlar oxirgi marta o'zgartirilgan sana */
-export const YANGILANDI = '10-noyabr, 2026'
+/**
+ * Huquqiy matnlar oxirgi marta qachon o'zgargani.
+ *
+ * MUHIM: maxfiylik siyosati yoki shartlar matni o'zgarganda SHU
+ * SANANI ham yangilash kerak. Aks holda foydalanuvchi eski sanani
+ * ko'rib, matn o'zgarmagan deb o'ylaydi — bu do'kon talablari
+ * bo'yicha ham muammo.
+ */
+export const YANGILANDI = '20-noyabr, 2026'
 
 export const ILOVA_NOMI = 'Samara'

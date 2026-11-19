@@ -3,10 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Send } from 'lucide-react'
 import { ProfilMenyu } from './profil-menyu'
 import { useT } from './til-provayder'
 import { useBolimTartibi } from '@/lib/queries/bolim-tartibi'
+import { useKelganTopshiriqlar } from '@/lib/queries/topshiriqlar'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
@@ -18,6 +19,9 @@ export function YonPanel() {
   const BOLIMLAR = useBolimTartibi()
   const t = useT()
   const { data: papkalar, isPending } = useFaolPapkalar()
+  const { data: kelganlar } = useKelganTopshiriqlar()
+  const kutilayotgan =
+    kelganlar?.filter((x) => x.holat === 'kutilmoqda').length ?? 0
   const [oynaOchiq, setOynaOchiq] = useState(false)
   const papkaniOldindanYukla = usePapkaniOldindanYuklash()
   const bolimlarniOldindanYukla = useBolimlarniOldindanYuklash()
@@ -111,6 +115,34 @@ export function YonPanel() {
               </li>
             )
           })}
+        </ul>
+      </nav>
+
+      {/* Topshiriqlar — javob kutayotganlari soni bilan.
+          Pastki menyuga qo'shilmadi: u yerda allaqachon to'rtta
+          bo'lim bor va beshinchisi telefonda siqilib qolardi.
+          Telefonda bu bo'limga "Ko'rish" sahifasidan o'tiladi. */}
+      <nav aria-label={t('topshiriq.bolimi')} className="mt-6 shrink-0 px-3">
+        <ul>
+          <li>
+            <Link
+              href="/topshiriqlar"
+              aria-current={yol === '/topshiriqlar' ? 'page' : undefined}
+              className={`flex min-h-touch items-center gap-3 rounded-xl px-3 text-base transition ${
+                yol === '/topshiriqlar'
+                  ? 'bg-brand-soft font-semibold text-brand-onsoft'
+                  : 'text-text-strong hover:bg-surface-muted'
+              }`}
+            >
+              <Send className="size-5 shrink-0" aria-hidden />
+              <span className="flex-1 truncate">{t('topshiriq.bolimi')}</span>
+              {kutilayotgan > 0 && (
+                <span className="shrink-0 rounded-full bg-brand-primary px-2 py-0.5 text-xs font-semibold text-white">
+                  {kutilayotgan}
+                </span>
+              )}
+            </Link>
+          </li>
         </ul>
       </nav>
 

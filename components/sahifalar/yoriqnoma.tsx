@@ -15,6 +15,7 @@ import {
   Moon,
   Play,
   Repeat2,
+  Send,
   Settings,
   Sun,
 } from 'lucide-react'
@@ -198,6 +199,34 @@ const BOLIMLAR: Bolim[] = [
       {
         sarlavha: 'Qanday foydali',
         matn: 'Haftada bir marta qarab chiqing: qaysi papkada ishlar to‘planib qolyapti? Demak u yerga ko‘proq vaqt kerak yoki rejani kamaytirish kerak.',
+      },
+    ],
+  },
+  {
+    kalit: 'topshiriqlar',
+    ikonka: Send,
+    sarlavha: 'Topshiriqlar',
+    qisqa: 'Boshqa Samara foydalanuvchisiga ish topshirish va javobini kuzatish.',
+    tafsilot: [
+      {
+        sarlavha: 'Qanday yuboriladi',
+        matn: '“Topshiriqlar” bo‘limida “Topshiriq yuborish” tugmasini bosing. Qabul qiluvchining email manzilini, ishni, kerak bo‘lsa izoh, muddat va muhimligini yozasiz. Avval yuborgan manzillaringiz tavsiya bo‘lib chiqadi — qayta yozish shart emas.',
+      },
+      {
+        sarlavha: 'Qabul qiluvchi nima ko‘radi',
+        matn: 'Unga bildirishnoma keladi va topshiriq “Menga kelgan” ro‘yxatida paydo bo‘ladi. Ikki tugma bor: qabul qilish yoki rad etish. Qabul qilsa, ish uning Kiruvchi papkasiga oddiy vazifa bo‘lib tushadi. Rad etsa, sababini yozib qoldiradi.',
+      },
+      {
+        sarlavha: 'Holatini kuzatish',
+        matn: '“Men yuborgan” ro‘yxatida har bir topshiriqning holati turadi: javob kutilmoqda, qabul qilingan, rad etilgan (sababi bilan) yoki bajarilgan. Qabul qiluvchi vazifani tugatsa, holat o‘zi “bajarilgan”ga o‘tadi.',
+      },
+      {
+        sarlavha: 'Kimga yuborish mumkin',
+        matn: 'Faqat Samara foydalanuvchilariga. Begona manzilga xat yuborilmaydi. Agar u odam hali ro‘yxatdan o‘tmagan bo‘lsa, ro‘yxatdan o‘tgan kuni topshiriq uning ilovasida ko‘rinadi.',
+      },
+      {
+        sarlavha: 'Maxfiylik',
+        matn: 'Qabul qiluvchi faqat o‘sha topshiriqni va sizning ismingiz bilan emailingizni ko‘radi. Boshqa vazifalaringiz, papkalaringiz va hisobotingiz unga ko‘rinmaydi. Javob berilmagan topshiriqni bekor qilishingiz mumkin.',
       },
     ],
   },

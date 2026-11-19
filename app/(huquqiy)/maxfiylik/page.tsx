@@ -21,8 +21,10 @@ export default function MaxfiylikSahifasi() {
         <p>
           Samara — kunlik vazifalarni rejalashtirish uchun bepul ilova. Biz
           ilovaning ishlashi uchun zarur bo‘lgan ma’lumotlarnigina
-          saqlaymiz. Sizning ma’lumotlaringizni <strong>sotmaymiz</strong>,
-          reklama uchun ishlatmaymiz va uchinchi shaxslarga bermaymiz.
+          saqlaymiz. Sizning ma’lumotlaringizni <strong>sotmaymiz</strong> va
+          reklama uchun ishlatmaymiz. Ma’lumotingiz boshqa foydalanuvchiga
+          faqat bitta holatda ko‘rinadi — siz unga o‘zingiz topshiriq
+          yuborsangiz (quyida batafsil).
           Ilovada reklama ham, kuzatuv (tracking) tizimlari ham yo‘q.
         </p>
       </Bolim>
@@ -94,6 +96,35 @@ export default function MaxfiylikSahifasi() {
           bermaymiz. Istisno faqat qonun talab qilgan holatlar bo‘lishi
           mumkin.
         </p>
+        <p className="mt-3">
+          <strong>Topshiriqlar.</strong> Ilovada boshqa Samara
+          foydalanuvchisiga topshiriq yuborish mumkin. Siz topshiriq
+          yuborsangiz, qabul qiluvchi quyidagilarni ko‘radi: topshiriq
+          matni, izohi, muddati, muhimlik darajasi va{' '}
+          <strong>sizning ismingiz hamda email manzilingiz</strong>. Siz esa
+          uning javobini — qabul qildimi, rad etdimi (sababi bilan) yoki
+          bajardimi — ko‘rib turasiz.
+        </p>
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          <li>
+            Bu faqat siz o‘zingiz topshiriq yuborganingizda sodir bo‘ladi.
+            Boshqa hech qanday ma’lumotingiz — vazifalaringiz, papkalaringiz,
+            hisobotingiz — hech kimga ko‘rinmaydi.
+          </li>
+          <li>
+            Topshiriq faqat Samara foydalanuvchilariga yuboriladi. Biz
+            begona manzillarga xat yubormaymiz.
+          </li>
+          <li>
+            Sizga kelgan topshiriqni rad etishingiz mumkin. Qabul
+            qilmaguningizcha u sizning ro‘yxatingizga qo‘shilmaydi.
+          </li>
+          <li>
+            Javob berilmagan topshiriqni yuboruvchi bekor qilishi mumkin.
+            Hisobingizni o‘chirsangiz, sizga aloqador topshiriqlar ham
+            o‘chadi.
+          </li>
+        </ul>
         <p className="mt-3">
           Ilova ishlashi uchun quyidagi xizmatlardan foydalanamiz:
         </p>

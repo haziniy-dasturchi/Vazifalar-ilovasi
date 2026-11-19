@@ -155,6 +155,46 @@ export const en: Record<MatnKaliti, string> = {
   'loyiha.belgisi': 'Project',
   'loyiha.soni': '{son} projects',
   'loyiha.yangi': 'New project',
+  // ---------- Assignments ----------
+  'topshiriq.bolimi': 'Assignments',
+  'topshiriq.kelgan': 'Received',
+  'topshiriq.yuborilgan': 'Sent',
+  'topshiriq.yangi': 'Send an assignment',
+  'topshiriq.kimga': 'To (email)',
+  'topshiriq.kimgaJoy': 'colleague@example.com',
+  'topshiriq.sarlavha': 'What needs doing',
+  'topshiriq.izoh': 'Note (optional)',
+  'topshiriq.izohJoy': 'Any extra detail…',
+  'topshiriq.muddat': 'Due date',
+  'topshiriq.yubor': 'Send',
+  'topshiriq.yuborildi': 'Assignment sent',
+  'topshiriq.yuborilmadi': 'Could not send. Please try again.',
+  'topshiriq.ozigaBolmaydi': 'You cannot assign something to yourself',
+  'topshiriq.emailNotogri': 'That email address does not look right',
+  'topshiriq.yuborishIzohi':
+    'Assignments only reach Samara users. If no account uses this address yet, they will see it once they sign up.',
+  'topshiriq.qabul': 'Accept',
+  'topshiriq.rad': 'Decline',
+  'topshiriq.radSababi': 'Why are you declining?',
+  'topshiriq.radSababiJoy': 'For example: no time, not my area…',
+  'topshiriq.radYubor': 'Send decline',
+  'topshiriq.qabulQilindi': 'Accepted — added to your Inbox',
+  'topshiriq.radEtildi': 'Declined',
+  'topshiriq.bekor': 'Cancel',
+  'topshiriq.bekorQilindi': 'Assignment cancelled',
+  'topshiriq.holat.kutilmoqda': 'Awaiting reply',
+  'topshiriq.holat.qabul': 'Accepted',
+  'topshiriq.holat.rad': 'Declined',
+  'topshiriq.holat.bajarildi': 'Done',
+  'topshiriq.kimdan': 'from {kim}',
+  'topshiriq.boshKelgan': 'No assignments yet',
+  'topshiriq.boshKelganMatn':
+    'When someone sends you an assignment it appears here and you get a notification.',
+  'topshiriq.boshYuborilgan': 'You have not sent any assignments',
+  'topshiriq.boshYuborilganMatn':
+    'Use the button above to hand work to another Samara user.',
+  'topshiriq.tavsiyalar': 'Previously used',
+
 
 
 
