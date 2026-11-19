@@ -1,45 +1,92 @@
 'use client'
 
 import { useState } from 'react'
-import { OsuvchiMaydon } from '@/components/ui/osuvchi-maydon'
 import { Plus } from 'lucide-react'
+import { OsuvchiMaydon } from '@/components/ui/osuvchi-maydon'
+import { SanaTanlagich } from '@/components/ui/sana-tanlagich'
+import { Tanlagich } from '@/components/ui/tanlagich'
+import { MuhimlikTanlagich } from '@/components/vazifa/muhimlik-tanlagich'
 import { useVazifaYaratish } from '@/lib/queries/vazifalar'
+import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { useToast } from '@/components/ui/toast'
+import { useT } from '@/components/app/til-provayder'
+import type { Recurrence, TaskPriority } from '@/types/vazifalar'
 
-/** Bo'lim oxiridagi "+ Vazifa qo'shish" — faqat sarlavha so'raydi */
+/**
+ * Bo'lim oxiridagi "+ Vazifa qo'shish".
+ *
+ * Oldin faqat sarlavha so'rardi va sana, papka yoki muhimlikni
+ * qo'yish uchun vazifani qo'shib, keyin uni ochib tahrirlash kerak
+ * bo'lardi — ya'ni "tezkor" qo'shish aslida uzunroq yo'l edi.
+ * Endi o'sha qatorning o'zida hammasi bor; oyna ochilmaydi.
+ */
 export function InlineQoshish({
   papkaId,
   bolimId = null,
   otaId = null,
-  matn = 'Vazifa qo‘shish',
+  matn,
 }: {
   papkaId: string
   bolimId?: string | null
   otaId?: string | null
   matn?: string
 }) {
+  const t = useT()
   const [ochiq, setOchiq] = useState(false)
   const [sarlavha, setSarlavha] = useState('')
+  const [sana, setSana] = useState<string | null>(null)
+  const [vaqt, setVaqt] = useState<string | null>(null)
+  const [takrorlanish, setTakrorlanish] = useState<Recurrence | null>(null)
+  const [muhimlik, setMuhimlik] = useState<TaskPriority>(4)
+  const [tanlanganPapka, setTanlanganPapka] = useState(papkaId)
+
   const yaratish = useVazifaYaratish()
+  const { data: papkalar } = useFaolPapkalar()
   const { korsat } = useToast()
+
+  // Subtask doim ota-vazifa papkasida qoladi — papkani tanlash
+  // faqat mustaqil vazifa uchun ma'noga ega
+  const papkaniTanlasaBoladi = otaId === null
+
+  function tozala() {
+    setSarlavha('')
+    setSana(null)
+    setVaqt(null)
+    setTakrorlanish(null)
+    setMuhimlik(4)
+    setTanlanganPapka(papkaId)
+  }
+
+  function yop() {
+    tozala()
+    setOchiq(false)
+  }
 
   async function qoshish() {
     const tozalangan = sarlavha.trim()
     if (!tozalangan) {
-      setOchiq(false)
+      yop()
       return
     }
 
-    setSarlavha('')
+    const yuboriladigan = {
+      folder_id: papkaniTanlasaBoladi ? tanlanganPapka : papkaId,
+      // Papka o'zgartirilgan bo'lsa, eski bo'limga bog'lab bo'lmaydi
+      section_id: tanlanganPapka === papkaId ? bolimId : null,
+      parent_id: otaId,
+      title: tozalangan,
+      due_date: sana,
+      due_time: vaqt,
+      recurrence: takrorlanish,
+      priority: muhimlik,
+    }
+
+    // Maydon darhol bo'shaydi — ketma-ket qo'shish uzilmasin
+    tozala()
     try {
-      await yaratish.mutateAsync({
-        folder_id: papkaId,
-        section_id: bolimId,
-        parent_id: otaId,
-        title: tozalangan,
-      })
+      await yaratish.mutateAsync(yuboriladigan)
     } catch {
-      korsat({ matn: 'Qo‘shib bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
+      korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
     }
   }
 
@@ -51,7 +98,7 @@ export function InlineQoshish({
         className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-text-faint transition hover:bg-surface-muted hover:text-brand-onsoft"
       >
         <Plus className="size-4" aria-hidden />
-        {matn}
+        {matn ?? t('vazifa.qoshishTugma')}
       </button>
     )
   }
@@ -62,52 +109,70 @@ export function InlineQoshish({
         e.preventDefault()
         qoshish()
       }}
-      className="rounded-xl bg-surface p-2 shadow-card"
+      className="rounded-xl border border-border-subtle bg-surface p-2 shadow-card"
     >
-      {/* Uzun nom to'liq ko'rinishi uchun o'suvchi maydon.
-          `onBlur` shu yerda emas, o'rab turgan <div> da: maydon
-          balandligi o'zgarganda brauzer fokusni qayta hisoblaydi va
-          ba'zan blur hodisasi kelib, forma o'z-o'zidan yopilardi. */}
-      <div
-        onBlur={(e) => {
-          if (!sarlavha.trim() && !e.currentTarget.contains(e.relatedTarget)) {
-            setOchiq(false)
-          }
-        }}
-      >
-        <OsuvchiMaydon
-          qiymat={sarlavha}
-          onChange={setSarlavha}
-          onEnter={qoshish}
-          onEscape={() => {
-            setSarlavha('')
-            setOchiq(false)
+      <OsuvchiMaydon
+        qiymat={sarlavha}
+        onChange={setSarlavha}
+        onEnter={qoshish}
+        onEscape={yop}
+        placeholder={t('vazifa.nomiJoy')}
+        ariaLabel={t('vazifa.nomiJoy')}
+        maxLength={500}
+        autoFocus
+        engKattaBalandlik={160}
+        className="min-h-touch bg-transparent px-2 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint"
+      />
+
+      {/* Sana, muhimlik va papka — oyna ochmasdan shu yerda */}
+      <div className="mt-1 flex flex-wrap items-center gap-2 px-1">
+        <SanaTanlagich
+          sana={sana}
+          vaqt={vaqt}
+          takrorlanish={takrorlanish}
+          onSanaChange={(iso) => {
+            setSana(iso)
+            if (!iso) {
+              setVaqt(null)
+              setTakrorlanish(null)
+            }
           }}
-          placeholder="Nima qilish kerak?"
-          ariaLabel="Nima qilish kerak?"
-          maxLength={500}
-          autoFocus
-          engKattaBalandlik={160}
-          className="min-h-touch bg-transparent px-2 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint"
+          onVaqtChange={setVaqt}
+          onTakrorlanishChange={setTakrorlanish}
         />
+
+        <MuhimlikTanlagich qiymat={muhimlik} onChange={setMuhimlik} ixcham />
+
+        {papkaniTanlasaBoladi && papkalar && papkalar.length > 1 && (
+          <div className="min-w-36 flex-1">
+            <Tanlagich
+              ariaLabel={t('vazifa.papka')}
+              qiymat={tanlanganPapka}
+              onChange={setTanlanganPapka}
+              variantlar={papkalar.map((p) => ({
+                qiymat: p.id,
+                nom: p.name,
+                rang: p.color,
+              }))}
+            />
+          </div>
+        )}
       </div>
-      <div className="flex justify-end gap-2 px-1 pb-1">
+
+      <div className="mt-2 flex justify-end gap-2 px-1 pb-1">
         <button
           type="button"
-          onClick={() => {
-            setSarlavha('')
-            setOchiq(false)
-          }}
+          onClick={yop}
           className="min-h-0 rounded-lg px-3 py-2 text-sm text-text-muted transition hover:bg-surface-muted"
         >
-          Bekor
+          {t('umumiy.bekor')}
         </button>
         <button
           type="submit"
           disabled={!sarlavha.trim()}
           className="min-h-0 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-40"
         >
-          Qo‘shish
+          {t('umumiy.qoshish')}
         </button>
       </div>
     </form>

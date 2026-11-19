@@ -146,6 +146,16 @@ export const ru: Record<MatnKaliti, string> = {
   'sana.tanlanganKunlar': 'Выбранные дни',
   'sana.kunlarniTanlang': 'Выберите дни',
   'sana.haftaKunlari': 'Дни недели',
+  // ---------- Быстрое добавление и проекты ----------
+  'vazifa.qoshishTugma': 'Добавить задачу',
+  'kechki.nimaQilasiz': 'Что сделаете завтра?',
+  'loyiha.bolimi': 'Проекты',
+  'loyiha.izoh':
+    'Эта папка устроена иначе: каждый раздел внутри неё — отдельный проект. Разбейте большую работу на части и сразу видите, насколько продвинулась каждая.',
+  'loyiha.belgisi': 'Проект',
+  'loyiha.soni': 'проектов: {son}',
+  'loyiha.yangi': 'Новый проект',
+
 
 
   // ---------- Настройки ----------

@@ -6,6 +6,7 @@ import {
   Archive,
   ChevronDown,
   EllipsisVertical,
+  FolderKanban,
   ListChecks,
   Pencil,
   Plus,
@@ -17,6 +18,7 @@ import { Tasdiq } from '@/components/ui/tasdiq'
 import { useToast } from '@/components/ui/toast'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
 import { InlineQoshish } from '@/components/vazifa/inline-qoshish'
+import { useT } from '@/components/app/til-provayder'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
 import {
   usePapkaOchirish,
@@ -37,6 +39,9 @@ import type { Section, Task } from '@/types/vazifalar'
 export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
   const router = useRouter()
   const { korsat } = useToast()
+  // Hook erta `return` dan OLDIN chaqirilishi shart — papka
+  // topilmaganda komponent shartli ravishda qaytadi
+  const t = useT()
 
   const { data: papkalar, isPending: papkalarYuklanmoqda } = usePapkalar()
   const { data: bolimlar, isPending: bolimlarYuklanmoqda } = useBolimlar(papkaId)
@@ -227,6 +232,33 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
         <XatoHolati qayta={() => refetch()} />
       ) : (
         <>
+          {/*
+            Loyihalar papkasi nima uchun boshqacha ekanini bir marta
+            tushuntiramiz. U hammada sukut bo'yicha turadi, lekin
+            oddiy papkadan farqi hech qayerda aytilmagandi — odam
+            uni shunchaki yana bitta papka deb o'ylardi.
+          */}
+          {loyihalarmi && (
+            <div className="mb-5 flex items-start gap-4 rounded-2xl bg-brand-soft px-5 py-4">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary">
+                <FolderKanban className="size-5 text-white" aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-text-strong">
+                  {t('loyiha.bolimi')}
+                  {(bolimlar?.length ?? 0) > 0 && (
+                    <span className="ml-2 font-normal text-text-muted">
+                      {t('loyiha.soni', { son: bolimlar?.length ?? 0 })}
+                    </span>
+                  )}
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-text-muted">
+                  {t('loyiha.izoh')}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Bo'limga tegishli bo'lmagan vazifalar */}
           <section className="mb-7">
             {bolimsiz.length > 0 ? (

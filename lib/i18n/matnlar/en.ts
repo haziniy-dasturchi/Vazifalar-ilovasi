@@ -146,6 +146,16 @@ export const en: Record<MatnKaliti, string> = {
   'sana.tanlanganKunlar': 'Selected days',
   'sana.kunlarniTanlang': 'Pick the days',
   'sana.haftaKunlari': 'Days of the week',
+  // ---------- Quick add and projects ----------
+  'vazifa.qoshishTugma': 'Add task',
+  'kechki.nimaQilasiz': 'What will you do tomorrow?',
+  'loyiha.bolimi': 'Projects',
+  'loyiha.izoh':
+    'This folder works differently: each section inside it is a separate project. Break a large piece of work into parts and see at a glance how far along each one is.',
+  'loyiha.belgisi': 'Project',
+  'loyiha.soni': '{son} projects',
+  'loyiha.yangi': 'New project',
+
 
 
   // ---------- Settings ----------

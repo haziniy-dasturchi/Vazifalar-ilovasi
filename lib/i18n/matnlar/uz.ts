@@ -154,6 +154,16 @@ export const uz = {
   'sana.tanlanganKunlar': 'Tanlangan kunlar',
   'sana.kunlarniTanlang': 'Kunlarni tanlang',
   'sana.haftaKunlari': 'Hafta kunlari',
+  // ---------- Tezkor qo'shish va loyihalar ----------
+  'vazifa.qoshishTugma': 'Vazifa qo‘shish',
+  'kechki.nimaQilasiz': 'Ertaga nima qilasiz?',
+  'loyiha.bolimi': 'Loyihalar',
+  'loyiha.izoh':
+    'Bu papka boshqalardan farq qiladi: ichidagi har bir bo‘lim — alohida loyiha. Katta ishni bo‘laklarga ajratib, qaysi biri qay darajada bajarilganini bir ko‘rishda ko‘rasiz.',
+  'loyiha.belgisi': 'Loyiha',
+  'loyiha.soni': '{son} ta loyiha',
+  'loyiha.yangi': 'Yangi loyiha',
+
 
 
   // ---------- Sozlamalar ----------

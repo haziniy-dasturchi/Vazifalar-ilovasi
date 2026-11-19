@@ -27,6 +27,38 @@ export function YonPanel() {
     bolimlarniOldindanYukla(papkaId)
   }
 
+  // Loyihalar papkasi oddiylaridan ajratiladi — u pastda, o'z
+  // sarlavhasi bilan ko'rsatiladi
+  const loyihalarPapkasi = papkalar?.find((p) => p.is_projects)
+  const oddiyPapkalar = papkalar?.filter((p) => !p.is_projects) ?? []
+
+  function papkaQatori(papka: (typeof oddiyPapkalar)[number]) {
+    const Ikonka = papkaIkonkasi(papka.icon, papka.is_inbox)
+    const faol = yol === `/papka/${papka.id}`
+    return (
+      <li key={papka.id}>
+        <Link
+          href={`/papka/${papka.id}`}
+          aria-current={faol ? 'page' : undefined}
+          onPointerEnter={() => papkaUstigaTegish(papka.id)}
+          onPointerDown={() => papkaUstigaTegish(papka.id)}
+          className={`flex min-h-touch items-center gap-3 rounded-xl px-3 text-base transition ${
+            faol
+              ? 'bg-brand-soft font-semibold text-brand-onsoft'
+              : 'text-text-strong hover:bg-surface-muted'
+          }`}
+        >
+          <Ikonka
+            className="size-5 shrink-0"
+            style={{ color: papka.color }}
+            aria-hidden
+          />
+          <span className="truncate">{papka.name}</span>
+        </Link>
+      </li>
+    )
+  }
+
   return (
     <aside className="hidden w-72 shrink-0 flex-col border-r border-border-subtle bg-surface md:flex">
       {/* Logo "Bugun" ga olib boradi. Oldin u umuman bosilmasdi —
@@ -110,36 +142,31 @@ export function YonPanel() {
             ))}
           </ul>
         ) : (
-          <ul className="space-y-1">
-            {papkalar?.map((papka) => {
-              const Ikonka = papkaIkonkasi(papka.icon, papka.is_inbox)
-              const faol = yol === `/papka/${papka.id}`
-              return (
-                <li key={papka.id}>
-                  <Link
-                    href={`/papka/${papka.id}`}
-                    aria-current={faol ? 'page' : undefined}
-                    onPointerEnter={() => papkaUstigaTegish(papka.id)}
-                    onPointerDown={() => papkaUstigaTegish(papka.id)}
-                    className={`flex min-h-touch items-center gap-3 rounded-xl px-3 text-base transition ${
-                      faol
-                        ? 'bg-brand-soft font-semibold text-brand-onsoft'
-                        : 'text-text-strong hover:bg-surface-muted'
-                    }`}
-                  >
-                    <Ikonka
-                      className="size-5 shrink-0"
-                      style={{ color: papka.color }}
-                      aria-hidden
-                    />
-                    <span className="truncate">{papka.name}</span>
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
+          <ul className="space-y-1">{oddiyPapkalar.map(papkaQatori)}</ul>
         )}
       </nav>
+
+      {/*
+        Loyihalar papkasi — ALOHIDA guruhda.
+
+        Nega: u hammada sukut bo'yicha turadi va oddiy papkadan
+        boshqacha ishlaydi (ichidagi har bir bo'lim — alohida loyiha,
+        o'z bajarilish foizi bilan). Bir xil ro'yxatda, bir xil
+        ko'rinishda turganda bu farq umuman sezilmasdi — odam uni
+        yana bitta papka deb o'ylardi. Endi o'z sarlavhasi, ajratuvchi
+        chizig'i va loyihalar soni bilan ko'rinadi.
+      */}
+      {loyihalarPapkasi && (
+        <nav
+          aria-label={t('loyiha.bolimi')}
+          className="shrink-0 border-t border-border-subtle px-3 pt-3 pb-4"
+        >
+          <h2 className="mb-1 px-3 text-xs font-semibold tracking-wide text-text-faint uppercase">
+            {t('loyiha.bolimi')}
+          </h2>
+          <ul className="space-y-1">{papkaQatori(loyihalarPapkasi)}</ul>
+        </nav>
+      )}
 
       <ProfilMenyu />
 
