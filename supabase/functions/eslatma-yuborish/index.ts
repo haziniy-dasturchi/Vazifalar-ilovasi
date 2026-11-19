@@ -145,7 +145,7 @@ async function topshiriqlarniYubor(
   )
 
   if (belgilanadi.size > 0) {
-    await sb.rpc('topshiriq_bildirildi', { topshiriqlar: [...belgilanadi] })
+    await sb.rpc('topshiriq_bildirildi', { p_idlar: [...belgilanadi] })
   }
   if (eskirgan.length > 0) {
     await sb.from('push_subscriptions').delete().in('endpoint', eskirgan)

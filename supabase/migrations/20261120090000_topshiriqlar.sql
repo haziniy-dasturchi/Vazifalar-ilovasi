@@ -290,7 +290,11 @@ as $$
      and t.created_at > now() - interval '3 days';
 $$;
 
-create or replace function public.topshiriq_bildirildi(topshiriqlar uuid[])
+-- Parametr nomi ATAYLAB `p_idlar`: agar u `topshiriqlar` deb
+-- nomlansa, Postgres `any(topshiriqlar)` da uni parametr emas,
+-- SHU NOMDAGI JADVAL deb o'qiydi va "op ANY/ALL (array) requires
+-- array on right side" xatosini beradi.
+create or replace function public.topshiriq_bildirildi(p_idlar uuid[])
 returns void
 language sql
 security definer
@@ -298,7 +302,7 @@ set search_path = public, pg_temp
 as $$
   update public.topshiriqlar
      set bildirildi_at = now()
-   where id = any(topshiriqlar);
+   where id = any(p_idlar);
 $$;
 
 -- Bu funksiyalarni faqat server chaqiradi.
