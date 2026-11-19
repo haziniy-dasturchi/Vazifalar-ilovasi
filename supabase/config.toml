@@ -29,7 +29,11 @@ max_client_conn = 100
 enabled = true
 port = 54323
 
-[inbucket]
+# Mahalliy ishlab chiqishda test pochta serveri.
+# Oldin `[inbucket]` deb nomlangan — Supabase CLI v3 uni qabul
+# qilmaydi va "no longer supported" xatosini beradi. Ishlab turgan
+# serverga aloqasi yo'q, faqat `supabase start` uchun.
+[local_smtp]
 enabled = true
 port = 54324
 
