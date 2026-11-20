@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
+import { IzohMaydoni } from '@/components/ui/izoh-maydoni'
 import { OsuvchiMaydon } from '@/components/ui/osuvchi-maydon'
 import { SanaTanlagich } from '@/components/ui/sana-tanlagich'
 import { Tanlagich } from '@/components/ui/tanlagich'
@@ -34,6 +35,7 @@ export function InlineQoshish({
   const t = useT()
   const [ochiq, setOchiq] = useState(false)
   const [sarlavha, setSarlavha] = useState('')
+  const [izoh, setIzoh] = useState('')
   const [sana, setSana] = useState<string | null>(null)
   const [vaqt, setVaqt] = useState<string | null>(null)
   const [takrorlanish, setTakrorlanish] = useState<Recurrence | null>(null)
@@ -50,6 +52,7 @@ export function InlineQoshish({
 
   function tozala() {
     setSarlavha('')
+    setIzoh('')
     setSana(null)
     setVaqt(null)
     setTakrorlanish(null)
@@ -75,6 +78,7 @@ export function InlineQoshish({
       section_id: tanlanganPapka === papkaId ? bolimId : null,
       parent_id: otaId,
       title: tozalangan,
+      description: izoh.trim() || null,
       due_date: sana,
       due_time: vaqt,
       recurrence: takrorlanish,
@@ -123,6 +127,15 @@ export function InlineQoshish({
         engKattaBalandlik={160}
         className="min-h-touch bg-transparent px-2 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint"
       />
+
+      <div className="px-2">
+        <IzohMaydoni
+          qiymat={izoh}
+          onChange={setIzoh}
+          onEnter={qoshish}
+          onEscape={yop}
+        />
+      </div>
 
       {/* Sana, muhimlik va papka — oyna ochmasdan shu yerda */}
       <div className="mt-1 flex flex-wrap items-center gap-2 px-1">

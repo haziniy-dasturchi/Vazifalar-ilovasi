@@ -279,7 +279,7 @@ export function useVazifaYaratish() {
         section_id: yangi.section_id ?? null,
         parent_id: yangi.parent_id ?? null,
         title: yangi.title.trim(),
-        description: null,
+        description: yangi.description ?? null,
         status: holat,
         progress: yangi.progress ?? 0,
         priority: yangi.priority ?? 4,

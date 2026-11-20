@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { Oyna } from '@/components/ui/oyna'
+import { IzohMaydoni } from '@/components/ui/izoh-maydoni'
 import { OsuvchiMaydon } from '@/components/ui/osuvchi-maydon'
 import { SanaTanlagich } from '@/components/ui/sana-tanlagich'
 import { Tanlagich } from '@/components/ui/tanlagich'
@@ -59,6 +60,7 @@ export function VazifaOynasi({
   )
   const [tanlanganBolim, setTanlanganBolim] = useState(vazifa?.section_id ?? '')
   const [sarlavha, setSarlavha] = useState(vazifa?.title ?? '')
+  const [izoh, setIzoh] = useState(vazifa?.description ?? '')
   const [sana, setSana] = useState<string | null>(
     vazifa?.due_date ?? (tahrir ? null : (defaultDate ?? null))
   )
@@ -117,6 +119,9 @@ export function VazifaOynasi({
       yangilash.mutate({
         id: vazifa!.id,
         title: sarlavha.trim(),
+        // Bo'sh izoh bazada NULL bo'lib turadi: "bor, lekin bo'sh"
+        // degan uchinchi holat chalkashlikdan boshqa narsa bermaydi
+        description: izoh.trim() || null,
         due_date: sana,
         due_time: vaqt,
         recurrence: takrorlanish,
@@ -133,6 +138,7 @@ export function VazifaOynasi({
         folder_id: papkaQiymati,
         section_id: tanlanganBolim || null,
         title: sarlavha,
+        description: izoh.trim() || null,
         due_date: sana,
         due_time: vaqt,
         recurrence: takrorlanish,
@@ -178,6 +184,11 @@ export function VazifaOynasi({
             ariaLabel={t('vazifa.nomiJoy')}
             className="min-h-touch rounded-xl border border-border-control bg-surface px-4 py-3 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft"
           />
+
+          {/* Izoh — nom ostida, kichik va xira (Todoist naqshi) */}
+          <div className="mt-1 px-1">
+            <IzohMaydoni qiymat={izoh} onChange={setIzoh} onEnter={saqla} />
+          </div>
 
           <fieldset className="mt-5">
             <legend className="mb-2 text-sm font-medium text-text-muted">

@@ -52,6 +52,8 @@ export type YangiVazifa = {
   section_id?: string | null
   parent_id?: string | null
   title: string
+  /** Ixtiyoriy izoh. Bo'sh matn emas, NULL saqlanadi. */
+  description?: string | null
   due_date?: string | null
   due_time?: string | null
   recurrence?: Recurrence | null
@@ -191,6 +193,7 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
           section_id: yangi.section_id ?? null,
           parent_id: yangi.parent_id ?? null,
           title: yangi.title.trim(),
+          description: yangi.description ?? null,
           due_date: yangi.due_date ?? null,
           due_time: yangi.due_time ?? null,
           recurrence: yangi.recurrence ?? null,

@@ -9,6 +9,7 @@ import {
   Repeat2,
 } from 'lucide-react'
 import { useVazifaHolati } from '@/lib/queries/vazifalar'
+import { HavolaliMatn } from '@/components/ui/havolali-matn'
 import { useToast } from '@/components/ui/toast'
 import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
 import { SuvDoira } from '@/components/vazifa/foiz-tanlagich'
@@ -128,6 +129,14 @@ export function VazifaQatori({
           >
             {vazifa.title}
           </p>
+
+          {/* Izoh — bitta qatorda, kichik va xira. Bo'sh bo'lsa
+              umuman ko'rinmaydi, shunda qator shishib ketmaydi. */}
+          {vazifa.description?.trim() && (
+            <p className="mt-0.5 truncate text-xs text-text-faint">
+              <HavolaliMatn matn={vazifa.description} toxtat />
+            </p>
+          )}
 
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             {vazifa.due_date && (

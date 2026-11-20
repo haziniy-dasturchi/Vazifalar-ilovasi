@@ -118,6 +118,7 @@ export const uz = {
   'vazifa.bolimsiz': 'Bo‘limsiz',
   'vazifa.loyiha': 'Loyiha',
   'vazifa.loyihasiz': 'Loyihasiz',
+  'vazifa.izoh': 'Izoh',
   'vazifa.qoshildi': 'Vazifa qo‘shildi',
   'vazifa.yangilandi': 'Vazifa yangilandi',
   'vazifa.ochirildi': 'Vazifa o‘chirildi',

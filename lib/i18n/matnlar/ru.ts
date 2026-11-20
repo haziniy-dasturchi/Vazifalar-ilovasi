@@ -110,6 +110,7 @@ export const ru: Record<MatnKaliti, string> = {
   'vazifa.bolimsiz': 'Без раздела',
   'vazifa.loyiha': 'Проект',
   'vazifa.loyihasiz': 'Без проекта',
+  'vazifa.izoh': 'Описание',
   'vazifa.qoshildi': 'Задача добавлена',
   'vazifa.yangilandi': 'Задача обновлена',
   'vazifa.ochirildi': 'Задача удалена',

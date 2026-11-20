@@ -19,7 +19,8 @@ import { useLayoutEffect, useRef } from 'react'
  *  2. `<textarea>` da Enter yangi qator qo'shadi va formani
  *     yubormaydi. Vazifa nomi esa bir qatorli, shuning uchun Enter
  *     yuborish uchun ishlatiladi (oldingi `<input>` dagi xatti-harakat
- *     saqlanadi). Shift+Enter ham yangi qator qo'shmaydi.
+ *     saqlanadi). Shift+Enter ham yangi qator qo'shmaydi — `kopQatorli`
+ *     yoqilmagan bo'lsa.
  */
 export function OsuvchiMaydon({
   qiymat,
@@ -30,6 +31,14 @@ export function OsuvchiMaydon({
   maxLength,
   autoFocus,
   ariaLabel,
+  /**
+   * Shift+Enter yangi qator ochadimi.
+   *
+   * Izoh maydoni uchun: oddiy Enter vazifani saqlaydi (nom maydoni
+   * bilan bir xil, shunda odam qayerda turganini o'ylab o'tirmaydi),
+   * yangi qator kerak bo'lsa — Shift+Enter.
+   */
+  kopQatorli = false,
   /** Shundan oshsa maydon o'smaydi va ichida suriladi */
   engKattaBalandlik = 200,
   className = '',
@@ -42,6 +51,7 @@ export function OsuvchiMaydon({
   maxLength?: number
   autoFocus?: boolean
   ariaLabel?: string
+  kopQatorli?: boolean
   engKattaBalandlik?: number
   className?: string
 }) {
@@ -63,6 +73,9 @@ export function OsuvchiMaydon({
       onChange={(e) => onChange(e.target.value)}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
+          // Shift+Enter — ko'p qatorli maydonda yangi qator ochadi,
+          // shuning uchun brauzerning o'z ishiga tegmaymiz
+          if (kopQatorli && e.shiftKey) return
           // Yangi qator kerak emas — nom bir qatorli
           e.preventDefault()
           onEnter?.()
