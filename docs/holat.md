@@ -1,7 +1,7 @@
 # Samara — loyiha holati (yangi chat uchun xulosa)
 
 > Bu fayl yangi suhbatga nusxalab tashlash uchun. Oxirgi yangilanish:
-> 2026-yil 13-noyabr.
+> 2026-yil 20-noyabr.
 
 ## Loyiha
 
@@ -63,8 +63,43 @@ Sinov uchun vaqtinchalik sahifa ochilsa (`app/sinov-*`), ish tugagach
 | `7438dcc` | Qorong'ida kulrang matn kontrasti AA darajasiga ko'tarildi |
 | `34c5f4d` | Avatar almashtirilganda eski fayl o'chadi |
 | `5fee25f` | iPhone'da o'rnatish yo'riqnomasi aniqlashtirildi |
+| `f5bda0c` | Hisobot: "Qisman bajarilgan ishlar" filtri tuzatildi + vitest qo'shildi |
+| `965bf9a` | Loyihalar holat bo'yicha uchta guruhga bo'lindi |
+| `a1a8b09` | Vazifa izohi (description) interfeysga chiqarildi |
+| `ce9b834` | Takrorlanish RFC 5545 RRULE ga o'tdi (custom qoida) |
+| `f1f91bd` | Kalit so'zlar bilan tez kiritish (Todoist uslubida) |
+| `a49cf40` | Offline: klient UUID, yumshoq o'chirish, last-write-wins |
+| `4170f09` | Migratsiyalarni lokal tekshiruvchi vosita (PGlite) |
+
+## Testlar
+
+`npm test` — vitest, faqat sof mantiq (jsdom yo'q): takrorlanish
+hisobi, kalit so'z parseri, hisobot filtri, loyiha guruhlari,
+havolalar. Hozir 139 ta test.
+
+`cd tools && node migratsiya-sinov.mjs` — barcha migratsiyalarni
+PGlite ustida qo'llab ko'radi, bulutga tegmasdan.
 
 ## Muhim texnik qarorlar va sabablari
+
+**Takrorlanish — RRULE.** Qoida `tasks.rrule` da RFC 5545 matni
+sifatida, boshlanish sanasi `tasks.rrule_start` da (alohida, chunki
+`due_date` har bajarilganda suriladi, COUNT/UNTIL esa o'zgarmas
+nuqtadan sanalishi kerak). Keyingi sana MIJOZDA hisoblanadi va
+`complete_task` ga `p_next_due` orqali beriladi — aks holda
+internetsiz bajarilgan takrorlanuvchi vazifa surilmasdi. Eski
+`recurrence` ustuni orqaga moslik uchun to'ldirib boriladi
+(PWA keshidagi eski JS hamon o'qiydi).
+
+**29–31-sana.** Qisqa oyda oyning oxirgi kuniga tushadi. Bu
+standartdan chetga chiqish emas: `BYMONTHDAY=28,29,30,31` +
+`BYSETPOS=-1` aynan shuni beradi.
+
+**Offline yozish.** Klient tomonida UUID (`lib/id.ts`) — shuning
+uchun offline qo'shilgan vazifani darhol tahrirlash va o'chirish
+mumkin. O'chirish yumshoq (`deleted_at`), konflikt last-write-wins
+(`updated_at` bo'yicha, `.lte('updated_at', mijozVaqti)` shartida).
+Tafsilot: `docs/offline.md`.
 
 **Offline yozish.** Mutatsiya funksiyalari React'dan tashqarida,
 `lib/queries/mutatsiya-sozlamalari.ts` da, barqaror `mutationKey`
