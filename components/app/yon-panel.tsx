@@ -119,9 +119,8 @@ export function YonPanel() {
       </nav>
 
       {/* Topshiriqlar — javob kutayotganlari soni bilan.
-          Pastki menyuga qo'shilmadi: u yerda allaqachon to'rtta
-          bo'lim bor va beshinchisi telefonda siqilib qolardi.
-          Telefonda bu bo'limga "Ko'rish" sahifasidan o'tiladi. */}
+          Telefonda ham pastki menyuda, ajratuvchi chiziqdan keyin:
+          yangi topshiriq kelgani u yerda ham bilinishi kerak. */}
       <nav aria-label={t('topshiriq.bolimi')} className="mt-6 shrink-0 px-3">
         <ul>
           <li>

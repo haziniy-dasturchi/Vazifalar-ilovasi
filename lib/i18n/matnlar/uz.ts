@@ -375,6 +375,8 @@ export const uz = {
   'papka.hammasiBajarildi': 'Hammasi bajarildi',
   'papka.hammasiBajarildiMatn':
     'Bu yerda ochiq ish qolmadi. Bajarilgan ishlar ro‘yxatni to‘sib qo‘ymasligi uchun yashiriladi — ularni Hisobot sahifasida ko‘rasiz.',
+
+  'topshiriq.yangiSoni': '{son} ta yangi topshiriq',
 } as const
 
 export type MatnKaliti = keyof typeof uz

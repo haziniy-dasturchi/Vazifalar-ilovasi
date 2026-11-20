@@ -362,4 +362,6 @@ export const en: Record<MatnKaliti, string> = {
   'papka.hammasiBajarildi': 'All done',
   'papka.hammasiBajarildiMatn':
     'Nothing open is left here. Completed tasks are hidden so they do not clutter the list — you can see them on the Report page.',
+
+  'topshiriq.yangiSoni': '{son} new assignments',
 }

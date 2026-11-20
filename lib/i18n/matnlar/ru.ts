@@ -363,4 +363,6 @@ export const ru: Record<MatnKaliti, string> = {
   'papka.hammasiBajarildi': 'Всё выполнено',
   'papka.hammasiBajarildiMatn':
     'Здесь не осталось открытых задач. Выполненные скрыты, чтобы не загромождать список — их видно на странице «Отчёт».',
+
+  'topshiriq.yangiSoni': 'новых поручений: {son}',
 }
