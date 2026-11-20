@@ -10,6 +10,7 @@ import {
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
+import { yangiId } from '@/lib/id'
 import { bugunISO, isoGa } from '@/lib/sana'
 import { rruleEskiga, vazifaningKeyingiSanasi } from '@/lib/takrorlanish'
 import { kalit } from './keys'
@@ -39,6 +40,7 @@ async function papkaVazifalariSorovi(
   const { data, error } = await supabase
     .from('tasks')
     .select(USTUNLAR)
+    .is('deleted_at', null)
     .eq('folder_id', papkaId)
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true })
@@ -56,6 +58,7 @@ async function bugungiSorovi(supabase: Mijoz): Promise<Task[]> {
     supabase
       .from('tasks')
       .select(USTUNLAR)
+      .is('deleted_at', null)
       .neq('status', 'done')
       .lte('due_date', bugun)
       .order('due_date', { ascending: true })
@@ -64,6 +67,7 @@ async function bugungiSorovi(supabase: Mijoz): Promise<Task[]> {
     supabase
       .from('tasks')
       .select(USTUNLAR)
+      .is('deleted_at', null)
       .eq('status', 'done')
       .gte('completed_at', kunBoshi.toISOString())
       .order('completed_at', { ascending: false }),
@@ -79,6 +83,7 @@ async function jarayondagiSorovi(supabase: Mijoz): Promise<Task[]> {
   const { data, error } = await supabase
     .from('tasks')
     .select(USTUNLAR)
+    .is('deleted_at', null)
     .eq('status', 'in_progress')
     .order('started_at', { ascending: true })
 
@@ -95,6 +100,7 @@ async function kelgusiSorovi(supabase: Mijoz, kunSoni: number): Promise<Task[]> 
   const { data, error } = await supabase
     .from('tasks')
     .select(USTUNLAR)
+    .is('deleted_at', null)
     .neq('status', 'done')
     .gt('due_date', bugunISO())
     .lte('due_date', isoGa(oxiri))
@@ -112,6 +118,7 @@ async function ertangiSorovi(supabase: Mijoz): Promise<Task[]> {
   const { data, error } = await supabase
     .from('tasks')
     .select(USTUNLAR)
+    .is('deleted_at', null)
     .eq('due_date', isoGa(ertaga))
     .neq('status', 'done')
     .order('due_time', { ascending: true, nullsFirst: false })
@@ -274,7 +281,8 @@ export function useVazifaYaratish() {
       const hozir = new Date().toISOString()
 
       const vaqtinchalik: Task = {
-        id: `vaqtinchalik-${Date.now()}`,
+        // ID brauzerda yaratiladi — chaqiruvchi bermagan bo'lsa ham
+        id: yangi.id ?? yangiId(),
         user_id: userId,
         folder_id: yangi.folder_id,
         section_id: yangi.section_id ?? null,
@@ -297,6 +305,7 @@ export function useVazifaYaratish() {
         started_at: holat === 'in_progress' ? hozir : null,
         completed_at: null,
         notified_at: null,
+        deleted_at: null,
         created_at: hozir,
         updated_at: hozir,
       }
@@ -336,7 +345,12 @@ export function useVazifaYangilash() {
   return useMutation({
     mutationKey: MUTATSIYA.vazifaYangilash,
 
-    onMutate: async ({ id, ...ozgarish }: VazifaOzgarishi & { id: string }) => {
+    onMutate: async ({
+      id,
+      // Konflikt qoidasi uchun yuboriladi, keshga yozilmaydi
+      mijozVaqti: _mijozVaqti,
+      ...ozgarish
+    }: VazifaOzgarishi & { id: string; mijozVaqti?: string }) => {
       await qc.cancelQueries({ queryKey: kalit.vazifalar })
       const nusxa = keshNusxasi(qc)
       keshdaYangila(qc, id, ozgarish as Partial<Task>)

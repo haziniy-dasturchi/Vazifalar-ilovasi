@@ -28,6 +28,7 @@ export function useHisobotVazifalari(boshlanish: string, tugash: string) {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
+        .is('deleted_at', null)
         .or(
           `and(due_date.gte.${boshlanish},due_date.lte.${tugash}),and(completed_at.gte.${boshlanishBoshi},completed_at.lte.${tugashOxiri})`
         )
@@ -55,6 +56,7 @@ export function usePapkaningBarchaVazifalari(papkaId: string | undefined) {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
+        .is('deleted_at', null)
         .eq('folder_id', papkaId!)
 
       if (error) throw error
@@ -84,27 +86,33 @@ export function useFoizJurnali(boshlanish: string, tugash: string) {
     queryFn: async (): Promise<QismanYozuv[]> => {
       const { data, error } = await supabase
         .from('task_progress_log')
-        .select('task_id, oldingi, yangi, tasks(title, progress, status)')
+        .select(
+          'task_id, oldingi, yangi, tasks(title, progress, status, deleted_at)'
+        )
         .gte('created_at', `${boshlanish}T00:00:00.000`)
         .lte('created_at', `${tugash}T23:59:59.999`)
 
       if (error) throw error
 
-      const qatorlar: JurnalQatori[] = (data ?? []).map((q) => {
+      const qatorlar: JurnalQatori[] = []
+      for (const q of data ?? []) {
         const vazifa = q.tasks as unknown as {
           title: string
           progress: number
           status: string
+          deleted_at: string | null
         } | null
-        return {
+        // O'chirilgan vazifa hisobotda ko'rinmaydi
+        if (!vazifa || vazifa.deleted_at) continue
+        qatorlar.push({
           task_id: q.task_id,
-          sarlavha: vazifa?.title ?? 'Vazifa',
+          sarlavha: vazifa.title,
           oldingi: q.oldingi,
           yangi: q.yangi,
-          joriyFoiz: vazifa?.progress ?? 0,
-          bajarilganmi: vazifa?.status === 'done',
-        }
-      })
+          joriyFoiz: vazifa.progress,
+          bajarilganmi: vazifa.status === 'done',
+        })
+      }
 
       return qismanBajarilganlar(qatorlar)
     },

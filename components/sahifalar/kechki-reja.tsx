@@ -8,6 +8,7 @@ import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { Tanlagich } from '@/components/ui/tanlagich'
 import { OsuvchiMaydon } from '@/components/ui/osuvchi-maydon'
 import { MuhimlikTanlagich } from '@/components/vazifa/muhimlik-tanlagich'
+import { yangiId } from '@/lib/id'
 import { useT } from '@/components/app/til-provayder'
 import { useToast } from '@/components/ui/toast'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
@@ -115,6 +116,7 @@ function ErtangaQoshish({
     if (!toliq || yaratish.isPending) return
 
     const yuboriladigan = {
+      id: yangiId(),
       folder_id: papkaQiymati,
       title: sarlavha.trim(),
       due_date: ertaga,

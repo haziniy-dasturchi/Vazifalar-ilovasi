@@ -49,6 +49,15 @@ async function foydalanuvchiId(): Promise<string> {
 }
 
 export type YangiVazifa = {
+  /**
+   * Brauzerda yaratilgan ID.
+   *
+   * Nega mijozda: internet yo'q paytda server id bermaydi, demak
+   * endigina qo'shilgan vazifani tahrirlab ham, o'chirib ham
+   * bo'lmasdi. ID oldindan ma'lum bo'lsa, vazifa tug'ilgan zahoti
+   * to'laqonli bo'ladi.
+   */
+  id?: string
   folder_id: string
   section_id?: string | null
   parent_id?: string | null
@@ -195,6 +204,7 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
       const { data, error } = await sb()
         .from('tasks')
         .insert({
+          ...(yangi.id ? { id: yangi.id } : {}),
           user_id: await foydalanuvchiId(),
           folder_id: yangi.folder_id,
           section_id: yangi.section_id ?? null,
@@ -228,8 +238,9 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
   qc.setMutationDefaults(MUTATSIYA.vazifaYangilash, {
     mutationFn: async ({
       id,
+      mijozVaqti,
       ...ozgarish
-    }: VazifaOzgarishi & { id: string }) => {
+    }: VazifaOzgarishi & { id: string; mijozVaqti?: string }) => {
       // Qoida o'zgarsa, eski ustun ham shu yerda yangilanadi —
       // chaqiruvchilar buni o'ylab o'tirmasligi uchun
       const toliq =
@@ -237,21 +248,44 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
           ? { ...ozgarish, recurrence: rruleEskiga(ozgarish.rrule ?? null) }
           : ozgarish
 
-      const { data, error } = await sb()
-        .from('tasks')
-        .update(toliq)
-        .eq('id', id)
-        .select()
-        .single()
+      /*
+        Konflikt qoidasi: last-write-wins, `updated_at` bo'yicha.
+
+        Internet yo'q paytda qilingan o'zgarish navbatda kunlab
+        turishi mumkin. Shu orada boshqa qurilmada o'sha vazifa
+        yangilangan bo'lsa, eski o'zgarishni ustiga yozish
+        ma'lumot yo'qotish demak. Shuning uchun yozuv faqat
+        serverdagi qator MENING o'zgarishimdan keyin
+        yangilanmagan bo'lsa qo'llanadi.
+
+        `maybeSingle`: shart bajarilmasa 0 qator qaytadi — bu
+        XATO emas, balki "server versiyasi yangiroq" degani.
+        Shunda null qaytaramiz va `onSettled` serverdagi
+        haqiqiy holatni qaytadan yuklaydi.
+      */
+      const sorov = sb().from('tasks').update(toliq).eq('id', id)
+      if (mijozVaqti) sorov.lte('updated_at', mijozVaqti)
+
+      const { data, error } = await sorov.select().maybeSingle()
       if (error) throw error
-      return data as Task
+      return (data ?? null) as Task | null
     },
     onSettled: vazifalarniYangila,
   })
 
   qc.setMutationDefaults(MUTATSIYA.vazifaOchirish, {
+    /*
+      Yumshoq o'chirish: qator joyida qoladi, faqat `deleted_at`
+      to'ladi. Qattiq DELETE ikki qurilmali holatda ma'lumot
+      yo'qotardi — boshqa qurilmadagi o'zgarish ham hech qanday
+      izsiz yo'qolib ketardi. Mijoz barcha so'rovlarda
+      `deleted_at is null` filtrini qo'yadi.
+    */
     mutationFn: async (id: string) => {
-      const { error } = await sb().from('tasks').delete().eq('id', id)
+      const { error } = await sb()
+        .from('tasks')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id)
       if (error) throw error
       return id
     },

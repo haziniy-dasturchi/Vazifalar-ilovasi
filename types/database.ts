@@ -364,6 +364,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           deadline: string | null
+          deleted_at: string | null
           description: string | null
           due_date: string | null
           due_time: string | null
@@ -389,6 +390,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           deadline?: string | null
+          deleted_at?: string | null
           description?: string | null
           due_date?: string | null
           due_time?: string | null
@@ -414,6 +416,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           deadline?: string | null
+          deleted_at?: string | null
           description?: string | null
           due_date?: string | null
           due_time?: string | null
@@ -470,6 +473,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           deadline: string | null
+          deleted_at: string | null
           description: string | null
           due_date: string | null
           due_time: string | null
@@ -529,6 +533,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           deadline: string | null
+          deleted_at: string | null
           description: string | null
           due_date: string | null
           due_time: string | null
@@ -567,6 +572,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           deadline: string | null
+          deleted_at: string | null
           description: string | null
           due_date: string | null
           due_time: string | null
@@ -601,6 +607,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           deadline: string | null
+          deleted_at: string | null
           description: string | null
           due_date: string | null
           due_time: string | null

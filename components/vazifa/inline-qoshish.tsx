@@ -11,6 +11,7 @@ import { useVazifaYaratish } from '@/lib/queries/vazifalar'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { useToast } from '@/components/ui/toast'
 import { useT } from '@/components/app/til-provayder'
+import { yangiId } from '@/lib/id'
 import { bugunISO } from '@/lib/sana'
 import { useKalitSozlar } from '@/lib/kalit-sozlar/use-kalit-sozlar'
 import type { TaskPriority } from '@/types/vazifalar'
@@ -105,6 +106,7 @@ export function InlineQoshish({
     const saqlanadiganSana = takrorlanish ? (sana ?? bugunISO()) : sana
 
     const yuboriladigan = {
+      id: yangiId(),
       folder_id: papkaniTanlasaBoladi ? tanlanganPapka : papkaId,
       // Papka o'zgartirilgan bo'lsa, eski bo'limga bog'lab bo'lmaydi
       section_id: tanlanganPapka === papkaId ? bolimId : null,

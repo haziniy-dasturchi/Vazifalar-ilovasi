@@ -20,6 +20,7 @@ import {
   useVazifaYaratish,
 } from '@/lib/queries/vazifalar'
 import { bugunISO, vaqtMatni } from '@/lib/sana'
+import { yangiId } from '@/lib/id'
 import { eskidanRrule } from '@/lib/takrorlanish'
 import { useKalitSozlar } from '@/lib/kalit-sozlar/use-kalit-sozlar'
 import type { Task, TaskPriority } from '@/types/vazifalar'
@@ -184,6 +185,9 @@ export function VazifaOynasi({
     if (tahrir) {
       yangilash.mutate({
         id: vazifa!.id,
+        // Konflikt qoidasi (last-write-wins) uchun: o'zgarish AYNAN
+        // shu paytda qilindi, serverga yetib borgan paytda emas
+        mijozVaqti: new Date().toISOString(),
         title: tozaNom,
         // Bo'sh izoh bazada NULL bo'lib turadi: "bor, lekin bo'sh"
         // degan uchinchi holat chalkashlikdan boshqa narsa bermaydi
@@ -201,6 +205,7 @@ export function VazifaOynasi({
       korsat({ matn: t('vazifa.yangilandi'), tone: 'muvaffaqiyat' })
     } else {
       yaratish.mutate({
+        id: yangiId(),
         folder_id: papkaQiymati,
         section_id: tanlanganBolim || null,
         title: tozaNom,

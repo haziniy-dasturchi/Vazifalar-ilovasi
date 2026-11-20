@@ -344,4 +344,10 @@ export const en: Record<MatnKaliti, string> = {
     'A “times” limit does not work together with “Completed date”.',
   'takror.xulosa': 'Result',
   'takror.kunTanlashKerak': 'Pick at least one day',
+
+  // ---------- Offline status ----------
+  'offline.yoq': 'No internet — keep working, changes are saved when you are back online',
+  'offline.kutmoqda': '{n} changes waiting',
+  'offline.yuborilmoqda': 'Syncing {n} changes',
+  'offline.xato': '{n} changes were not saved. Reload the app and try again.',
 }

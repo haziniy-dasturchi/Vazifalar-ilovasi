@@ -355,6 +355,13 @@ export const uz = {
     '“Bajarilgan sanadan” rejimida “necha marta” chegarasi ishlamaydi.',
   'takror.xulosa': 'Natija',
   'takror.kunTanlashKerak': 'Kamida bitta kun tanlang',
+
+  // ---------- Offline holati ----------
+  'offline.yoq': 'Internet yo‘q — ishlashda davom eting, aloqa tiklanganda saqlanadi',
+  'offline.kutmoqda': '{n} ta o‘zgarish kutmoqda',
+  'offline.yuborilmoqda': '{n} ta o‘zgarish sinxronlanmoqda',
+  'offline.xato':
+    '{n} ta o‘zgarish saqlanmadi. Ilovani yangilab, qayta urinib ko‘ring.',
 } as const
 
 export type MatnKaliti = keyof typeof uz

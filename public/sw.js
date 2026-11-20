@@ -7,7 +7,7 @@
 //   * Supabase API so'rovlari HECH QACHON keshlanmaydi: eski
 //     ma'lumotni yangi deb ko'rsatish xatoga olib keladi
 
-const KESH = 'samara-v2'
+const KESH = 'samara-v3'
 
 /** Internet yo'qligida ko'rsatiladigan zaxira sahifa */
 const ZAXIRA = '/offline.html'
@@ -24,6 +24,9 @@ const ASOSIY = [
   ZAXIRA,
   '/manifest.webmanifest',
   '/icons/pwa-192.png',
+  '/icons/pwa-512.png',
+  '/icons/notification-icon-192.png',
+  '/icons/notification-badge-96.png',
   '/jarayonda',
   '/bugun',
   '/kelgusi',
@@ -32,6 +35,10 @@ const ASOSIY = [
   '/kechki-reja',
   '/yoriqnoma',
   '/arxiv',
+  // Bu ikkitasi oldin ro'yxatda yo'q edi: internetsiz ochilganda
+  // "Internet yo'q" ekrani chiqib qolardi
+  '/topshiriqlar',
+  '/sozlamalar',
 ]
 
 self.addEventListener('install', (event) => {

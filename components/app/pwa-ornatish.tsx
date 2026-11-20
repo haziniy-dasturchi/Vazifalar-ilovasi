@@ -106,6 +106,23 @@ export function PwaOrnatish() {
       })
     }
 
+    /*
+      Saqlashni "doimiy" qilishni so'raymiz.
+
+      Nega: brauzer joy tanqis bo'lganda oddiy saqlangan ma'lumotni
+      (IndexedDB, kesh) ogohlantirishsiz o'chirib yuborishi mumkin.
+      Bizda esa u yerda internetsiz qilingan, hali yuborilmagan
+      o'zgarishlar yotadi — ular yo'qolsa, foydalanuvchi mehnati
+      yo'qoladi.
+
+      Ko'pchilik brauzerda bu so'rov oyna chiqarmaydi: ilova
+      bosh ekranga o'rnatilgan yoki tez-tez ishlatiladigan bo'lsa,
+      ruxsat o'zi beriladi. Rad etilsa ham ilova ishlayveradi.
+    */
+    navigator.storage?.persist?.().catch(() => {
+      // Qo'llab-quvvatlanmasa — e'tiborsiz qoldiramiz
+    })
+
     if (ornatilganmi()) return
     if (sessionStorage.getItem(YOPILDI_KALITI)) return
 
