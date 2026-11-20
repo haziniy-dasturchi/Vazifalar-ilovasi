@@ -1,6 +1,9 @@
 'use client'
 
-import { CircleAlert, type LucideIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { onlineManager } from '@tanstack/react-query'
+import { CircleAlert, CloudOff, type LucideIcon } from 'lucide-react'
+import { useT } from '@/components/app/til-provayder'
 
 /** Yuklanish skeleti — vazifa qatorlari shaklida */
 export function Yuklanmoqda({ qator = 4 }: { qator?: number }) {
@@ -75,26 +78,55 @@ export function BoshHolat({
   )
 }
 
-/** Xato holati */
+/**
+ * Xato holati.
+ *
+ * Internet yo'q paytdagi matn ALOHIDA. Sababi: "Ma'lumotni yuklab
+ * bo'lmadi — qayta urinib ko'ring" degan xabar odamni aldaydi,
+ * chunki qayta urinishdan foyda yo'q va u ilovani buzuq deb
+ * o'ylaydi. Rost xabar esa nima bo'layotganini va nima qilish
+ * mumkinligini aytadi: saqlangan ro'yxat ko'rinadi, yozganlari
+ * yo'qolmaydi, internet qaytganda hammasi o'zi yuklanadi.
+ */
 export function XatoHolati({ qayta }: { qayta?: () => void }) {
+  const t = useT()
+  const [onlayn, setOnlayn] = useState(true)
+
+  useEffect(() => {
+    setOnlayn(onlineManager.isOnline())
+    return onlineManager.subscribe((holat) => setOnlayn(holat))
+  }, [])
+
   return (
     <div className="flex flex-col items-center justify-center rounded-3xl bg-surface px-6 py-14 text-center shadow-card">
-      <span className="flex size-14 items-center justify-center rounded-2xl bg-danger-soft">
-        <CircleAlert className="size-7 text-danger" aria-hidden />
+      <span
+        className={`flex size-14 items-center justify-center rounded-2xl ${
+          onlayn ? 'bg-danger-soft' : 'bg-brand-soft'
+        }`}
+      >
+        {onlayn ? (
+          <CircleAlert className="size-7 text-danger" aria-hidden />
+        ) : (
+          <CloudOff className="size-7 text-brand-onsoft" aria-hidden />
+        )}
       </span>
+
       <h2 className="mt-4 text-lg font-semibold text-text-strong">
-        Ma’lumotni yuklab bo‘lmadi
+        {onlayn ? t('xato.sarlavha') : t('xato.offlineSarlavha')}
       </h2>
-      <p className="mt-2 text-base text-text-muted">
-        Internet aloqasini tekshirib ko‘ring.
+      <p className="mt-2 max-w-sm text-base leading-relaxed text-text-muted">
+        {onlayn ? t('xato.matn') : t('xato.offlineMatn')}
       </p>
-      {qayta && (
+
+      {/* Internet yo'q paytda "qayta urinish" dan foyda yo'q —
+          tugma ko'rsatilmaydi, aks holda odam uni bosaverardi */}
+      {qayta && onlayn && (
         <button
           type="button"
           onClick={qayta}
           className="mt-6 rounded-xl border border-border-subtle px-6 py-3 text-base font-medium text-text-strong transition hover:bg-surface-muted"
         >
-          Qayta urinish
+          {t('umumiy.qaytaUrinish')}
         </button>
       )}
     </div>

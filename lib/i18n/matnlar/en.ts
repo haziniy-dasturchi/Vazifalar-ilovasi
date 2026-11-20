@@ -350,4 +350,11 @@ export const en: Record<MatnKaliti, string> = {
   'offline.kutmoqda': '{n} changes waiting',
   'offline.yuborilmoqda': 'Syncing {n} changes',
   'offline.xato': '{n} changes were not saved. Reload the app and try again.',
+
+  // ---------- Error and connection state ----------
+  'xato.sarlavha': 'Could not load the data',
+  'xato.matn': 'Your connection may be weak. Please try again in a moment.',
+  'xato.offlineSarlavha': 'No internet',
+  'xato.offlineMatn':
+    'Right now you can only see what is stored on this device. Nothing you write is lost — it is saved automatically once you are back online.',
 }

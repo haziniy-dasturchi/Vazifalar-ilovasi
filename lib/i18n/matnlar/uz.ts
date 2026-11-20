@@ -362,6 +362,14 @@ export const uz = {
   'offline.yuborilmoqda': '{n} ta o‘zgarish sinxronlanmoqda',
   'offline.xato':
     '{n} ta o‘zgarish saqlanmadi. Ilovani yangilab, qayta urinib ko‘ring.',
+
+  // ---------- Xato va internet holati ----------
+  'xato.sarlavha': 'Ma’lumotni yuklab bo‘lmadi',
+  'xato.matn':
+    'Internet aloqasi zaif bo‘lishi mumkin. Birozdan so‘ng qayta urinib ko‘ring.',
+  'xato.offlineSarlavha': 'Internet yo‘q',
+  'xato.offlineMatn':
+    'Hozir faqat shu qurilmada saqlangan ro‘yxatni ko‘ra olasiz. Yozganlaringiz yo‘qolmaydi — internet qaytganda hammasi o‘zi saqlanadi.',
 } as const
 
 export type MatnKaliti = keyof typeof uz

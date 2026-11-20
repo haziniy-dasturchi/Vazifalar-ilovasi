@@ -86,7 +86,7 @@ export function VazifaQatori({
   return (
     <li>
       <div
-        className={`group flex items-start gap-3 rounded-2xl p-3 transition ${
+        className={`group flex items-start gap-2 rounded-2xl p-2.5 transition sm:gap-3 sm:p-3 ${
           jarayonda
             ? 'border-l-4 border-status-progress-line bg-status-progress'
             : 'bg-surface shadow-card'
@@ -105,7 +105,7 @@ export function VazifaQatori({
                 : 'Bajarildi'
           }
           title={MUHIMLIK_NOMI[vazifa.priority]}
-          className="mt-0.5 flex size-11 min-h-0 shrink-0 items-center justify-center rounded-full"
+          className="flex size-10 min-h-0 shrink-0 items-center justify-center rounded-full sm:mt-0.5 sm:size-11"
         >
           <SuvDoira
             foiz={foiz}
@@ -125,13 +125,14 @@ export function VazifaQatori({
               setTahrirOchiq(true)
             }
           }}
-          className="min-w-0 flex-1 cursor-pointer py-1.5"
+          className="min-w-0 flex-1 cursor-pointer py-1 sm:py-1.5"
         >
-          {/* Uzun matn butun ekranni egallab ketmasin: 4 qatordan
-              keyin kesiladi. To‘lig‘ini ko‘rish uchun qatorni bosish
-              kifoya — vazifa oynasi ochiladi. */}
+          {/* Uzun matn butun ekranni egallab ketmasin: telefonda
+              3 qatordan keyin kesiladi (oldin 4 edi va bitta vazifa
+              ekranning katta qismini egallardi). To‘lig‘ini ko‘rish
+              uchun qatorni bosish kifoya — vazifa oynasi ochiladi. */}
           <p
-            className={`line-clamp-4 text-base leading-snug break-words ${
+            className={`line-clamp-3 text-[0.9375rem] leading-snug break-words sm:line-clamp-4 sm:text-base ${
               bajarilgan
                 ? 'text-text-muted line-through'
                 : 'text-text-strong'
@@ -148,9 +149,18 @@ export function VazifaQatori({
             </p>
           )}
 
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+          {/*
+            Meta ma'lumot ataylab BITTA qatorda va o'ralmaydi.
+            Oldin `flex-wrap` edi: loyiha nomi uzun bo'lsa u uch
+            qatorga yoyilib, qator balandligini ikki baravar
+            oshirib yuborardi (telefonda ayniqsa yomon ko'rinardi).
+            Endi sig'magani uch nuqta bilan qisqaradi.
+          */}
+          <div className="mt-1 flex items-center gap-x-2 overflow-hidden text-xs whitespace-nowrap sm:gap-x-3">
             {vazifa.due_date && (
-              <span className={kechikkan ? 'font-medium text-danger' : 'text-text-muted'}>
+              <span
+                className={`shrink-0 ${kechikkan ? 'font-medium text-danger' : 'text-text-muted'}`}
+              >
                 {kechikkan
                   ? kechikishMatni(vazifa.due_date)
                   : sanaMatni(vazifa.due_date)}
@@ -161,8 +171,8 @@ export function VazifaQatori({
               <span
                 className={
                   bajarilgan
-                    ? 'text-text-muted'
-                    : `font-medium ${VAQT_RANGI[vaqtHolati(vazifa.due_date, vazifa.due_time)]}`
+                    ? 'shrink-0 text-text-muted'
+                    : `shrink-0 font-medium ${VAQT_RANGI[vaqtHolati(vazifa.due_date, vazifa.due_time)]}`
                 }
               >
                 {vaqtMatni(vazifa.due_time)}
@@ -171,7 +181,7 @@ export function VazifaQatori({
 
             {takrorQoidasi && (
               <span
-                className="flex items-center gap-1 text-text-muted"
+                className="flex shrink-0 items-center gap-1 text-text-muted"
                 title={takrorMatni(takrorQoidasi, t)}
               >
                 <Repeat2 className="size-3.5" aria-hidden />
@@ -179,21 +189,32 @@ export function VazifaQatori({
             )}
 
             {papkaNomi && (
-              <span className="flex items-center gap-1.5 text-text-muted">
+              <span
+                className="flex min-w-0 items-center gap-1.5 text-text-muted"
+                title={bolimNomi ? `${papkaNomi} › ${bolimNomi}` : papkaNomi}
+              >
                 <span
-                  className="size-2 rounded-full"
+                  className="size-2 shrink-0 rounded-full"
                   style={{ backgroundColor: papkaRangi ?? '#9ca3af' }}
                   aria-hidden
                 />
-                {papkaNomi}
-                {bolimNomi && (
-                  <>
-                    <ChevronRight className="size-3 opacity-60" aria-hidden />
-                    <span className="font-medium text-text-strong">
-                      {bolimNomi}
-                    </span>
-                  </>
-                )}
+                {/*
+                  Ikonka emas, oddiy "›" belgisi: SVG matn ichida
+                  turganda uch nuqta (ellipsis) to'g'ri ishlamaydi.
+                */}
+                <span className="truncate">
+                  {papkaNomi}
+                  {bolimNomi && (
+                    <>
+                      <span className="px-1 opacity-60" aria-hidden>
+                        ›
+                      </span>
+                      <span className="font-medium text-text-strong">
+                        {bolimNomi}
+                      </span>
+                    </>
+                  )}
+                </span>
               </span>
             )}
 
@@ -205,7 +226,7 @@ export function VazifaQatori({
                   setOchiq((v) => !v)
                 }}
                 aria-expanded={ochiq}
-                className="flex min-h-0 items-center gap-1 rounded-md text-text-muted transition hover:text-brand-onsoft"
+                className="flex min-h-0 shrink-0 items-center gap-1 rounded-md text-text-muted transition hover:text-brand-onsoft"
               >
                 <ChevronRight
                   className={`size-3.5 transition ${ochiq ? 'rotate-90' : ''}`}
@@ -223,7 +244,7 @@ export function VazifaQatori({
             type="button"
             onClick={() => harakat(jarayonda ? 'rejaga' : 'boshlash')}
             aria-label={jarayonda ? 'Rejaga qaytarish' : 'Boshlash'}
-            className={`flex size-11 min-h-0 shrink-0 items-center justify-center rounded-xl transition ${
+            className={`flex size-10 min-h-0 shrink-0 items-center justify-center rounded-xl transition sm:size-11 ${
               jarayonda
                 ? 'text-status-progress-text hover:bg-amber-200/60'
                 : 'text-text-faint hover:bg-surface-muted hover:text-brand-onsoft'
