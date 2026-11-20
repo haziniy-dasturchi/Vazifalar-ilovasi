@@ -25,6 +25,17 @@ const migr = join(root, 'supabase', 'migrations')
 const db = await PGlite.create()
 await db.exec(readFileSync(join(tools, 'auth-stub.sql'), 'utf8'))
 
+// `auth.jwt()` stub — topshiriqlar migratsiyasi shunga tayanadi.
+// Haqiqiy Supabase'da uni platforma beradi.
+await db.exec(`
+  create or replace function auth.jwt()
+  returns jsonb language sql stable as $$
+    select coalesce(
+      nullif(current_setting('request.jwt.claims', true), '')::jsonb,
+      '{}'::jsonb)
+  $$;
+`)
+
 // Minimal `storage` stub — avatar siyosatlari uchun
 await db.exec(`
   create schema if not exists storage;
@@ -47,10 +58,7 @@ let xato = 0
 
 // Supabase platformasiga tayanadigan, bu yerda ishlamasligi
 // KUTILGAN migratsiyalar — ular muammo deb sanalmaydi
-const KUTILGAN = new Set([
-  '20261113090000_sozlamalar.sql',
-  '20261120090000_topshiriqlar.sql',
-])
+const KUTILGAN = new Set(['20261113090000_sozlamalar.sql'])
 
 for (const f of fayllar) {
   try {
@@ -145,6 +153,89 @@ const tirik = await db.query(
   `select count(*)::int as n from public.tasks where deleted_at is null`
 )
 console.log(` OK: o'chirilmagan qatorlar: ${tirik.rows[0].n}`)
+
+// -------------------------------------------------------------
+// Topshiriq xavfsizligi qoidalari — amalda
+// -------------------------------------------------------------
+console.log('\n== topshiriq xavfsizligi ==')
+
+const A = '00000000-0000-4000-8000-00000000000a' // yuboruvchi
+const B = '00000000-0000-4000-8000-00000000000b' // qabul qiluvchi
+await db.exec(`
+  insert into auth.users (id, email) values
+    ('${A}', 'boshliq@sinov.uz'), ('${B}', 'xodim@sinov.uz')
+  on conflict (id) do update set email = excluded.email;
+`)
+
+const yozsaBoladimi = async () =>
+  (
+    await db.query(
+      `select public.topshiriq_yozsa_boladimi('${A}', 'xodim@sinov.uz') as j`
+    )
+  ).rows[0].j
+
+async function tekshir(nom, kutilgan) {
+  const natija = await yozsaBoladimi()
+  const tugri = natija === kutilgan
+  if (!tugri) xato += 1
+  console.log(` ${tugri ? 'OK' : 'XATO'}: ${nom} -> ${natija}`)
+}
+
+const topshiriqQosh = (holat) =>
+  db.exec(`
+    insert into public.topshiriqlar
+      (yuboruvchi_id, qabul_qiluvchi_email, sarlavha, holat)
+    values ('${A}', 'xodim@sinov.uz', 'Sinov', '${holat}');
+  `)
+
+await tekshir("boshida yozsa bo'ladi", true)
+
+// Uch marta rad etilsa — to'xtaydi
+for (let i = 0; i < 3; i += 1) await topshiriqQosh('rad')
+await tekshir('3 ta raddan keyin bloklanadi', false)
+
+// Qabul qiluvchi ruxsat bersa — yana ochiladi (email katta harfda
+// yozilsa ham ishlashi kerak)
+await db.exec(`
+  insert into public.topshiriq_ruxsatlari (egasi_id, yuboruvchi_email, holat)
+  values ('${B}', 'BOSHLIQ@sinov.uz', 'ruxsat');
+`)
+await tekshir('ruxsat berilsa yana ochiladi', true)
+
+// Qo'lda blok — ruxsatdan ham kuchli
+await db.exec(`
+  update public.topshiriq_ruxsatlari set holat = 'blok' where egasi_id = '${B}';
+`)
+await tekshir("qo'lda blok to'xtatadi", false)
+
+// Ruxsat olib tashlansa, javobsizlar chegarasi ishlaydi
+await db.exec(`delete from public.topshiriq_ruxsatlari where egasi_id = '${B}';`)
+await db.exec(`delete from public.topshiriqlar where yuboruvchi_id = '${A}';`)
+for (let i = 0; i < 5; i += 1) await topshiriqQosh('kutilmoqda')
+await tekshir("5 ta javobsizdan keyin to'xtaydi", false)
+
+// Ro'yxatdan o'tmagan odamga yozish mumkin bo'lishi kerak
+const notanish = (
+  await db.query(
+    `select public.topshiriq_yozsa_boladimi('${A}', 'yangi@sinov.uz') as j`
+  )
+).rows[0].j
+if (notanish !== true) xato += 1
+console.log(
+  ` ${notanish ? 'OK' : 'XATO'}: ro'yxatdan o'tmagan emailga yozsa bo'ladi`
+)
+
+// Noto'g'ri email shakli rad etilsin
+try {
+  await db.exec(`
+    insert into public.topshiriqlar (yuboruvchi_id, qabul_qiluvchi_email, sarlavha)
+    values ('${A}', 'salom', 'Sinov');
+  `)
+  console.log(" XATO: noto'g'ri email o'tib ketdi")
+  xato += 1
+} catch {
+  console.log(" OK: noto'g'ri email rad etildi")
+}
 
 await db.close()
 console.log(xato === 0 ? '\nHAMMASI JOYIDA' : `\n${xato} ta muammo`)
