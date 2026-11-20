@@ -31,15 +31,36 @@ type Eslatma = {
 Deno.serve(async () => {
   const sb = createClient(SUPABASE_URL, SERVICE_KEY)
 
+  /*
+    Ikkala ish ham MUSTAQIL bajariladi.
+
+    Avval bu yerda "vaqti kelgan vazifa yo'q bo'lsa — darhol
+    qaytamiz" degan satr bor edi. Oqibati og'ir bo'ldi: aksariyat
+    daqiqalarda eslatiladigan vazifa bo'lmaydi, funksiya o'sha
+    yerda to'xtab qolardi va pastdagi TOPSHIRIQ kodiga umuman
+    yetib bormasdi. Natijada topshiriq bildirishnomasi hech
+    qachon yuborilmasdi, vazifa eslatmasi esa ishlayverardi —
+    shuning uchun muammo uzoq vaqt ko'rinmay turdi.
+  */
+  const vazifaNatija = await vazifalarniYubor(sb)
+  const topshiriqNatija = await topshiriqlarniYubor(sb)
+
+  return Response.json({
+    vazifalar: vazifaNatija,
+    topshiriqlar: topshiriqNatija,
+  })
+})
+
+async function vazifalarniYubor(
+  sb: ReturnType<typeof createClient>
+): Promise<{ yuborildi: number; vazifalar: number; tozalangan: number }> {
+  const bosh = { yuborildi: 0, vazifalar: 0, tozalangan: 0 }
+
   const { data, error } = await sb.rpc('kutilayotgan_eslatmalar')
-  if (error) {
-    return Response.json({ xato: error.message }, { status: 500 })
-  }
+  if (error) return bosh
 
   const eslatmalar = (data ?? []) as Eslatma[]
-  if (eslatmalar.length === 0) {
-    return Response.json({ yuborildi: 0, vazifalar: 0 })
-  }
+  if (eslatmalar.length === 0) return bosh
 
   let yuborildi = 0
   const eskirganObunalar: string[] = []
@@ -82,21 +103,12 @@ Deno.serve(async () => {
       .in('endpoint', eskirganObunalar)
   }
 
-  // -----------------------------------------------------------
-  // Yangi topshiriqlar
-  // -----------------------------------------------------------
-  // Alohida RPC: `kutilayotgan_eslatmalar` ga tegilmagan, shuning
-  // uchun bu funksiya eski holida ham ishlayveradi — faqat topshiriq
-  // bildirishnomalari bo'lmaydi.
-  const topshiriqNatija = await topshiriqlarniYubor(sb)
-
-  return Response.json({
+  return {
     yuborildi,
     vazifalar: muvaffaqiyatli.size,
     tozalangan: eskirganObunalar.length,
-    topshiriqlar: topshiriqNatija,
-  })
-})
+  }
+}
 
 type TopshiriqXabari = {
   topshiriq_id: string
