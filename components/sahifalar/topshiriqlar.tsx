@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Check,
   Clock,
@@ -49,9 +49,42 @@ const HOLAT_RANGI: Record<TopshiriqHolati, string> = {
   bajarildi: 'var(--brand-accent)',
 }
 
+/**
+ * Qaysi bo'limda turganini eslab qolish uchun.
+ *
+ * Muammo: "Men yuborgan" bo'limida turib sahifa yangilansa, ilova
+ * "Menga kelgan" ga qaytib ketardi -- odam har safar qaytadan
+ * bosishga majbur edi.
+ *
+ * localStorage tanlandi: manzilga yozish (`?bolim=`) uchun sahifani
+ * Suspense ga o'rash kerak bo'lardi, foyda esa bir xil.
+ */
+const TAB_KALITI = 'samara-topshiriq-tab'
+
+type TopshiriqTab = 'kelgan' | 'yuborilgan'
+
 export function TopshiriqlarKorinishi() {
   const t = useT()
-  const [tab, setTab] = useState<'kelgan' | 'yuborilgan'>('kelgan')
+  const [tab, setTabHolat] = useState<TopshiriqTab>('kelgan')
+
+  // Serverda localStorage yo'q, shuning uchun o'qish chizilgandan
+  // keyin bo'ladi (aks holda hidratsiya nomuvofiqligi chiqardi)
+  useEffect(() => {
+    const saqlangan = localStorage.getItem(TAB_KALITI)
+    if (saqlangan === 'yuborilgan' || saqlangan === 'kelgan') {
+      setTabHolat(saqlangan)
+    }
+  }, [])
+
+  function setTab(yangi: TopshiriqTab) {
+    setTabHolat(yangi)
+    try {
+      localStorage.setItem(TAB_KALITI, yangi)
+    } catch {
+      // Maxfiy rejimda localStorage yopiq bo'lishi mumkin —
+      // bunda shunchaki eslab qolinmaydi
+    }
+  }
   const [yuborishOchiq, setYuborishOchiq] = useState(false)
 
   const kelgan = useKelganTopshiriqlar()
