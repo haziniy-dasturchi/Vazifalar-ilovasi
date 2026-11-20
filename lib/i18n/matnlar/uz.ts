@@ -406,6 +406,8 @@ export const uz = {
   'topshiriq.ochirildi': '{son} ta topshiriq o‘chirildi',
 
   'topshiriq.bosibTuring': 'Tanlash uchun kartani bosib turing',
+
+  'sozlamalar.tab.yoriqnoma': 'Yo‘riqnoma',
 } as const
 
 export type MatnKaliti = keyof typeof uz

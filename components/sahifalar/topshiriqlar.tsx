@@ -377,13 +377,19 @@ function KelganKarta({
     <li
       {...uzoqBosish}
       onClick={tanlashRejimi ? tanlovniAlmashtir : undefined}
-      className={`rounded-2xl bg-surface p-4 shadow-card transition select-none sm:select-text ${
-        tanlanganmi ? 'ring-2 ring-brand-onsoft' : ''
+      className={`rounded-2xl p-4 shadow-card transition select-none sm:select-text ${
+        // Tanlangani FONI bilan ajralib turadi. Faqat halqa
+        // (ring) yetarli emasdi: telefonda ingichka chiziq
+        // ko'zga tashlanmay, qaysi biri belgilangani bilinmasdi.
+        tanlanganmi
+          ? 'bg-brand-soft ring-2 ring-brand-onsoft'
+          : 'bg-surface'
       } ${tanlashRejimi ? 'cursor-pointer' : ''}`}
     >
       <div className="flex items-start justify-between gap-3">
         <TanlashKatagi
           tanlanganmi={tanlanganmi}
+          tanlashRejimi={tanlashRejimi}
           almashtir={tanlovniAlmashtir}
           nom={topshiriq.sarlavha}
         />
@@ -547,13 +553,19 @@ function YuborilganKarta({
     <li
       {...uzoqBosish}
       onClick={tanlashRejimi ? tanlovniAlmashtir : undefined}
-      className={`rounded-2xl bg-surface p-4 shadow-card transition select-none sm:select-text ${
-        tanlanganmi ? 'ring-2 ring-brand-onsoft' : ''
+      className={`rounded-2xl p-4 shadow-card transition select-none sm:select-text ${
+        // Tanlangani FONI bilan ajralib turadi. Faqat halqa
+        // (ring) yetarli emasdi: telefonda ingichka chiziq
+        // ko'zga tashlanmay, qaysi biri belgilangani bilinmasdi.
+        tanlanganmi
+          ? 'bg-brand-soft ring-2 ring-brand-onsoft'
+          : 'bg-surface'
       } ${tanlashRejimi ? 'cursor-pointer' : ''}`}
     >
       <div className="flex items-start justify-between gap-3">
         <TanlashKatagi
           tanlanganmi={tanlanganmi}
+          tanlashRejimi={tanlashRejimi}
           almashtir={tanlovniAlmashtir}
           nom={topshiriq.sarlavha}
         />
@@ -972,33 +984,61 @@ function Bloklanganlar() {
  */
 function TanlashKatagi({
   tanlanganmi,
+  tanlashRejimi,
   almashtir,
   nom,
 }: {
   tanlanganmi: boolean
+  tanlashRejimi: boolean
   almashtir: () => void
   nom: string
 }) {
   const t = useT()
   return (
-    /*
-      Katakcha faqat KOMPYUTERDA (`hidden sm:flex`).
+    <>
+      {/*
+        TELEFON uchun doira belgisi.
 
-      Telefonda u ro'yxatni xunuk qiladi va joy egallaydi,
-      shuning uchun u yerda tanlash boshqacha boshlanadi:
-      kartani bosib turish bilan (Telegram naqshi).
-    */
-    <label
-      onClick={(e) => e.stopPropagation()}
-      className="hidden shrink-0 cursor-pointer items-center justify-center p-1 sm:flex"
-    >
-      <input
-        type="checkbox"
-        checked={tanlanganmi}
-        onChange={almashtir}
-        aria-label={`${t('topshiriq.tanlash')}: ${nom}`}
-        className="size-5 cursor-pointer accent-brand-primary"
-      />
-    </label>
+        Faqat tanlash rejimida chiqadi va IKKALA holatni ham
+        ko'rsatadi: belgilangani to'ldirilgan va ichida belgi,
+        belgilanmagani esa bo'sh halqa. Oldin faqat kartaning
+        atrofidagi ingichka chiziq bor edi va telefonda qaysi
+        biri tanlanganini ajratib bo'lmasdi.
+      */}
+      {tanlashRejimi && (
+        <span
+          aria-hidden
+          className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border-2 transition sm:hidden ${
+            tanlanganmi
+              ? 'border-brand-onsoft bg-brand-primary'
+              : 'border-border-control bg-surface'
+          }`}
+        >
+          {tanlanganmi && (
+            <Check className="size-4 text-white" strokeWidth={3} aria-hidden />
+          )}
+        </span>
+      )}
+
+      {/*
+        Katakcha faqat KOMPYUTERDA (`hidden sm:flex`).
+
+        Telefonda u ro'yxatni xunuk qiladi va joy egallaydi,
+        shuning uchun u yerda tanlash boshqacha boshlanadi:
+        kartani bosib turish bilan (Telegram naqshi).
+      */}
+      <label
+        onClick={(e) => e.stopPropagation()}
+        className="hidden shrink-0 cursor-pointer items-center justify-center p-1 sm:flex"
+      >
+        <input
+          type="checkbox"
+          checked={tanlanganmi}
+          onChange={almashtir}
+          aria-label={`${t('topshiriq.tanlash')}: ${nom}`}
+          className="size-5 cursor-pointer accent-brand-primary"
+        />
+      </label>
+    </>
   )
 }

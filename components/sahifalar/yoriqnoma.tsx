@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import {
+  AlignLeft,
   BarChart3,
   BellRing,
   CalendarDays,
@@ -12,6 +13,7 @@ import {
   FolderKanban,
   FolderOpen,
   Gauge,
+  Keyboard,
   Moon,
   Play,
   Repeat2,
@@ -36,11 +38,51 @@ import { Sahifa } from '@/components/app/sahifa'
  * to'g'ri ko'rinadi va tushuntirish bilan birga o'zgaradi.
  */
 
+/**
+ * Yo'riqnomadagi ekran surati.
+ *
+ * Fayl topilmasa HECH NARSA ko'rsatmaydi: suratlar ketma-ket,
+ * tayyor bo'lgani sari qo'shib boriladi va yo'riqnoma shu orada
+ * ham to'g'ri ko'rinib turadi. Aks holda "rasm yuklanmadi"
+ * belgisi chiqib, hujjat tashlandiq ko'rinardi.
+ */
+function Rasm({ manba, izoh }: { manba: string; izoh?: string }) {
+  const [xato, setXato] = useState(false)
+  if (xato) return null
+  return (
+    <figure className="mb-4">
+      {/* eslint-disable-next-line @next/next/no-img-element -- o'lchami oldindan noma'lum ekran surati */}
+      <img
+        src={manba}
+        alt={izoh ?? ''}
+        loading="lazy"
+        onError={() => setXato(true)}
+        className="w-full rounded-xl border border-border-subtle bg-surface-muted"
+      />
+      {izoh && (
+        <figcaption className="mt-1.5 text-xs leading-relaxed text-text-faint">
+          {izoh}
+        </figcaption>
+      )}
+    </figure>
+  )
+}
+
 type Bolim = {
   kalit: string
   ikonka: typeof Play
   sarlavha: string
   qisqa: string
+  /**
+   * Ekran surati — `public/yoriqnoma/` ichida.
+   *
+   * Fayl yo'q bo'lsa hech narsa ko'rinmaydi (pastdagi `Rasm`
+   * komponentiga qarang), shuning uchun suratlar ketma-ket,
+   * tayyor bo'lgani sari qo'shib borilaveradi.
+   */
+  rasm?: string
+  /** Rasm ostidagi izoh — nimaga e'tibor berish kerakligi */
+  rasmIzoh?: string
   /** Ochilganda ko'rinadigan batafsil tushuntirish */
   tafsilot: { sarlavha: string; matn: string }[]
 }
@@ -51,6 +93,9 @@ const BOLIMLAR: Bolim[] = [
     ikonka: Play,
     sarlavha: 'Jarayonda',
     qisqa: 'Hozir ustida ishlayotgan ishingiz. Ilova shu sahifadan ochiladi.',
+    rasm: '/yoriqnoma/jarayonda.png',
+    rasmIzoh:
+      'Boshlangan ishlar sariq chiziq bilan ajralib turadi.',
     tafsilot: [
       {
         sarlavha: 'Nima uchun kerak',
@@ -71,6 +116,9 @@ const BOLIMLAR: Bolim[] = [
     ikonka: Sun,
     sarlavha: 'Bugun',
     qisqa: 'Bugunga rejalangan va kechikkan ishlar.',
+    rasm: '/yoriqnoma/bugun.png',
+    rasmIzoh:
+      'Kechikkanlar tepada, bugungilar o‘rtada, bajarilganlar pastda.',
     tafsilot: [
       {
         sarlavha: 'Uch guruh',
@@ -115,6 +163,9 @@ const BOLIMLAR: Bolim[] = [
     ikonka: CircleCheck,
     sarlavha: 'Vazifa qanday tuziladi',
     qisqa: 'Sana, vaqt, takrorlanish, muhimlik, bajarilish foizi va ichki ishlar.',
+    rasm: '/yoriqnoma/vazifa.png',
+    rasmIzoh:
+      'Vazifa oynasi: nom, izoh, sana, muhimlik va foiz.',
     tafsilot: [
       {
         sarlavha: 'Sana va vaqt',
@@ -139,10 +190,70 @@ const BOLIMLAR: Bolim[] = [
     ],
   },
   {
+    kalit: 'kalit-sozlar',
+    ikonka: Keyboard,
+    sarlavha: 'Tez yozish (kalit so‘zlar)',
+    qisqa:
+      'Nom yozayotganda sana, vaqt, takror va muhimlikni so‘z bilan ayting — ilova o‘zi tushunadi.',
+    rasm: '/yoriqnoma/kalit-sozlar.png',
+    rasmIzoh:
+      'Taniqlangan so‘z rang bilan belgilanadi va saqlanganda nomdan olib tashlanadi.',
+    tafsilot: [
+      {
+        sarlavha: 'Qanday ishlatiladi',
+        matn:
+          'Vazifa nomini yozayotganda shunchaki qo‘shib qo‘ying: “Hisobot ertaga 9”, “To‘lov har 15”, “Dars har se”, “Shoshilinch ish p1”. Taniqlangan qism rang bilan belgilanadi, sana va muhimlik maydonlari esa darhol to‘ladi.',
+      },
+      {
+        sarlavha: 'Qanday so‘zlar tushuniladi',
+        matn:
+          'Sana: bugun, ertaga, indinga, 25-noyabr, 25.11. Takror: har kuni, har hafta, har oy, ish kunlari, har 15 (oyning 15-sanasi), har se (har seshanba), har 2 kunda. Vaqt: 12:00, 9:30, soat 12. Muhimlik: p1, p2, p3, p4.',
+      },
+      {
+        sarlavha: 'Noto‘g‘ri tanisa',
+        matn:
+          'Belgilangan qismni bir marta bosing — u oddiy matnga aylanadi. Yoki kursor uning oxirida turganda Backspace bosing.',
+      },
+      {
+        sarlavha: 'Xotirjam bo‘ling',
+        matn:
+          'Yolg‘iz son hech qachon sana yoki vaqt deb tanilmaydi. “Ahror akaga 7 ta kitob” yoki “4 mln pul berish” o‘zgarmay qoladi.',
+      },
+    ],
+  },
+  {
+    kalit: 'izoh',
+    ikonka: AlignLeft,
+    sarlavha: 'Izoh',
+    qisqa: 'Vazifa nomi ostidagi qo‘shimcha tafsilotlar uchun joy.',
+    rasm: '/yoriqnoma/izoh.png',
+    rasmIzoh: 'Izoh ro‘yxatda nom ostida bitta qatorda ko‘rinadi.',
+    tafsilot: [
+      {
+        sarlavha: 'Nima uchun kerak',
+        matn:
+          'Vazifa nomi qisqa bo‘lgani ma’qul — ro‘yxatda bir ko‘rishda o‘qilsin. Manzil, telefon raqami, havola yoki qadamlar ro‘yxati kabi tafsilotlar izohga yoziladi.',
+      },
+      {
+        sarlavha: 'Qanday yoziladi',
+        matn:
+          'Vazifa oynasida nom ostidagi “Izoh” maydoniga yozing. Enter vazifani saqlaydi, yangi qator kerak bo‘lsa Shift+Enter bosing.',
+      },
+      {
+        sarlavha: 'Havolalar',
+        matn:
+          'Izohga yozilgan havola bosiladigan bo‘ladi — ro‘yxatdan turib ochish mumkin.',
+      },
+    ],
+  },
+  {
     kalit: 'papkalar',
     ikonka: FolderOpen,
     sarlavha: 'Papkalar va bo‘limlar',
     qisqa: 'Ishlaringizni turi bo‘yicha ajratish.',
+    rasm: '/yoriqnoma/papkalar.png',
+    rasmIzoh:
+      'Yon paneldagi papkalar ro‘yxati.',
     tafsilot: [
       {
         sarlavha: 'Papka',
@@ -159,6 +270,9 @@ const BOLIMLAR: Bolim[] = [
     ikonka: FolderKanban,
     sarlavha: 'Loyihalar',
     qisqa: 'Oddiy papkadan farq qiladi: har bir bo‘lim — alohida loyiha.',
+    rasm: '/yoriqnoma/loyihalar.png',
+    rasmIzoh:
+      'Loyihalar holat bo‘yicha uch guruhga bo‘linadi.',
     tafsilot: [
       {
         sarlavha: 'Farqi nimada',
@@ -191,6 +305,9 @@ const BOLIMLAR: Bolim[] = [
     ikonka: BarChart3,
     sarlavha: 'Hisobot',
     qisqa: 'Istalgan davr uchun natijangiz.',
+    rasm: '/yoriqnoma/hisobot.png',
+    rasmIzoh:
+      'Davr tanlanadi, kartalar bosilsa ro‘yxat ochiladi.',
     tafsilot: [
       {
         sarlavha: 'Nima ko‘rsatadi',
@@ -207,6 +324,9 @@ const BOLIMLAR: Bolim[] = [
     ikonka: Send,
     sarlavha: 'Topshiriqlar',
     qisqa: 'Boshqa Samara foydalanuvchisiga ish topshirish va javobini kuzatish.',
+    rasm: '/yoriqnoma/topshiriqlar.png',
+    rasmIzoh:
+      'Kelgan topshiriq: kim yuborgani, muddati va tugmalar.',
     tafsilot: [
       {
         sarlavha: 'Qanday yuboriladi',
@@ -227,6 +347,32 @@ const BOLIMLAR: Bolim[] = [
       {
         sarlavha: 'Maxfiylik',
         matn: 'Qabul qiluvchi faqat o‘sha topshiriqni va sizning ismingiz bilan emailingizni ko‘radi. Boshqa vazifalaringiz, papkalaringiz va hisobotingiz unga ko‘rinmaydi. Javob berilmagan topshiriqni bekor qilishingiz mumkin.',
+      },
+    ],
+  },
+  {
+    kalit: 'offline',
+    ikonka: CloudOff,
+    sarlavha: 'Internetsiz ishlash',
+    qisqa: 'Aloqa yo‘q bo‘lsa ham ishlayverasiz — yozganingiz yo‘qolmaydi.',
+    rasm: '/yoriqnoma/offline.png',
+    rasmIzoh:
+      'Internet yo‘qolganda yuqorida qora chiziq va kutayotgan o‘zgarishlar soni chiqadi.',
+    tafsilot: [
+      {
+        sarlavha: 'Nima ishlaydi',
+        matn:
+          'Vazifa qo‘shish, tahrirlash, o‘chirish, bajarildi deb belgilash va foizni o‘zgartirish — hammasi internetsiz ishlaydi. Takrorlanuvchi vazifa ham keyingi sanaga o‘zi suriladi.',
+      },
+      {
+        sarlavha: 'Qachon saqlanadi',
+        matn:
+          'O‘zgarishlar qurilmada navbatga tushadi. Internet qaytishi bilan o‘zi, tartib bilan yuboriladi. Ilovani yopib qo‘ysangiz ham yo‘qolmaydi.',
+      },
+      {
+        sarlavha: 'Nima ishlamaydi',
+        matn:
+          'Birinchi marta kirish (Google talab qiladi), boshqa qurilmadagi o‘zgarishlarni ko‘rish va bildirishnomalar — bular internet bilan ishlaydi.',
       },
     ],
   },
@@ -288,16 +434,20 @@ const QOSHIMCHA = [
   },
 ]
 
-export function YoriqnomaKorinishi() {
+/**
+ * Yo'riqnomaning o'zi — sahifa o'ramisiz.
+ *
+ * Alohida ajratilgan, chunki u ikki joyda ko'rinadi: `/yoriqnoma`
+ * sahifasida va Sozlamalar ichidagi bo'limda. Ikki nusxa yozilsa,
+ * ular asta-sekin bir-biridan farq qila boshlardi.
+ */
+export function YoriqnomaMazmuni() {
   // Birinchi bo'lim ochiq turadi — odam nimani bosish kerakligini
   // darhol tushunsin
   const [ochiq, setOchiq] = useState<string | null>('jarayonda')
 
   return (
-    <Sahifa
-      sarlavha="Yo‘riqnoma"
-      tavsif="Har bir bo‘lim nima qilishi va qanday ishlatilishi"
-    >
+    <>
       <p className="mb-6 rounded-2xl bg-brand-soft px-5 py-4 text-sm leading-relaxed text-text-strong">
         Samara’da ish shu tartibda yuradi:{' '}
         <strong>vazifa yozasiz → sana va muhimligini belgilaysiz → uni
@@ -340,7 +490,8 @@ export function YoriqnomaKorinishi() {
               </button>
 
               {yoyilgan && (
-                <div className="border-t border-border-subtle px-4 py-3 pl-18">
+                <div className="border-t border-border-subtle px-4 py-3 sm:pl-18">
+                  {b.rasm && <Rasm manba={b.rasm} izoh={b.rasmIzoh} />}
                   <dl className="space-y-3">
                     {b.tafsilot.map((d) => (
                       <div key={d.sarlavha}>
@@ -382,6 +533,17 @@ export function YoriqnomaKorinishi() {
           </li>
         ))}
       </ul>
+    </>
+  )
+}
+
+export function YoriqnomaKorinishi() {
+  return (
+    <Sahifa
+      sarlavha="Yo‘riqnoma"
+      tavsif="Har bir bo‘lim nima qilishi va qanday ishlatilishi"
+    >
+      <YoriqnomaMazmuni />
     </Sahifa>
   )
 }

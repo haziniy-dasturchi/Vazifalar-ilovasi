@@ -394,4 +394,6 @@ export const ru: Record<MatnKaliti, string> = {
   'topshiriq.ochirildi': 'удалено поручений: {son}',
 
   'topshiriq.bosibTuring': 'Нажмите и удерживайте карточку, чтобы выбрать',
+
+  'sozlamalar.tab.yoriqnoma': 'Инструкция',
 }

@@ -1,7 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Bell, PanelsTopLeft, Settings2, Sun, UserRound } from 'lucide-react'
+import {
+  Bell,
+  BookOpen,
+  PanelsTopLeft,
+  Settings2,
+  Sun,
+  UserRound,
+} from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
 import { Yuklanmoqda } from '@/components/ui/holatlar'
 import { HisobBolimi } from '@/components/app/sozlamalar/hisob-bolimi'
@@ -9,6 +16,7 @@ import { UmumiyBolimi } from '@/components/app/sozlamalar/umumiy-bolimi'
 import { KorinishBolimi } from '@/components/app/sozlamalar/korinish-bolimi'
 import { YonPanelBolimi } from '@/components/app/sozlamalar/yon-panel-bolimi'
 import { BildirishnomaBolimi } from '@/components/app/sozlamalar/bildirishnoma-bolimi'
+import { YoriqnomaMazmuni } from '@/components/sahifalar/yoriqnoma'
 import { useProfil } from '@/lib/queries/profil'
 import { useT } from '@/components/app/til-provayder'
 import type { MatnKaliti } from '@/lib/i18n'
@@ -23,6 +31,10 @@ const BOLIMLAR = [
     nom: 'sozlamalar.tab.bildirishnoma',
     ikonka: Bell,
   },
+  // Yo'riqnoma shu yerda: "Ko'rish" sahifasi bo'limlarga to'lib
+  // ketgandi, yo'riqnoma esa kundalik ish emas — kamdan-kam
+  // ochiladi va sozlamalar yonida turgani tabiiyroq
+  { kalit: 'yoriqnoma', nom: 'sozlamalar.tab.yoriqnoma', ikonka: BookOpen },
 ] as const satisfies readonly {
   kalit: string
   nom: MatnKaliti
@@ -89,6 +101,7 @@ export function SozlamalarKorinishi() {
               {faol === 'korinish' && <KorinishBolimi />}
               {faol === 'yon-panel' && <YonPanelBolimi />}
               {faol === 'bildirishnoma' && <BildirishnomaBolimi />}
+              {faol === 'yoriqnoma' && <YoriqnomaMazmuni />}
             </>
           )}
         </div>

@@ -393,4 +393,6 @@ export const en: Record<MatnKaliti, string> = {
   'topshiriq.ochirildi': '{son} assignments deleted',
 
   'topshiriq.bosibTuring': 'Press and hold a card to select it',
+
+  'sozlamalar.tab.yoriqnoma': 'Guide',
 }
