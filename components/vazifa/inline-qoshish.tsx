@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { IzohMaydoni } from '@/components/ui/izoh-maydoni'
-import { OsuvchiMaydon } from '@/components/ui/osuvchi-maydon'
+import { KalitMaydon } from '@/components/vazifa/kalit-maydon'
 import { SanaTanlagich } from '@/components/ui/sana-tanlagich'
 import { Tanlagich } from '@/components/ui/tanlagich'
 import { MuhimlikTanlagich } from '@/components/vazifa/muhimlik-tanlagich'
@@ -12,6 +12,7 @@ import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { useToast } from '@/components/ui/toast'
 import { useT } from '@/components/app/til-provayder'
 import { bugunISO } from '@/lib/sana'
+import { useKalitSozlar } from '@/lib/kalit-sozlar/use-kalit-sozlar'
 import type { TaskPriority } from '@/types/vazifalar'
 
 /**
@@ -45,6 +46,16 @@ export function InlineQoshish({
   const [muhimlik, setMuhimlik] = useState<TaskPriority>(4)
   const [tanlanganPapka, setTanlanganPapka] = useState(papkaId)
 
+  const { tahlil, bekorQil, tozala: kalitlarniTozala } = useKalitSozlar(
+    sarlavha,
+    (o) => {
+      if (o.sana !== undefined) setSana(o.sana)
+      if (o.vaqt !== undefined) setVaqt(o.vaqt)
+      if (o.rrule !== undefined) takrorniOrnat(o.rrule)
+      if (o.muhimlik !== undefined) setMuhimlik(o.muhimlik ?? 4)
+    }
+  )
+
   const yaratish = useVazifaYaratish()
   const { data: papkalar } = useFaolPapkalar()
   const { korsat } = useToast()
@@ -54,6 +65,7 @@ export function InlineQoshish({
   const papkaniTanlasaBoladi = otaId === null
 
   function tozala() {
+    kalitlarniTozala()
     setSarlavha('')
     setIzoh('')
     setSana(null)
@@ -82,11 +94,15 @@ export function InlineQoshish({
   }
 
   async function qoshish() {
-    const tozalangan = sarlavha.trim()
+    // Kalit so'zlar olib tashlangan nom saqlanadi
+    const tozalangan = tahlil.nom
     if (!tozalangan) {
       yop()
       return
     }
+
+    // Takrorlanish boshlanish sanasisiz ma'nosiz
+    const saqlanadiganSana = takrorlanish ? (sana ?? bugunISO()) : sana
 
     const yuboriladigan = {
       folder_id: papkaniTanlasaBoladi ? tanlanganPapka : papkaId,
@@ -95,10 +111,12 @@ export function InlineQoshish({
       parent_id: otaId,
       title: tozalangan,
       description: izoh.trim() || null,
-      due_date: sana,
+      due_date: saqlanadiganSana,
       due_time: vaqt,
       rrule: takrorlanish,
-      rrule_start: takrorlanish ? (takrorBoshi ?? sana ?? bugunISO()) : null,
+      rrule_start: takrorlanish
+        ? (takrorBoshi ?? saqlanadiganSana ?? bugunISO())
+        : null,
       rrule_from_completion: takrorlanish ? bajarilgandan : false,
       priority: muhimlik,
     }
@@ -133,17 +151,19 @@ export function InlineQoshish({
       }}
       className="rounded-xl border border-border-subtle bg-surface p-2 shadow-card"
     >
-      <OsuvchiMaydon
+      <KalitMaydon
         qiymat={sarlavha}
+        belgilar={tahlil.belgilar}
         onChange={setSarlavha}
         onEnter={qoshish}
         onEscape={yop}
+        onBekor={bekorQil}
         placeholder={t('vazifa.nomiJoy')}
         ariaLabel={t('vazifa.nomiJoy')}
         maxLength={500}
         autoFocus
         engKattaBalandlik={160}
-        className="min-h-touch bg-transparent px-2 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint"
+        className="min-h-touch px-2 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint"
       />
 
       <div className="px-2">
@@ -158,7 +178,7 @@ export function InlineQoshish({
       {/* Sana, muhimlik va papka — oyna ochmasdan shu yerda */}
       <div className="mt-1 flex flex-wrap items-center gap-2 px-1">
         <SanaTanlagich
-          sana={sana}
+          sana={takrorlanish ? (sana ?? bugunISO()) : sana}
           vaqt={vaqt}
           takrorlanish={takrorlanish}
           bajarilgandan={bajarilgandan}
@@ -202,7 +222,7 @@ export function InlineQoshish({
         </button>
         <button
           type="submit"
-          disabled={!sarlavha.trim()}
+          disabled={!tahlil.nom}
           className="min-h-0 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-40"
         >
           {t('umumiy.qoshish')}

@@ -39,6 +39,14 @@ export function OsuvchiMaydon({
    * yangi qator kerak bo'lsa — Shift+Enter.
    */
   kopQatorli = false,
+  /**
+   * Kalit so'zlarni belgilash uchun: maydonning o'ziga tashqaridan
+   * murojaat, kursor o'rni va Backspace ni ushlab qolish.
+   */
+  maydonRef,
+  onBosish,
+  onOchirish,
+  onSurilish,
   /** Shundan oshsa maydon o'smaydi va ichida suriladi */
   engKattaBalandlik = 200,
   className = '',
@@ -52,10 +60,18 @@ export function OsuvchiMaydon({
   autoFocus?: boolean
   ariaLabel?: string
   kopQatorli?: boolean
+  maydonRef?: React.RefObject<HTMLTextAreaElement | null>
+  /** Maydon bosilganda kursor o'rni bilan chaqiriladi */
+  onBosish?: (kursor: number) => void
+  /** Backspace: `true` qaytsa, belgi o'chirilmaydi (hodisa to'xtaydi) */
+  onOchirish?: (kursor: number) => boolean
+  /** Matn ichida surilganda — ustidagi belgilash qatlami uchun */
+  onSurilish?: (yuqoridan: number) => void
   engKattaBalandlik?: number
   className?: string
 }) {
-  const ref = useRef<HTMLTextAreaElement>(null)
+  const ichkiRef = useRef<HTMLTextAreaElement>(null)
+  const ref = maydonRef ?? ichkiRef
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -71,7 +87,20 @@ export function OsuvchiMaydon({
       rows={1}
       value={qiymat}
       onChange={(e) => onChange(e.target.value)}
+      onClick={(e) => onBosish?.(e.currentTarget.selectionStart)}
+      onScroll={(e) => onSurilish?.(e.currentTarget.scrollTop)}
       onKeyDown={(e) => {
+        if (
+          e.key === 'Backspace' &&
+          onOchirish &&
+          e.currentTarget.selectionStart === e.currentTarget.selectionEnd &&
+          onOchirish(e.currentTarget.selectionStart)
+        ) {
+          // Belgini bekor qilish o'chirish o'rniga: birinchi Backspace
+          // belgilashni olib tashlaydi, matn joyida qoladi
+          e.preventDefault()
+          return
+        }
         if (e.key === 'Enter') {
           // Shift+Enter — ko'p qatorli maydonda yangi qator ochadi,
           // shuning uchun brauzerning o'z ishiga tegmaymiz

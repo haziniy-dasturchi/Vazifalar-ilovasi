@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { Oyna } from '@/components/ui/oyna'
 import { IzohMaydoni } from '@/components/ui/izoh-maydoni'
-import { OsuvchiMaydon } from '@/components/ui/osuvchi-maydon'
+import { KalitMaydon } from '@/components/vazifa/kalit-maydon'
 import { SanaTanlagich } from '@/components/ui/sana-tanlagich'
 import { Tanlagich } from '@/components/ui/tanlagich'
 import { Tasdiq } from '@/components/ui/tasdiq'
@@ -21,6 +21,7 @@ import {
 } from '@/lib/queries/vazifalar'
 import { bugunISO, vaqtMatni } from '@/lib/sana'
 import { eskidanRrule } from '@/lib/takrorlanish'
+import { useKalitSozlar } from '@/lib/kalit-sozlar/use-kalit-sozlar'
 import type { Task, TaskPriority } from '@/types/vazifalar'
 
 /**
@@ -87,8 +88,27 @@ export function VazifaOynasi({
   const [foiz, setFoiz] = useState<number>(vazifa?.progress ?? 0)
   const [ochirishOchiq, setOchirishOchiq] = useState(false)
 
+  /*
+    Kalit so'zlar: nomga yozilgan "ertaga", "har 15", "p1" kabi
+    so'zlar tanilib, tegishli maydonni darhol to'ldiradi va
+    saqlashda nomdan olib tashlanadi.
+  */
+  const { tahlil, bekorQil } = useKalitSozlar(
+    sarlavha,
+    (o) => {
+      if (o.sana !== undefined) setSana(o.sana)
+      if (o.vaqt !== undefined) setVaqt(o.vaqt)
+      if (o.rrule !== undefined) takrorniOrnat(o.rrule)
+      if (o.muhimlik !== undefined) setMuhimlik(o.muhimlik ?? 4)
+    },
+    vazifa?.title
+  )
+
+  /** Kalit so'zlar olib tashlangan nom — aynan shu saqlanadi */
+  const tozaNom = tahlil.nom
+
   const papkaQiymati = tanlanganPapka || kiruvchi?.id || ''
-  const toliq = sarlavha.trim().length > 0 && papkaQiymati.length > 0
+  const toliq = tozaNom.length > 0 && papkaQiymati.length > 0
   const bajarilmoqda = yaratish.isPending || yangilash.isPending
 
   // "Loyihalar" papkasida bo'limlar aslida loyihalar — nomlanishi boshqa
@@ -136,11 +156,20 @@ export function VazifaOynasi({
     }
   }
 
+  /**
+   * Takrorlanish boshlanish sanasisiz ma'nosiz: kalit so'z orqali
+   * ("har 15") qo'yilganda sana tanlanmagan bo'lishi mumkin,
+   * shunda bugundan boshlanadi.
+   */
+  const saqlanadiganSana = takrorlanish ? (sana ?? bugunISO()) : sana
+
   /** Saqlashga yuboriladigan takrorlanish maydonlari */
   function takrorMaydonlari() {
     return {
       rrule: takrorlanish,
-      rrule_start: takrorlanish ? (takrorBoshi ?? sana ?? bugunISO()) : null,
+      rrule_start: takrorlanish
+        ? (takrorBoshi ?? saqlanadiganSana ?? bugunISO())
+        : null,
       rrule_from_completion: takrorlanish ? bajarilgandan : false,
     }
   }
@@ -155,11 +184,11 @@ export function VazifaOynasi({
     if (tahrir) {
       yangilash.mutate({
         id: vazifa!.id,
-        title: sarlavha.trim(),
+        title: tozaNom,
         // Bo'sh izoh bazada NULL bo'lib turadi: "bor, lekin bo'sh"
         // degan uchinchi holat chalkashlikdan boshqa narsa bermaydi
         description: izoh.trim() || null,
-        due_date: sana,
+        due_date: saqlanadiganSana,
         due_time: vaqt,
         ...takrorMaydonlari(),
         priority: muhimlik,
@@ -174,9 +203,9 @@ export function VazifaOynasi({
       yaratish.mutate({
         folder_id: papkaQiymati,
         section_id: tanlanganBolim || null,
-        title: sarlavha,
+        title: tozaNom,
         description: izoh.trim() || null,
-        due_date: sana,
+        due_date: saqlanadiganSana,
         due_time: vaqt,
         ...takrorMaydonlari(),
         priority: muhimlik,
@@ -211,15 +240,17 @@ export function VazifaOynasi({
         >
           {/* Uzun nom to'liq ko'rinishi uchun o'suvchi maydon —
               bir qatorli <input> da matnning faqat boshi ko'rinardi */}
-          <OsuvchiMaydon
+          <KalitMaydon
             qiymat={sarlavha}
+            belgilar={tahlil.belgilar}
             onChange={setSarlavha}
             onEnter={saqla}
+            onBekor={bekorQil}
             placeholder={t('vazifa.nomiJoy')}
             maxLength={500}
             autoFocus
             ariaLabel={t('vazifa.nomiJoy')}
-            className="min-h-touch rounded-xl border border-border-control bg-surface px-4 py-3 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft"
+            className="min-h-touch rounded-xl border border-border-control px-4 py-3 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft"
           />
 
           {/* Izoh — nom ostida, kichik va xira (Todoist naqshi) */}
@@ -232,7 +263,7 @@ export function VazifaOynasi({
               {t('vazifa.qachon')}
             </legend>
             <SanaTanlagich
-              sana={sana}
+              sana={saqlanadiganSana}
               vaqt={vaqt}
               takrorlanish={takrorlanish}
               bajarilgandan={bajarilgandan}
