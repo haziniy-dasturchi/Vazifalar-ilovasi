@@ -364,4 +364,24 @@ export const en: Record<MatnKaliti, string> = {
     'Nothing open is left here. Completed tasks are hidden so they do not clutter the list — you can see them on the Report page.',
 
   'topshiriq.yangiSoni': '{son} new assignments',
+
+  // ---------- Assignments: security and progress ----------
+  'topshiriq.bloklash': 'Block',
+  'topshiriq.bunOdam': 'This person',
+  'topshiriq.blokTasdiq':
+    '{kim} will no longer be able to send you assignments. You can allow them again at any time.',
+  'topshiriq.bloklandi': 'Blocked',
+  'topshiriq.blokOlindi': 'Block removed',
+  'topshiriq.bloklangan': 'Blocked',
+  'topshiriq.ruxsatli': 'Allowed',
+  'topshiriq.ruxsatBerish': 'Allow',
+  'topshiriq.ruxsatBerildi': 'Allowed',
+  'topshiriq.blokniOlish': 'Remove',
+  'topshiriq.kimYozaOladi': 'Who can send me assignments',
+  'topshiriq.kimYozaOladiIzoh':
+    'After three rejections a sender is blocked automatically. If it is your manager, allow them here.',
+  'topshiriq.jarayonda': 'In progress',
+  'topshiriq.boshlanmagan': 'Not started yet',
+  'topshiriq.tugallangan': 'Completed',
+  'topshiriq.vazifaOchirilgan': 'The task was deleted',
 }

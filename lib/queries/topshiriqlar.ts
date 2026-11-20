@@ -58,6 +58,48 @@ function rpcChaqir(
   }).rpc(nom, argumentlar)
 }
 
+/** Natijani ham qaytaradigan RPC chaqiruvi */
+function rpcOqi(
+  supabase: ReturnType<typeof useSupabase>,
+  nom: string,
+  argumentlar: Record<string, unknown>
+) {
+  return (
+    supabase as unknown as {
+      rpc: (
+        n: string,
+        a: Record<string, unknown>
+      ) => PromiseLike<{ data: unknown; error: { message: string } | null }>
+    }
+  ).rpc(nom, argumentlar)
+}
+
+/**
+ * Generatsiya qilingan tiplarda hali yo'q jadvallar uchun.
+ * `topshiriqlar` dan farqli: bu yerda `upsert` ham kerak.
+ */
+type XomUmumiy = {
+  select: (q: string) => {
+    order: (
+      ustun: string,
+      sozlama: { ascending: boolean }
+    ) => PromiseLike<{ data: unknown; error: { message: string } | null }>
+  }
+  upsert: (
+    qator: Record<string, unknown>,
+    sozlama: { onConflict: string }
+  ) => PromiseLike<{ error: { message: string } | null }>
+  delete: () => {
+    eq: (ustun: string, qiymat: string) => PromiseLike<{
+      error: { message: string } | null
+    }>
+  }
+}
+
+function xomJadval(supabase: ReturnType<typeof useSupabase>, nom: string) {
+  return (supabase as unknown as { from: (n: string) => XomUmumiy }).from(nom)
+}
+
 function jadval(supabase: ReturnType<typeof useSupabase>) {
   return (supabase as unknown as {
     from: (nom: string) => XomJadval
@@ -200,4 +242,119 @@ export function useTavsiyaEmaillar(): string[] {
     }
   }
   return natija
+}
+
+// =============================================================
+// Karta tafsilotlari: qarshi tomon ismi va ish jarayoni
+// =============================================================
+
+export type TopshiriqTafsiloti = {
+  topshiriq_id: string
+  /** Qarshi tomon ismi. Maxfiylik qoidasi bazada — izohga qarang. */
+  qarshi_ism: string | null
+  /** Qarshi tomon emaili — bloklash shu bo'yicha ishlaydi */
+  qarshi_email: string | null
+  /** Yuboruvchi uchun: vazifa holati (planned | in_progress | done) */
+  vazifa_holati: string | null
+  foiz: number | null
+  ochirilganmi: boolean
+}
+
+/**
+ * `topshiriq_tafsilotlari()` RPC natijasi, id bo'yicha xarita.
+ *
+ * Nega alohida so'rov: ism ham, jarayon ham BOSHQA odamning
+ * ma'lumoti. RLS ularni to'g'ridan-to'g'ri bermaydi (va to'g'ri
+ * qiladi), shuning uchun faqat kerakli uch-to'rt maydonni
+ * qaytaradigan tor funksiya ishlatiladi.
+ *
+ * Migratsiya hali qo'llanmagan bo'lsa xato bo'ladi — bunda bo'sh
+ * xarita qaytadi va kartalar avvalgidek, ismsiz ko'rinadi. Ya'ni
+ * interfeys bazadan oldin chiqsa ham buzilmaydi.
+ */
+export function useTopshiriqTafsilotlari() {
+  const supabase = useSupabase()
+
+  return useQuery({
+    queryKey: kalit.topshiriqTafsilotlari(),
+    queryFn: async (): Promise<Map<string, TopshiriqTafsiloti>> => {
+      const { data, error } = await rpcOqi(
+        supabase,
+        'topshiriq_tafsilotlari',
+        {}
+      )
+      if (error) return new Map()
+      const qatorlar = (data ?? []) as TopshiriqTafsiloti[]
+      return new Map(qatorlar.map((q) => [q.topshiriq_id, q]))
+    },
+  })
+}
+
+// =============================================================
+// Kim menga topshiriq yoza oladi: ruxsat va bloklar
+// =============================================================
+
+export type RuxsatHolati = 'ruxsat' | 'blok'
+
+export type TopshiriqRuxsati = {
+  id: string
+  yuboruvchi_email: string
+  holat: RuxsatHolati
+  updated_at: string
+}
+
+export function useTopshiriqRuxsatlari() {
+  const supabase = useSupabase()
+
+  return useQuery({
+    queryKey: kalit.topshiriqRuxsatlari(),
+    queryFn: async (): Promise<TopshiriqRuxsati[]> => {
+      const { data, error } = await xomJadval(supabase, 'topshiriq_ruxsatlari')
+        .select('id, yuboruvchi_email, holat, updated_at')
+        .order('updated_at', { ascending: false })
+      // Migratsiya hali qo'llanmagan bo'lishi mumkin
+      if (error) return []
+      return (data ?? []) as TopshiriqRuxsati[]
+    },
+  })
+}
+
+/**
+ * Ruxsat berish yoki bloklash.
+ *
+ * `holat = null` — qarorni butunlay olib tashlash, ya'ni odatiy
+ * chegaralarga qaytish (3 ta rad / 5 ta javobsiz).
+ */
+export function useRuxsatOzgartirish() {
+  const supabase = useSupabase()
+  const { id: menId } = useFoydalanuvchi()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      email,
+      holat,
+    }: {
+      email: string
+      holat: RuxsatHolati | null
+    }) => {
+      const toza = email.trim().toLowerCase()
+      const jadval = xomJadval(supabase, 'topshiriq_ruxsatlari')
+
+      if (holat === null) {
+        const { error } = await jadval.delete().eq('yuboruvchi_email', toza)
+        if (error) throw new Error(error.message)
+        return
+      }
+
+      // Bitta odam uchun bitta qator: egasi+email juftligi noyob
+      const { error } = await jadval.upsert(
+        { egasi_id: menId, yuboruvchi_email: toza, holat },
+        { onConflict: 'egasi_id,yuboruvchi_email' }
+      )
+      if (error) throw new Error(error.message)
+    },
+    onSettled: () =>
+      qc.invalidateQueries({ queryKey: kalit.topshiriqlarPrefiks }),
+  })
 }

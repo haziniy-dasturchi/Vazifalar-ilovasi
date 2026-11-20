@@ -21,6 +21,10 @@ export const kalit = {
   topshiriqlarPrefiks: ['topshiriqlar'] as const,
   kelganTopshiriqlar: () => ['topshiriqlar', 'kelgan'] as const,
   yuborilganTopshiriqlar: () => ['topshiriqlar', 'yuborilgan'] as const,
+  /** Karta uchun: qarshi tomon ismi va ish jarayoni */
+  topshiriqTafsilotlari: () => ['topshiriqlar', 'tafsilotlar'] as const,
+  /** Kim menga yoza oladi: ruxsat va bloklar */
+  topshiriqRuxsatlari: () => ['topshiriqlar', 'ruxsatlar'] as const,
   hisobot: (boshlanish: string, tugash: string) =>
     ['vazifalar', 'hisobot', boshlanish, tugash] as const,
   foizJurnali: (boshlanish: string, tugash: string) =>

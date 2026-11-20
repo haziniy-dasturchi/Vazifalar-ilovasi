@@ -29,6 +29,10 @@ returns table (
   topshiriq_id  uuid,
   -- Qarshi tomonning ismi (yuqoridagi qoida bo'yicha) yoki null
   qarshi_ism    text,
+  -- Qarshi tomonning emaili. Menga kelgan topshiriqda yuboruvchi
+  -- emaili kerak: busiz uni bloklab bo'lmaydi. Men yuborganda esa
+  -- bu men o'zim yozgan manzil, ya'ni yangi ma'lumot emas.
+  qarshi_email  text,
   -- Vazifa holati: planned | in_progress | done | null
   vazifa_holati text,
   foiz          smallint,
@@ -59,6 +63,10 @@ as $$
         then nullif(btrim(coalesce(p_qab.full_name, u_qab.email, '')), '')
       else null
     end as qarshi_ism,
+    case
+      when k.qabul_qiluvchi_email = men.email then lower(u_yub.email)
+      else k.qabul_qiluvchi_email
+    end as qarshi_email,
     case when k.yuboruvchi_id = men.id then v.status else null end,
     case when k.yuboruvchi_id = men.id then v.progress else null end,
     case

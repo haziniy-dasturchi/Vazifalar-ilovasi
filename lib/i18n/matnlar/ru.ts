@@ -365,4 +365,24 @@ export const ru: Record<MatnKaliti, string> = {
     'Здесь не осталось открытых задач. Выполненные скрыты, чтобы не загромождать список — их видно на странице «Отчёт».',
 
   'topshiriq.yangiSoni': 'новых поручений: {son}',
+
+  // ---------- Поручения: безопасность и прогресс ----------
+  'topshiriq.bloklash': 'Заблокировать',
+  'topshiriq.bunOdam': 'Этот человек',
+  'topshiriq.blokTasdiq':
+    '{kim} больше не сможет отправлять вам поручения. Разрешить можно в любой момент.',
+  'topshiriq.bloklandi': 'Заблокирован',
+  'topshiriq.blokOlindi': 'Блокировка снята',
+  'topshiriq.bloklangan': 'Заблокирован',
+  'topshiriq.ruxsatli': 'Разрешён',
+  'topshiriq.ruxsatBerish': 'Разрешить',
+  'topshiriq.ruxsatBerildi': 'Разрешено',
+  'topshiriq.blokniOlish': 'Убрать',
+  'topshiriq.kimYozaOladi': 'Кто может отправлять мне поручения',
+  'topshiriq.kimYozaOladiIzoh':
+    'После трёх отказов отправитель блокируется автоматически. Если это ваш руководитель — разрешите здесь.',
+  'topshiriq.jarayonda': 'В работе',
+  'topshiriq.boshlanmagan': 'Ещё не начато',
+  'topshiriq.tugallangan': 'Завершено',
+  'topshiriq.vazifaOchirilgan': 'Задача удалена',
 }

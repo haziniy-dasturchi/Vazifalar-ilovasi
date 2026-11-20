@@ -377,6 +377,26 @@ export const uz = {
     'Bu yerda ochiq ish qolmadi. Bajarilgan ishlar ro‘yxatni to‘sib qo‘ymasligi uchun yashiriladi — ularni Hisobot sahifasida ko‘rasiz.',
 
   'topshiriq.yangiSoni': '{son} ta yangi topshiriq',
+
+  // ---------- Topshiriq: xavfsizlik va jarayon ----------
+  'topshiriq.bloklash': 'Bloklash',
+  'topshiriq.bunOdam': 'Bu odam',
+  'topshiriq.blokTasdiq':
+    '{kim} endi sizga topshiriq yubora olmaydi. Istalgan vaqtda ruxsat berib qo‘yishingiz mumkin.',
+  'topshiriq.bloklandi': 'Bloklandi',
+  'topshiriq.blokOlindi': 'Blok olib tashlandi',
+  'topshiriq.bloklangan': 'Bloklangan',
+  'topshiriq.ruxsatli': 'Ruxsat berilgan',
+  'topshiriq.ruxsatBerish': 'Ruxsat berish',
+  'topshiriq.ruxsatBerildi': 'Ruxsat berildi',
+  'topshiriq.blokniOlish': 'Olib tashlash',
+  'topshiriq.kimYozaOladi': 'Kim menga topshiriq yubora oladi',
+  'topshiriq.kimYozaOladiIzoh':
+    'Uch marta rad etsangiz, o‘sha odam avtomatik bloklanadi. Boshlig‘ingiz bo‘lsa — shu yerdan ruxsat bering.',
+  'topshiriq.jarayonda': 'Jarayonda',
+  'topshiriq.boshlanmagan': 'Hali boshlanmagan',
+  'topshiriq.tugallangan': 'Tugallangan',
+  'topshiriq.vazifaOchirilgan': 'Vazifa o‘chirilgan',
 } as const
 
 export type MatnKaliti = keyof typeof uz
