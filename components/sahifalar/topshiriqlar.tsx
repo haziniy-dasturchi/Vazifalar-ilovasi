@@ -105,7 +105,16 @@ export function TopshiriqlarKorinishi() {
   // Xarita AYNAN shu yerda yasaladi: kesh JSON bo'lgani uchun
   // `Map` ni so'rov natijasida saqlab bo'lmaydi (izohga qarang)
   const tafsilotlar = useMemo(
-    () => new Map((tafsilotRoyxati ?? []).map((x) => [x.topshiriq_id, x])),
+    () =>
+      new Map(
+        // `Array.isArray` ataylab: saqlangan keshda eski, noto'g'ri
+        // shakldagi qiymat yotgan bo'lishi mumkin. Unda ham sahifa
+        // qulamasligi kerak -- bo'sh ro'yxat bilan ishlayveradi.
+        (Array.isArray(tafsilotRoyxati) ? tafsilotRoyxati : []).map((x) => [
+          x.topshiriq_id,
+          x,
+        ])
+      ),
     [tafsilotRoyxati]
   )
 

@@ -21,8 +21,15 @@ export const kalit = {
   topshiriqlarPrefiks: ['topshiriqlar'] as const,
   kelganTopshiriqlar: () => ['topshiriqlar', 'kelgan'] as const,
   yuborilganTopshiriqlar: () => ['topshiriqlar', 'yuborilgan'] as const,
-  /** Karta uchun: qarshi tomon ismi va ish jarayoni */
-  topshiriqTafsilotlari: () => ['topshiriqlar', 'tafsilotlar'] as const,
+  /**
+   * Karta uchun: qarshi tomon ismi va ish jarayoni.
+   *
+   * `v2` ataylab: avvalgi versiya keshga `Map` yozardi va u
+   * JSON'da bo'sh `{}` bo'lib saqlanib qolgan. Kalit o'zgarsa,
+   * eski (buzuq) yozuv umuman o'qilmaydi va qurilmalar o'zidan
+   * o'ziga tuzaladi -- foydalanuvchi hech narsa qilmaydi.
+   */
+  topshiriqTafsilotlari: () => ['topshiriqlar', 'tafsilotlar', 'v2'] as const,
   /** Kim menga yoza oladi: ruxsat va bloklar */
   topshiriqRuxsatlari: () => ['topshiriqlar', 'ruxsatlar'] as const,
   hisobot: (boshlanish: string, tugash: string) =>
