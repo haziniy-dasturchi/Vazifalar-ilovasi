@@ -95,7 +95,7 @@ internetsiz bajarilgan takrorlanuvchi vazifa surilmasdi. Eski
 standartdan chetga chiqish emas: `BYMONTHDAY=28,29,30,31` +
 `BYSETPOS=-1` aynan shuni beradi.
 
-**Offline yozish.** Klient tomonida UUID (`lib/id.ts`) — shuning
+**Offline yozish — ikkinchi bosqich.** Klient tomonida UUID (`lib/id.ts`) — shuning
 uchun offline qo'shilgan vazifani darhol tahrirlash va o'chirish
 mumkin. O'chirish yumshoq (`deleted_at`), konflikt last-write-wins
 (`updated_at` bo'yicha, `.lte('updated_at', mijozVaqti)` shartida).
