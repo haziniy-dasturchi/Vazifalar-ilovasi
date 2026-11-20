@@ -391,4 +391,6 @@ export const en: Record<MatnKaliti, string> = {
   'topshiriq.ochirishTasdiq':
     'Delete {son} assignments? They are removed from your list only — the other side keeps them.',
   'topshiriq.ochirildi': '{son} assignments deleted',
+
+  'topshiriq.bosibTuring': 'Press and hold a card to select it',
 }

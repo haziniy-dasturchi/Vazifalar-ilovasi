@@ -392,4 +392,6 @@ export const ru: Record<MatnKaliti, string> = {
   'topshiriq.ochirishTasdiq':
     'Удалить поручений: {son}? Они исчезнут только из вашего списка — у второй стороны останутся.',
   'topshiriq.ochirildi': 'удалено поручений: {son}',
+
+  'topshiriq.bosibTuring': 'Нажмите и удерживайте карточку, чтобы выбрать',
 }

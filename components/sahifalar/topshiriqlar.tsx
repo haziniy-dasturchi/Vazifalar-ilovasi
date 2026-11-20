@@ -18,6 +18,7 @@ import { Tasdiq } from '@/components/ui/tasdiq'
 import { useToast } from '@/components/ui/toast'
 import { MuhimlikTanlagich } from '@/components/vazifa/muhimlik-tanlagich'
 import { useT } from '@/components/app/til-provayder'
+import { useUzoqBosish } from '@/lib/uzoq-bosish'
 import { Ban, ShieldCheck } from 'lucide-react'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import {
@@ -219,6 +220,17 @@ export function TopshiriqlarKorinishi() {
         />
       )}
 
+      {/*
+        Telefonda katakcha yo'q, shuning uchun tanlashni qanday
+        boshlashni aytib qo'yamiz. Kompyuterda katakcha ko'rinib
+        turibdi — u yerda bu maslahat ortiqcha (`sm:hidden`).
+      */}
+      {tanlangan.size === 0 && (
+        <p className="mb-2 px-1 text-xs text-text-faint sm:hidden">
+          {t('topshiriq.bosibTuring')}
+        </p>
+      )}
+
       {tab === 'kelgan' ? (
         kelgan.isPending ? (
           <Yuklanmoqda qator={2} />
@@ -238,6 +250,7 @@ export function TopshiriqlarKorinishi() {
                 topshiriq={x}
                 tafsilot={tafsilotlar?.get(x.id)}
                 tanlanganmi={tanlangan.has(x.id)}
+                tanlashRejimi={tanlangan.size > 0}
                 tanlovniAlmashtir={() => tanlovniAlmashtir(x.id)}
               />
             ))}
@@ -261,6 +274,7 @@ export function TopshiriqlarKorinishi() {
               topshiriq={x}
               tafsilot={tafsilotlar?.get(x.id)}
               tanlanganmi={tanlangan.has(x.id)}
+              tanlashRejimi={tanlangan.size > 0}
               tanlovniAlmashtir={() => tanlovniAlmashtir(x.id)}
             />
           ))}
@@ -303,14 +317,17 @@ function KelganKarta({
   topshiriq,
   tafsilot,
   tanlanganmi,
+  tanlashRejimi,
   tanlovniAlmashtir,
 }: {
   topshiriq: Topshiriq
   tafsilot?: TopshiriqTafsiloti
   tanlanganmi: boolean
+  tanlashRejimi: boolean
   tanlovniAlmashtir: () => void
 }) {
   const t = useT()
+  const uzoqBosish = useUzoqBosish(tanlovniAlmashtir)
   const { korsat } = useToast()
   const qabul = useTopshiriqQabul()
   const rad = useTopshiriqRad()
@@ -342,7 +359,13 @@ function KelganKarta({
   }
 
   return (
-    <li className="rounded-2xl bg-surface p-4 shadow-card">
+    <li
+      {...uzoqBosish}
+      onClick={tanlashRejimi ? tanlovniAlmashtir : undefined}
+      className={`rounded-2xl bg-surface p-4 shadow-card transition select-none sm:select-text ${
+        tanlanganmi ? 'ring-2 ring-brand-onsoft' : ''
+      } ${tanlashRejimi ? 'cursor-pointer' : ''}`}
+    >
       <div className="flex items-start justify-between gap-3">
         <TanlashKatagi
           tanlanganmi={tanlanganmi}
@@ -384,7 +407,7 @@ function KelganKarta({
         </p>
       )}
 
-      {javobBerilmagan && (
+      {javobBerilmagan && !tanlashRejimi && (
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
@@ -413,7 +436,7 @@ function KelganKarta({
       */}
       {/* Email bo'lmasa bloklab ham bo'lmaydi — tugma ko'rsatilmaydi
           (bu holat faqat migratsiya qo'llanmaganda yuz beradi) */}
-      {tafsilot?.qarshi_email && (
+      {tafsilot?.qarshi_email && !tanlashRejimi && (
         <button
           type="button"
           onClick={() => setBlokOchiq(true)}
@@ -490,20 +513,29 @@ function YuborilganKarta({
   topshiriq,
   tafsilot,
   tanlanganmi,
+  tanlashRejimi,
   tanlovniAlmashtir,
 }: {
   topshiriq: Topshiriq
   tafsilot?: TopshiriqTafsiloti
   tanlanganmi: boolean
+  tanlashRejimi: boolean
   tanlovniAlmashtir: () => void
 }) {
   const t = useT()
+  const uzoqBosish = useUzoqBosish(tanlovniAlmashtir)
   const { korsat } = useToast()
   const bekor = useTopshiriqBekor()
   const [bekorOchiq, setBekorOchiq] = useState(false)
 
   return (
-    <li className="rounded-2xl bg-surface p-4 shadow-card">
+    <li
+      {...uzoqBosish}
+      onClick={tanlashRejimi ? tanlovniAlmashtir : undefined}
+      className={`rounded-2xl bg-surface p-4 shadow-card transition select-none sm:select-text ${
+        tanlanganmi ? 'ring-2 ring-brand-onsoft' : ''
+      } ${tanlashRejimi ? 'cursor-pointer' : ''}`}
+    >
       <div className="flex items-start justify-between gap-3">
         <TanlashKatagi
           tanlanganmi={tanlanganmi}
@@ -558,8 +590,10 @@ function YuborilganKarta({
       */}
       <IshJarayoni tafsilot={tafsilot} />
 
-      {/* Javob kelmaguncha bekor qilish mumkin */}
-      {topshiriq.holat === 'kutilmoqda' && (
+      {/* Javob kelmaguncha bekor qilish mumkin.
+          Tanlash rejimida yashiriladi: karta butunlay tanlash
+          maydoniga aylanadi va tasodifiy bosish bo'lmaydi. */}
+      {topshiriq.holat === 'kutilmoqda' && !tanlashRejimi && (
         <button
           type="button"
           onClick={() => setBekorOchiq(true)}
@@ -932,7 +966,17 @@ function TanlashKatagi({
 }) {
   const t = useT()
   return (
-    <label className="flex shrink-0 cursor-pointer items-center justify-center p-1">
+    /*
+      Katakcha faqat KOMPYUTERDA (`hidden sm:flex`).
+
+      Telefonda u ro'yxatni xunuk qiladi va joy egallaydi,
+      shuning uchun u yerda tanlash boshqacha boshlanadi:
+      kartani bosib turish bilan (Telegram naqshi).
+    */
+    <label
+      onClick={(e) => e.stopPropagation()}
+      className="hidden shrink-0 cursor-pointer items-center justify-center p-1 sm:flex"
+    >
       <input
         type="checkbox"
         checked={tanlanganmi}

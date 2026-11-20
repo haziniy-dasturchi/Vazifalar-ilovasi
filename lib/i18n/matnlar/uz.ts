@@ -404,6 +404,8 @@ export const uz = {
   'topshiriq.ochirishTasdiq':
     'Rostdan ham {son} ta topshiriqni o‘chirmoqchimisiz? Ular faqat sizning ro‘yxatingizdan olib tashlanadi — ikkinchi tomonda qoladi.',
   'topshiriq.ochirildi': '{son} ta topshiriq o‘chirildi',
+
+  'topshiriq.bosibTuring': 'Tanlash uchun kartani bosib turing',
 } as const
 
 export type MatnKaliti = keyof typeof uz
