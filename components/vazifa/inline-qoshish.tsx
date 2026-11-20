@@ -11,7 +11,8 @@ import { useVazifaYaratish } from '@/lib/queries/vazifalar'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { useToast } from '@/components/ui/toast'
 import { useT } from '@/components/app/til-provayder'
-import type { Recurrence, TaskPriority } from '@/types/vazifalar'
+import { bugunISO } from '@/lib/sana'
+import type { TaskPriority } from '@/types/vazifalar'
 
 /**
  * Bo'lim oxiridagi "+ Vazifa qo'shish".
@@ -38,7 +39,9 @@ export function InlineQoshish({
   const [izoh, setIzoh] = useState('')
   const [sana, setSana] = useState<string | null>(null)
   const [vaqt, setVaqt] = useState<string | null>(null)
-  const [takrorlanish, setTakrorlanish] = useState<Recurrence | null>(null)
+  const [takrorlanish, setTakrorlanish] = useState<string | null>(null)
+  const [takrorBoshi, setTakrorBoshi] = useState<string | null>(null)
+  const [bajarilgandan, setBajarilgandan] = useState(false)
   const [muhimlik, setMuhimlik] = useState<TaskPriority>(4)
   const [tanlanganPapka, setTanlanganPapka] = useState(papkaId)
 
@@ -56,6 +59,8 @@ export function InlineQoshish({
     setSana(null)
     setVaqt(null)
     setTakrorlanish(null)
+    setTakrorBoshi(null)
+    setBajarilgandan(false)
     setMuhimlik(4)
     setTanlanganPapka(papkaId)
   }
@@ -63,6 +68,17 @@ export function InlineQoshish({
   function yop() {
     tozala()
     setOchiq(false)
+  }
+
+  /** Qoida o'zgarsa sanash shu kundan boshlanadi (vazifa oynasidagidek) */
+  function takrorniOrnat(qoida: string | null) {
+    setTakrorlanish(qoida)
+    if (qoida) {
+      setTakrorBoshi(sana ?? bugunISO())
+    } else {
+      setTakrorBoshi(null)
+      setBajarilgandan(false)
+    }
   }
 
   async function qoshish() {
@@ -81,7 +97,9 @@ export function InlineQoshish({
       description: izoh.trim() || null,
       due_date: sana,
       due_time: vaqt,
-      recurrence: takrorlanish,
+      rrule: takrorlanish,
+      rrule_start: takrorlanish ? (takrorBoshi ?? sana ?? bugunISO()) : null,
+      rrule_from_completion: takrorlanish ? bajarilgandan : false,
       priority: muhimlik,
     }
 
@@ -143,15 +161,17 @@ export function InlineQoshish({
           sana={sana}
           vaqt={vaqt}
           takrorlanish={takrorlanish}
+          bajarilgandan={bajarilgandan}
           onSanaChange={(iso) => {
             setSana(iso)
             if (!iso) {
               setVaqt(null)
-              setTakrorlanish(null)
+              takrorniOrnat(null)
             }
           }}
           onVaqtChange={setVaqt}
-          onTakrorlanishChange={setTakrorlanish}
+          onTakrorlanishChange={takrorniOrnat}
+          onBajarilgandanChange={setBajarilgandan}
         />
 
         <MuhimlikTanlagich qiymat={muhimlik} onChange={setMuhimlik} ixcham />

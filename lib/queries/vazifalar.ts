@@ -11,6 +11,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { bugunISO, isoGa } from '@/lib/sana'
+import { rruleEskiga, vazifaningKeyingiSanasi } from '@/lib/takrorlanish'
 import { kalit } from './keys'
 import {
   MUTATSIYA,
@@ -286,7 +287,12 @@ export function useVazifaYaratish() {
         due_date: yangi.due_date ?? null,
         due_time: yangi.due_time ?? null,
         deadline: null,
-        recurrence: yangi.recurrence ?? null,
+        rrule: yangi.rrule ?? null,
+        rrule_start: yangi.rrule_start ?? null,
+        rrule_from_completion: yangi.rrule_from_completion ?? false,
+        // Eski ustun serverda `rrule` dan hisoblanadi; keshdagi
+        // qator ham shunga mos bo'lsin
+        recurrence: rruleEskiga(yangi.rrule ?? null) as Task['recurrence'],
         sort_order: 9999,
         started_at: holat === 'in_progress' ? hozir : null,
         completed_at: null,
@@ -392,10 +398,13 @@ export function useVazifaHolati() {
       id,
       harakat,
       subtasklarBilan,
+      keyingiSana = null,
     }: {
       id: string
       harakat: HolatHarakati
       subtasklarBilan?: boolean
+      /** Takrorlanuvchi vazifaning keyingi sanasi (mijozda hisoblangan) */
+      keyingiSana?: string | null
     }) => {
       await qc.cancelQueries({ queryKey: kalit.vazifalar })
       const nusxa = keshNusxasi(qc)
@@ -412,9 +421,28 @@ export function useVazifaHolati() {
       // "suv" darhol to'g'ri ko'rinadi va serverdan kelgach sakramaydi
       if (harakat === 'bajarish') ozgarish.progress = 100
       if (harakat === 'qaytarish') ozgarish.progress = 0
+
+      /*
+        Takrorlanuvchi vazifa bajarilganda server uni keyingi sanaga
+        suradi va "planned" ga qaytaradi. Internet yo'q paytda server
+        javobi umuman kelmaydi, shuning uchun o'sha natijani shu
+        yerda — keshda — darhol chizamiz. Aks holda offline bajarilgan
+        takrorlanuvchi vazifa "bajarildi" bo'lib qotib qolardi.
+
+        `deadline` ataylab tegilmaydi: uni server siljitadi va
+        interfeysda ko'rinmaydi.
+      */
+      if (harakat === 'bajarish' && keyingiSana) {
+        ozgarish.status = 'planned'
+        ozgarish.due_date = keyingiSana
+        ozgarish.progress = 0
+        ozgarish.completed_at = null
+        ozgarish.started_at = null
+      }
+
       keshdaYangila(qc, id, ozgarish)
 
-      if (harakat === 'bajarish' && subtasklarBilan) {
+      if (harakat === 'bajarish' && subtasklarBilan && !keyingiSana) {
         qc.setQueriesData<Task[]>({ queryKey: kalit.vazifalar }, (eski) =>
           eski?.map((v) =>
             v.parent_id === id && v.status !== 'done'

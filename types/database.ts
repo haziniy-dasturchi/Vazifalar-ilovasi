@@ -374,6 +374,9 @@ export type Database = {
           priority: number
           progress: number
           recurrence: string | null
+          rrule: string | null
+          rrule_from_completion: boolean
+          rrule_start: string | null
           section_id: string | null
           sort_order: number
           started_at: string | null
@@ -396,6 +399,9 @@ export type Database = {
           priority?: number
           progress?: number
           recurrence?: string | null
+          rrule?: string | null
+          rrule_from_completion?: boolean
+          rrule_start?: string | null
           section_id?: string | null
           sort_order?: number
           started_at?: string | null
@@ -418,6 +424,9 @@ export type Database = {
           priority?: number
           progress?: number
           recurrence?: string | null
+          rrule?: string | null
+          rrule_from_completion?: boolean
+          rrule_start?: string | null
           section_id?: string | null
           sort_order?: number
           started_at?: string | null
@@ -456,7 +465,7 @@ export type Database = {
     }
     Functions: {
       complete_task: {
-        Args: { include_subtasks?: boolean; task_id: string }
+        Args: { include_subtasks?: boolean; p_next_due?: string | null; task_id: string }
         Returns: {
           completed_at: string | null
           created_at: string
@@ -471,6 +480,9 @@ export type Database = {
           priority: number
           progress: number
           recurrence: string | null
+          rrule: string | null
+          rrule_from_completion: boolean
+          rrule_start: string | null
           section_id: string | null
           sort_order: number
           started_at: string | null
@@ -527,6 +539,9 @@ export type Database = {
           priority: number
           progress: number
           recurrence: string | null
+          rrule: string | null
+          rrule_from_completion: boolean
+          rrule_start: string | null
           section_id: string | null
           sort_order: number
           started_at: string | null
@@ -562,6 +577,9 @@ export type Database = {
           priority: number
           progress: number
           recurrence: string | null
+          rrule: string | null
+          rrule_from_completion: boolean
+          rrule_start: string | null
           section_id: string | null
           sort_order: number
           started_at: string | null
@@ -593,6 +611,9 @@ export type Database = {
           priority: number
           progress: number
           recurrence: string | null
+          rrule: string | null
+          rrule_from_completion: boolean
+          rrule_start: string | null
           section_id: string | null
           sort_order: number
           started_at: string | null

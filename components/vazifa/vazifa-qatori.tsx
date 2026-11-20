@@ -22,7 +22,7 @@ import {
   vaqtMatni,
   type VaqtHolati,
 } from '@/lib/sana'
-import { takrorMatni } from '@/lib/takrorlanish'
+import { eskidanRrule, takrorMatni, vazifaningKeyingiSanasi } from '@/lib/takrorlanish'
 import { useT } from '@/components/app/til-provayder'
 import type { Task } from '@/types/vazifalar'
 
@@ -58,6 +58,8 @@ export function VazifaQatori({
   const jarayonda = vazifa.status === 'in_progress'
   const kechikkan = !bajarilgan && kechikkanmi(vazifa.due_date)
   const ochiqSubtask = subtasklar.filter((s) => s.status !== 'done').length
+  // Eski yozuvlarda `rrule` hali bo'sh bo'lishi mumkin
+  const takrorQoidasi = vazifa.rrule ?? eskidanRrule(vazifa.recurrence)
 
   async function harakat(
     tur: 'boshlash' | 'rejaga' | 'bajarish' | 'qaytarish'
@@ -67,6 +69,14 @@ export function VazifaQatori({
         id: vazifa.id,
         harakat: tur,
         subtasklarBilan: tur === 'bajarish' && ochiqSubtask > 0,
+        /*
+          Keyingi sana AYNAN SHU PAYTDA hisoblanadi, serverga
+          yuborilayotganda emas. Internet yo'q bo'lsa yozuv navbatda
+          kunlab turishi mumkin — o'shanda hisoblansa, sana vazifa
+          bajarilgan kundan emas, sinxronlashgan kundan chiqardi.
+        */
+        keyingiSana:
+          tur === 'bajarish' ? vazifaningKeyingiSanasi(vazifa) : null,
       })
     } catch {
       korsat({ matn: 'Bajarib bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
@@ -159,10 +169,10 @@ export function VazifaQatori({
               </span>
             )}
 
-            {vazifa.recurrence && (
+            {takrorQoidasi && (
               <span
                 className="flex items-center gap-1 text-text-muted"
-                title={takrorMatni(vazifa.recurrence, t)}
+                title={takrorMatni(takrorQoidasi, t)}
               >
                 <Repeat2 className="size-3.5" aria-hidden />
               </span>

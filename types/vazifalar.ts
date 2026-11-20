@@ -17,19 +17,22 @@ export type TaskStatus = (typeof TASK_STATUSES)[number]
 export const TASK_PRIORITIES = [1, 2, 3, 4] as const
 export type TaskPriority = (typeof TASK_PRIORITIES)[number]
 
+/**
+ * ESKI takrorlanish shakllari (`tasks.recurrence` ustuni).
+ *
+ * Yangi kod takrorlanishni `tasks.rrule` da, RFC 5545 RRULE matni
+ * sifatida saqlaydi (`lib/takrorlanish`). Bu ustun faqat orqaga
+ * moslik uchun to'ldirib boriladi: foydalanuvchining telefonidagi
+ * PWA keshida eski JS qolgan bo'lishi mumkin va u hamon shu
+ * ustunni o'qiydi. Keyingi relizlardan birida olib tashlanadi.
+ */
 export const RECURRENCES = ['daily', 'weekdays', 'weekly', 'monthly'] as const
 export type OddiyTakrorlanish = (typeof RECURRENCES)[number]
 
-/**
- * Tanlangan hafta kunlari: `days:2,3,4` (ISO — 1 dushanba ... 7 yakshanba).
- *
- * Nega shablon tipi: shu bilan TypeScript `'days:2,3'` ni qabul qiladi,
- * lekin `'days:'` yoki `'kunlar:2'` ni rad etadi. Aniq raqamlarni
- * tekshirish tip darajasida imkonsiz — buni `takrorKunlari()` va
- * bazadagi CHECK cheklovi bajaradi.
- */
+/** Tanlangan hafta kunlari: `days:2,3,4` (ISO — 1 dushanba ... 7 yakshanba) */
 export type KunlarTakrorlanishi = `days:${string}`
 
+/** @deprecated Yangi kod `Task['rrule']` dan foydalanadi */
 export type Recurrence = OddiyTakrorlanish | KunlarTakrorlanishi
 
 export const POMODORO_KINDS = ['focus', 'short_break', 'long_break'] as const

@@ -2,8 +2,9 @@
 
 import type { QueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { rruleEskiga } from '@/lib/takrorlanish'
 import { kalit } from './keys'
-import type { Folder, Recurrence, Section, Task, Theme } from '@/types/vazifalar'
+import type { Folder, Section, Task, Theme } from '@/types/vazifalar'
 
 /**
  * Offline yozishning yuragi.
@@ -56,7 +57,11 @@ export type YangiVazifa = {
   description?: string | null
   due_date?: string | null
   due_time?: string | null
-  recurrence?: Recurrence | null
+  /** RFC 5545 RRULE matni (DTSTART'siz) */
+  rrule?: string | null
+  /** Qoida boshlangan sana — COUNT va UNTIL shundan sanaladi */
+  rrule_start?: string | null
+  rrule_from_completion?: boolean
   priority?: 1 | 2 | 3 | 4
   /** 0, 10 ... 100. 100 berilsa baza triggeri vazifani "done" qiladi */
   progress?: number
@@ -83,7 +88,9 @@ export type VazifaOzgarishi = Partial<
     | 'due_date'
     | 'due_time'
     | 'deadline'
-    | 'recurrence'
+    | 'rrule'
+    | 'rrule_start'
+    | 'rrule_from_completion'
     | 'folder_id'
     | 'section_id'
     | 'sort_order'
@@ -196,7 +203,12 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
           description: yangi.description ?? null,
           due_date: yangi.due_date ?? null,
           due_time: yangi.due_time ?? null,
-          recurrence: yangi.recurrence ?? null,
+          rrule: yangi.rrule ?? null,
+          rrule_start: yangi.rrule_start ?? null,
+          rrule_from_completion: yangi.rrule_from_completion ?? false,
+          // Eski ustun orqaga moslik uchun to'ldiriladi: keshda eski
+          // JS qolgan qurilma hamon shuni o'qiydi
+          recurrence: rruleEskiga(yangi.rrule ?? null),
           priority: yangi.priority ?? 4,
           progress: yangi.progress ?? 0,
           status: holat,
@@ -218,9 +230,16 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
       id,
       ...ozgarish
     }: VazifaOzgarishi & { id: string }) => {
+      // Qoida o'zgarsa, eski ustun ham shu yerda yangilanadi —
+      // chaqiruvchilar buni o'ylab o'tirmasligi uchun
+      const toliq =
+        'rrule' in ozgarish
+          ? { ...ozgarish, recurrence: rruleEskiga(ozgarish.rrule ?? null) }
+          : ozgarish
+
       const { data, error } = await sb()
         .from('tasks')
-        .update(ozgarish)
+        .update(toliq)
         .eq('id', id)
         .select()
         .single()
@@ -244,16 +263,25 @@ export function mutatsiyalarniRoyxatdanOtkaz(qc: QueryClient) {
       id,
       harakat,
       subtasklarBilan = false,
+      keyingiSana = null,
     }: {
       id: string
       harakat: HolatHarakati
       subtasklarBilan?: boolean
+      /**
+       * Takrorlanuvchi vazifaning keyingi sanasi — MIJOZDA
+       * hisoblangan. `null` + bajarish = takrorlanish tugagan
+       * yoki vazifa umuman takrorlanmaydi.
+       */
+      keyingiSana?: string | null
     }) => {
       const { data, error } =
         harakat === 'bajarish'
           ? await sb().rpc('complete_task', {
               task_id: id,
               include_subtasks: subtasklarBilan,
+              p_next_due: keyingiSana,
+              p_client_computed: true,
             })
           : await sb().rpc(RPC_NOMI[harakat], { task_id: id })
       if (error) throw error

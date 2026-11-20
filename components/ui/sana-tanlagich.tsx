@@ -32,13 +32,17 @@ import {
 import { OYLAR, isoDan, isoGa, toliqSana } from '@/lib/sana'
 import { useT } from '@/components/app/til-provayder'
 import {
-  kunlardanTakrorlanish,
+  HAR_HAFTA,
+  HAR_KUNI,
+  HAR_OY,
+  ISH_KUNLARI,
+  kunlardanRrule,
+  rruleKunlari,
   soddalashtir,
-  takrorKunlari,
   takrorMatni,
 } from '@/lib/takrorlanish'
+import { TakrorlanishOynasi } from '@/components/ui/takrorlanish-oynasi'
 import type { MatnKaliti } from '@/lib/i18n'
-import type { OddiyTakrorlanish, Recurrence } from '@/types/vazifalar'
 
 /** Dushanbadan boshlab hafta kunlari qisqartmasi (kalendar sarlavhasi uchun) */
 const HAFTA_KUNLARI: MatnKaliti[] = [
@@ -49,14 +53,15 @@ const HAFTA_KUNLARI: MatnKaliti[] = [
 /** Tez tanlash uchun eng ko'p ishlatiladigan vaqtlar */
 const TEZ_VAQTLAR = ['09:00', '12:00', '15:00', '18:00', '21:00']
 
-const TAKRORLANISH_VARIANTLARI: {
-  kalit: MatnKaliti
-  qiymat: OddiyTakrorlanish
-}[] = [
-  { kalit: 'sana.harKuni', qiymat: 'daily' },
-  { kalit: 'sana.ishKunlari', qiymat: 'weekdays' },
-  { kalit: 'sana.harHafta', qiymat: 'weekly' },
-  { kalit: 'sana.harOy', qiymat: 'monthly' },
+/**
+ * Tayyor variantlar. Qiymatlar — RRULE matnlari, ya'ni "Boshqa…"
+ * oynasida yig'ilgan murakkab qoida bilan BITTA modelda saqlanadi.
+ */
+const TAKRORLANISH_VARIANTLARI: { kalit: MatnKaliti; qiymat: string }[] = [
+  { kalit: 'sana.harKuni', qiymat: HAR_KUNI },
+  { kalit: 'sana.ishKunlari', qiymat: ISH_KUNLARI },
+  { kalit: 'sana.harHafta', qiymat: HAR_HAFTA },
+  { kalit: 'sana.harOy', qiymat: HAR_OY },
 ]
 
 /** ISO tartibi: 1 dushanba ... 7 yakshanba */
@@ -78,19 +83,29 @@ export function SanaTanlagich({
   sana,
   vaqt,
   takrorlanish,
+  bajarilgandan = false,
   onSanaChange,
   onVaqtChange,
   onTakrorlanishChange,
+  onBajarilgandanChange,
 }: {
   sana: string | null
   vaqt: string | null
-  takrorlanish: Recurrence | null
+  /** RFC 5545 RRULE matni, DTSTART'siz */
+  takrorlanish: string | null
+  /** Keyingi sana bajarilgan kundan hisoblansinmi */
+  bajarilgandan?: boolean
   onSanaChange: (iso: string | null) => void
   onVaqtChange: (hhmm: string | null) => void
-  onTakrorlanishChange: (r: Recurrence | null) => void
+  onTakrorlanishChange: (r: string | null) => void
+  onBajarilgandanChange?: (q: boolean) => void
 }) {
   const t = useT()
   const [ochiq, setOchiq] = useState(false)
+  // "Boshqa…" oynasi. Sana paneli portalda z-[100] da turadi,
+  // oyna esa z-50 — shuning uchun oyna ochilishidan oldin panel
+  // yopiladi, aks holda oyna panel ostida qolib ketardi.
+  const [boshqaOchiq, setBoshqaOchiq] = useState(false)
   const [vaqtOchiq, setVaqtOchiq] = useState(false)
   const [takrorOchiq, setTakrorOchiq] = useState(false)
   const [korinishOy, setKorinishOy] = useState(() =>
@@ -176,10 +191,30 @@ export function SanaTanlagich({
             setKorinishOy={setKorinishOy}
             setVaqtOchiq={setVaqtOchiq}
             setTakrorOchiq={setTakrorOchiq}
+            boshqaniOch={() => {
+              setOchiq(false)
+              setBoshqaOchiq(true)
+            }}
             yopish={() => setOchiq(false)}
           />,
           document.body
         )}
+
+      {boshqaOchiq && (
+        <TakrorlanishOynasi
+          rrule={takrorlanish}
+          bajarilgandan={bajarilgandan}
+          sana={sana}
+          yop={() => setBoshqaOchiq(false)}
+          onSaqla={(qoida, bajarilgandanYangi) => {
+            // Takrorlanish boshlanish sanasisiz ma'nosiz
+            if (!sana) onSanaChange(isoGa(new Date()))
+            onTakrorlanishChange(qoida)
+            onBajarilgandanChange?.(bajarilgandanYangi)
+            setBoshqaOchiq(false)
+          }}
+        />
+      )}
     </>
   )
 }
@@ -204,12 +239,13 @@ function SanaPaneli({
   setKorinishOy,
   setVaqtOchiq,
   setTakrorOchiq,
+  boshqaniOch,
   yopish,
 }: {
   tugmaJoyi: TugmaJoyi
   sana: string | null
   vaqt: string | null
-  takrorlanish: Recurrence | null
+  takrorlanish: string | null
   korinishOy: Date
   kunlar: Date[]
   tanlanganSana: Date | null
@@ -217,10 +253,11 @@ function SanaPaneli({
   takrorOchiq: boolean
   onSanaChange: (iso: string | null) => void
   onVaqtChange: (hhmm: string | null) => void
-  onTakrorlanishChange: (r: Recurrence | null) => void
+  onTakrorlanishChange: (r: string | null) => void
   setKorinishOy: React.Dispatch<React.SetStateAction<Date>>
   setVaqtOchiq: (v: boolean) => void
   setTakrorOchiq: (v: boolean) => void
+  boshqaniOch: () => void
   yopish: () => void
 }) {
   const t = useT()
@@ -309,7 +346,7 @@ function SanaPaneli({
     return () => kuzatuvchi.disconnect()
   }, [kattaEkran, joylashtir])
 
-  const tanlanganKunlar = takrorKunlari(takrorlanish)
+  const tanlanganKunlar = rruleKunlari(takrorlanish)
 
   /**
    * Kunni belgilash/olib tashlash.
@@ -323,7 +360,7 @@ function SanaPaneli({
       ? tanlanganKunlar.filter((k) => k !== kun)
       : [...tanlanganKunlar, kun]
 
-    const qiymat = soddalashtir(kunlardanTakrorlanish(yangi))
+    const qiymat = soddalashtir(kunlardanRrule(yangi))
     // Takrorlanish boshlanish sanasisiz ma'nosiz
     if (qiymat && !sana) onSanaChange(isoGa(new Date()))
     onTakrorlanishChange(qiymat)
@@ -631,6 +668,18 @@ function SanaPaneli({
                       </button>
                     )
                   })}
+
+                  {/*
+                    "Boshqa…" — tayyor to'rtta variant yetmaganda.
+                    Oyna ochilishidan oldin shu panel yopiladi.
+                  */}
+                  <button
+                    type="button"
+                    onClick={boshqaniOch}
+                    className="min-h-0 rounded-full border border-dashed border-border-control px-2.5 py-1 text-xs font-medium text-text-strong transition hover:bg-surface-muted"
+                  >
+                    {t('takror.boshqa')}
+                  </button>
                 </div>
 
                 {/*

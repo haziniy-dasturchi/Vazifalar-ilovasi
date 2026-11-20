@@ -306,6 +306,55 @@ export const uz = {
   // chalg'itardi. Endi: nechta ish yarim yo'lda va qay darajada.
   'hisobot.qismanXulosa': '{soni} ta ish · o‘rtacha {ortacha}%',
   'hisobot.qismanHolat': 'Hozir {foiz}% bajarilgan',
+
+  // ---------- Takrorlanish (RRULE) ----------
+  'takror.harNKun': 'Har {n} kunda',
+  'takror.harNHafta': 'Har {n} haftada',
+  'takror.harNHaftaKunlar': 'Har {n} haftada: {kunlar}',
+  'takror.harNOy': 'Har {n} oyda',
+  'takror.harYili': 'Har yili',
+  'takror.harNYil': 'Har {n} yilda',
+  'takror.oySana': 'Har oyning {kunlar}-sanasida',
+  'takror.oyOxirgi': 'Har oyning oxirgi kunida',
+  'takror.oyHafta': 'Har oyning {orn}-{kun} kuni',
+  'takror.oyOxirgiHafta': 'Har oyning oxirgi {kun} kuni',
+  'takror.qisqaSana': '{kunlar}-sana',
+  'takror.qisqaOxirgi': 'oxirgi kun',
+  'takror.qisqaHafta': '{orn}-{kun}',
+  'takror.qisqaOxirgiHafta': 'oxirgi {kun}',
+  'takror.tugashSana': '{sana}gacha',
+  'takror.tugashMarta': '{n} marta',
+  // Takrorlanish oynasi
+  'takror.boshqa': 'Boshqa...',
+  'takror.sarlavha': 'Takrorlanishni sozlash',
+  'takror.asos': 'Asos',
+  'takror.asosJadval': 'Belgilangan sanadan',
+  'takror.asosJadvalIzoh': 'Keyingi sana jadval bo‘yicha hisoblanadi',
+  'takror.asosBajarilgan': 'Bajarilgan sanadan',
+  'takror.asosBajarilganIzoh':
+    'Keyingi sana vazifa bajarilgan kundan boshlab hisoblanadi',
+  'takror.har': 'Har',
+  'takror.birlik.kun': 'kun',
+  'takror.birlik.hafta': 'hafta',
+  'takror.birlik.oy': 'oy',
+  'takror.birlik.yil': 'yil',
+  'takror.oyUsuli.sana': 'Oyning sanasi',
+  'takror.oyUsuli.haftaKuni': 'Oyning hafta kuni',
+  'takror.oxirgiKun': 'Oxirgi kun',
+  'takror.oxirgisi': 'Oxirgi',
+  'takror.uzunOyOgoh':
+    '29, 30 va 31-sanalar qisqa oylarda oyning oxirgi kuniga tushadi.',
+  'takror.kopSanaOgoh':
+    'Bir nechta sana tanlanganda 29–31 qisqa oylarda o‘tkazib yuboriladi.',
+  'takror.tugashi': 'Tugashi',
+  'takror.tugashHech': 'Hech qachon',
+  'takror.tugashSanagacha': 'Shu sanagacha',
+  'takror.tugashMartaTanlov': 'Necha marta',
+  'takror.martaBirlik': 'marta',
+  'takror.martaChek':
+    '“Bajarilgan sanadan” rejimida “necha marta” chegarasi ishlamaydi.',
+  'takror.xulosa': 'Natija',
+  'takror.kunTanlashKerak': 'Kamida bitta kun tanlang',
 } as const
 
 export type MatnKaliti = keyof typeof uz

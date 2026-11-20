@@ -19,8 +19,9 @@ import {
   useVazifaYangilash,
   useVazifaYaratish,
 } from '@/lib/queries/vazifalar'
-import { vaqtMatni } from '@/lib/sana'
-import type { Recurrence, Task, TaskPriority } from '@/types/vazifalar'
+import { bugunISO, vaqtMatni } from '@/lib/sana'
+import { eskidanRrule } from '@/lib/takrorlanish'
+import type { Task, TaskPriority } from '@/types/vazifalar'
 
 /**
  * Vazifa oynasi — ikkala holatda ham ishlaydi:
@@ -67,8 +68,20 @@ export function VazifaOynasi({
   const [vaqt, setVaqt] = useState<string | null>(
     vazifa?.due_time ? vaqtMatni(vazifa.due_time) : null
   )
-  const [takrorlanish, setTakrorlanish] = useState<Recurrence | null>(
-    vazifa?.recurrence ?? null
+  /*
+    Takrorlanish RRULE matni sifatida yuritiladi. Eski yozuvlarda
+    `rrule` hali bo'sh bo'lishi mumkin (migratsiyagacha ochilgan
+    qurilma keshi), shuning uchun eski ustundan o'giriladi.
+  */
+  const [takrorlanish, setTakrorlanish] = useState<string | null>(
+    vazifa?.rrule ?? eskidanRrule(vazifa?.recurrence ?? null)
+  )
+  /** DTSTART — "N marta" va "shu sanagacha" chegaralari shundan sanaladi */
+  const [takrorBoshi, setTakrorBoshi] = useState<string | null>(
+    vazifa?.rrule_start ?? vazifa?.due_date ?? null
+  )
+  const [bajarilgandan, setBajarilgandan] = useState(
+    vazifa?.rrule_from_completion ?? false
   )
   const [muhimlik, setMuhimlik] = useState<TaskPriority>(vazifa?.priority ?? 4)
   const [foiz, setFoiz] = useState<number>(vazifa?.progress ?? 0)
@@ -104,7 +117,31 @@ export function VazifaOynasi({
     setSana(iso)
     if (!iso) {
       setVaqt(null)
-      setTakrorlanish(null)
+      takrorniOrnat(null)
+    }
+  }
+
+  /**
+   * Qoida o'zgarsa, sanash boshlanadigan kun ham yangilanadi.
+   * Aks holda "10 marta" degan chegara eski, allaqachon o'tib
+   * ketgan sanadan hisoblanib, vazifa darhol tugab qolardi.
+   */
+  function takrorniOrnat(qoida: string | null) {
+    setTakrorlanish(qoida)
+    if (qoida) {
+      setTakrorBoshi(sana ?? bugunISO())
+    } else {
+      setTakrorBoshi(null)
+      setBajarilgandan(false)
+    }
+  }
+
+  /** Saqlashga yuboriladigan takrorlanish maydonlari */
+  function takrorMaydonlari() {
+    return {
+      rrule: takrorlanish,
+      rrule_start: takrorlanish ? (takrorBoshi ?? sana ?? bugunISO()) : null,
+      rrule_from_completion: takrorlanish ? bajarilgandan : false,
     }
   }
 
@@ -124,7 +161,7 @@ export function VazifaOynasi({
         description: izoh.trim() || null,
         due_date: sana,
         due_time: vaqt,
-        recurrence: takrorlanish,
+        ...takrorMaydonlari(),
         priority: muhimlik,
         progress: foiz,
         // Subtask doim ota-vazifa papkasida va bo'limsiz qoladi
@@ -141,7 +178,7 @@ export function VazifaOynasi({
         description: izoh.trim() || null,
         due_date: sana,
         due_time: vaqt,
-        recurrence: takrorlanish,
+        ...takrorMaydonlari(),
         priority: muhimlik,
         progress: foiz,
         status: defaultStatus,
@@ -198,9 +235,11 @@ export function VazifaOynasi({
               sana={sana}
               vaqt={vaqt}
               takrorlanish={takrorlanish}
+              bajarilgandan={bajarilgandan}
               onSanaChange={sananiOrnat}
               onVaqtChange={setVaqt}
-              onTakrorlanishChange={setTakrorlanish}
+              onTakrorlanishChange={takrorniOrnat}
+              onBajarilgandanChange={setBajarilgandan}
             />
           </fieldset>
 
