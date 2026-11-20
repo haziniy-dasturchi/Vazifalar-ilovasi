@@ -32,10 +32,11 @@ import {
   useTopshiriqRuxsatlari,
   useTopshiriqTafsilotlari,
   useTopshiriqYuborish,
+  useYozsaBoladimi,
   useYuborilganTopshiriqlar,
   type TopshiriqTafsiloti,
 } from '@/lib/queries/topshiriqlar'
-import { toliqSana } from '@/lib/sana'
+import { kunOraligi, toliqSana } from '@/lib/sana'
 import type { MatnKaliti } from '@/lib/i18n'
 import type { TaskPriority, Topshiriq, TopshiriqHolati } from '@/types/vazifalar'
 
@@ -410,17 +411,7 @@ function KelganKarta({
         </p>
       )}
 
-      <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-faint">
-        <span className="flex items-center gap-1">
-          <Clock className="size-3.5" aria-hidden />
-          {toliqSana(topshiriq.created_at.slice(0, 10))}
-        </span>
-        {topshiriq.muddat && (
-          <span>
-            {t('topshiriq.muddat')}: {toliqSana(topshiriq.muddat)}
-          </span>
-        )}
-      </p>
+      <MuddatQatori topshiriq={topshiriq} />
 
       {topshiriq.holat === 'rad' && topshiriq.rad_sababi && (
         <p className="mt-2 rounded-xl bg-danger-soft px-3 py-2 text-sm text-danger">
@@ -597,17 +588,7 @@ function YuborilganKarta({
         </p>
       )}
 
-      <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-faint">
-        <span className="flex items-center gap-1">
-          <Clock className="size-3.5" aria-hidden />
-          {toliqSana(topshiriq.created_at.slice(0, 10))}
-        </span>
-        {topshiriq.muddat && (
-          <span>
-            {t('topshiriq.muddat')}: {toliqSana(topshiriq.muddat)}
-          </span>
-        )}
-      </p>
+      <MuddatQatori topshiriq={topshiriq} />
 
       {/*
         Ish jarayoni -- faqat yuboruvchiga va faqat qabul
@@ -674,7 +655,18 @@ function YuborishOynasi({ yop }: { yop: () => void }) {
   const toza = email.trim().toLowerCase()
   const emailTogri = EMAIL_SHAKLI.test(toza)
   const ozigami = toza === ozEmail.toLowerCase()
-  const toliq = emailTogri && !ozigami && sarlavha.trim().length > 0
+
+  /*
+    Taqiq bazada (RLS) tekshiriladi, ya'ni yuborgandan keyin rad
+    etiladi va odam faqat quruq "saqlanmadi" xatosini ko'rardi.
+    Shuning uchun email yozilishi bilan oldindan so'raymiz va
+    sababini tushuntiramiz.
+  */
+  const { data: yozsaBoladi } = useYozsaBoladimi(toza)
+  const taqiqlangan = emailTogri && !ozigami && yozsaBoladi === false
+
+  const toliq =
+    emailTogri && !ozigami && !taqiqlangan && sarlavha.trim().length > 0
 
   // Yozilayotgan matnga mos keladigan oldingi manzillar
   const moslar = tavsiyalar
@@ -693,8 +685,21 @@ function YuborishOynasi({ yop }: { yop: () => void }) {
       })
       korsat({ matn: t('topshiriq.yuborildi'), tone: 'muvaffaqiyat' })
       yop()
-    } catch {
-      korsat({ matn: t('topshiriq.yuborilmadi'), tone: 'xato' })
+    } catch (xato) {
+      /*
+        Taqiq baza darajasida (RLS) qo'yilgan. Oldindan tekshirib
+        turamiz, lekin tekshiruv bilan yuborish orasida odam
+        bloklab ulgurishi mumkin — shunda ham quruq "saqlanmadi"
+        emas, sababini aytamiz.
+      */
+      const xabar = xato instanceof Error ? xato.message : ''
+      const bloklangan = xabar.includes('row-level security')
+      korsat({
+        matn: bloklangan
+          ? t('topshiriq.taqiqlangan')
+          : t('topshiriq.yuborilmadi'),
+        tone: 'xato',
+      })
     }
   }
 
@@ -802,9 +807,20 @@ function YuborishOynasi({ yop }: { yop: () => void }) {
           </div>
         </div>
 
-        <p className="mt-5 rounded-xl bg-surface-muted px-4 py-3 text-sm leading-relaxed text-text-muted">
-          {t('topshiriq.yuborishIzohi')}
-        </p>
+        {taqiqlangan ? (
+          <div className="mt-5 rounded-xl bg-danger-soft px-4 py-3">
+            <p className="text-sm font-semibold text-danger">
+              {t('topshiriq.taqiqlangan')}
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-text-muted">
+              {t('topshiriq.taqiqlanganIzoh')}
+            </p>
+          </div>
+        ) : (
+          <p className="mt-5 rounded-xl bg-surface-muted px-4 py-3 text-sm leading-relaxed text-text-muted">
+            {t('topshiriq.yuborishIzohi')}
+          </p>
+        )}
 
         <button
           type="submit"
@@ -1040,5 +1056,44 @@ function TanlashKatagi({
         />
       </label>
     </>
+  )
+}
+
+/**
+ * Yuborilgan sana va muddat.
+ *
+ * Oldin faqat quruq sana turardi ("Muddat: 21-noyabr") va odam
+ * uni o'zi hisoblab, "bu necha kun bo'ladi?" deb o'ylab ko'rishi
+ * kerak edi. Endi ikkalasi ham aytiladi: qaysi kundan qaysi
+ * kungacha va necha kun. Muddat belgilanmagan bo'lsa faqat
+ * yuborilgan sana ko'rinadi.
+ */
+function MuddatQatori({ topshiriq }: { topshiriq: Topshiriq }) {
+  const t = useT()
+  const yuborilgan = topshiriq.created_at.slice(0, 10)
+
+  return (
+    <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-faint">
+      <span className="flex items-center gap-1">
+        <Clock className="size-3.5" aria-hidden />
+        {t('topshiriq.yuborilganSana', { sana: toliqSana(yuborilgan) })}
+      </span>
+
+      {topshiriq.muddat && (
+        <>
+          <span className="font-medium text-text-muted">
+            {t('topshiriq.dedlayn', {
+              boshi: toliqSana(yuborilgan),
+              oxiri: toliqSana(topshiriq.muddat),
+            })}
+          </span>
+          <span>
+            {t('topshiriq.muddatKun', {
+              kun: kunOraligi(yuborilgan, topshiriq.muddat),
+            })}
+          </span>
+        </>
+      )}
+    </p>
   )
 }

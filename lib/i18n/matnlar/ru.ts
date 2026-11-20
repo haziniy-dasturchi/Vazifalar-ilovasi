@@ -396,4 +396,12 @@ export const ru: Record<MatnKaliti, string> = {
   'topshiriq.bosibTuring': 'Нажмите и удерживайте карточку, чтобы выбрать',
 
   'sozlamalar.tab.yoriqnoma': 'Инструкция',
+
+  'topshiriq.taqiqlangan': 'Сейчас вы не можете отправлять поручения этому человеку',
+  'topshiriq.taqiqlanganIzoh':
+    'Он вас заблокировал либо накопилось слишком много поручений без ответа. Свяжитесь по почте или телефону и попросите разрешить — пока он не разрешит, на этот адрес писать нельзя.',
+
+  'topshiriq.yuborilganSana': 'Отправлено: {sana}',
+  'topshiriq.dedlayn': 'Дедлайн: с {boshi} по {oxiri}',
+  'topshiriq.muddatKun': 'Срок: {kun} дн.',
 }

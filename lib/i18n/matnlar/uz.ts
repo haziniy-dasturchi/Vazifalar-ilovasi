@@ -408,6 +408,14 @@ export const uz = {
   'topshiriq.bosibTuring': 'Tanlash uchun kartani bosib turing',
 
   'sozlamalar.tab.yoriqnoma': 'Yo‘riqnoma',
+
+  'topshiriq.taqiqlangan': 'Bu odamga hozir topshiriq yubora olmaysiz',
+  'topshiriq.taqiqlanganIzoh':
+    'U sizni bloklagan yoki javobsiz topshiriqlaringiz ko‘payib ketgan. Pochta yoki telefon orqali bog‘lanib, ruxsat berishini so‘rashingiz mumkin — u ruxsat bermaguncha bu manzilga yozib bo‘lmaydi.',
+
+  'topshiriq.yuborilganSana': 'Yuborilgan: {sana}',
+  'topshiriq.dedlayn': 'Dedlayn: {boshi}dan {oxiri}gacha',
+  'topshiriq.muddatKun': 'Muddat: {kun} kun',
 } as const
 
 export type MatnKaliti = keyof typeof uz

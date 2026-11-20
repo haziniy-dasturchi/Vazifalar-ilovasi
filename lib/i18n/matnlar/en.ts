@@ -395,4 +395,12 @@ export const en: Record<MatnKaliti, string> = {
   'topshiriq.bosibTuring': 'Press and hold a card to select it',
 
   'sozlamalar.tab.yoriqnoma': 'Guide',
+
+  'topshiriq.taqiqlangan': 'You cannot send assignments to this person right now',
+  'topshiriq.taqiqlanganIzoh':
+    'They have blocked you, or too many of your assignments are still unanswered. Contact them by email or phone and ask them to allow you — until they do, this address cannot be used.',
+
+  'topshiriq.yuborilganSana': 'Sent: {sana}',
+  'topshiriq.dedlayn': 'Deadline: {boshi} — {oxiri}',
+  'topshiriq.muddatKun': 'Duration: {kun} days',
 }

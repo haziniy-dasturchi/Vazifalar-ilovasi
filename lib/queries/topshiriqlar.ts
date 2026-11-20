@@ -283,6 +283,12 @@ export function useTopshiriqTafsilotlari() {
 
   return useQuery({
     queryKey: kalit.topshiriqTafsilotlari(),
+    /*
+      Boshliq xodimning ishini kuzatadi, shuning uchun jarayon
+      o'zidan yangilanib turishi kerak: xodim foizni o'zgartirsa,
+      boshliq sahifani qayta ochmasdan ham ko'radi.
+    */
+    refetchInterval: 60_000,
     queryFn: async (): Promise<TopshiriqTafsiloti[]> => {
       const { data, error } = await rpcOqi(
         supabase,
@@ -390,5 +396,39 @@ export function useTopshiriqlarniOchirish() {
     },
     onSettled: () =>
       qc.invalidateQueries({ queryKey: kalit.topshiriqlarPrefiks }),
+  })
+}
+
+/**
+ * "Men shu odamga topshiriq yoza olamanmi?"
+ *
+ * Nega oldindan so'raladi: taqiq RLS da, ya'ni yuborish tugmasi
+ * bosilgandan keyin baza rad etadi va mijoz faqat quruq
+ * "saqlanmadi" xatosini ko'radi. Odam esa nima uchun ishlamayotganini
+ * bilmaydi va qayta-qayta urinadi. Shuning uchun email yozilishi
+ * bilan tekshirib, sababini oldindan aytamiz.
+ *
+ * Funksiya faqat ha/yo'q qaytaradi — qabul qiluvchi haqida hech
+ * qanday ma'lumot oshkor bo'lmaydi.
+ */
+export function useYozsaBoladimi(email: string) {
+  const supabase = useSupabase()
+  const { id } = useFoydalanuvchi()
+  const toza = email.trim().toLowerCase()
+
+  return useQuery({
+    queryKey: ['topshiriqlar', 'yozsa-boladimi', toza],
+    // Ma'noli email bo'lmaguncha so'ramaymiz
+    enabled: toza.includes('@') && toza.includes('.'),
+    queryFn: async (): Promise<boolean> => {
+      const { data, error } = await rpcOqi(
+        supabase,
+        'topshiriq_yozsa_boladimi',
+        { p_yuboruvchi_id: id, p_email: toza }
+      )
+      // Migratsiya hali qo'llanmagan bo'lsa to'sib qo'ymaymiz
+      if (error) return true
+      return data !== false
+    },
   })
 }

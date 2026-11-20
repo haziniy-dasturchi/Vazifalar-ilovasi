@@ -94,6 +94,17 @@ export function sanaMatni(iso: string): string {
   return toliqSana(iso)
 }
 
+/**
+ * Ikki sana orasidagi kunlar soni — IKKALA kun ham hisobga olinadi.
+ *
+ * "20-noyabrdan 22-noyabrgacha" uchun javob 3 kun bo'lishi kerak:
+ * odam uchun bu uch kunlik ish, ikki kunlik emas.
+ */
+export function kunOraligi(boshlanish: string, tugash: string): number {
+  const kun = differenceInCalendarDays(parseISO(tugash), parseISO(boshlanish)) + 1
+  return kun < 1 ? 1 : kun
+}
+
 /** Kechikkan vazifa uchun: "3 kun kechikdi" */
 export function kechikishMatni(iso: string): string {
   const kun = Math.abs(kunFarqi(iso))
