@@ -397,6 +397,13 @@ export const uz = {
   'topshiriq.boshlanmagan': 'Hali boshlanmagan',
   'topshiriq.tugallangan': 'Tugallangan',
   'topshiriq.vazifaOchirilgan': 'Vazifa o‘chirilgan',
+
+  // ---------- Topshiriqni o'chirish ----------
+  'topshiriq.tanlash': 'Tanlash',
+  'topshiriq.tanlandi': '{son} ta tanlandi',
+  'topshiriq.ochirishTasdiq':
+    'Rostdan ham {son} ta topshiriqni o‘chirmoqchimisiz? Ular faqat sizning ro‘yxatingizdan olib tashlanadi — ikkinchi tomonda qoladi.',
+  'topshiriq.ochirildi': '{son} ta topshiriq o‘chirildi',
 } as const
 
 export type MatnKaliti = keyof typeof uz

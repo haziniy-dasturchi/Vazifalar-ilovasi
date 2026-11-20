@@ -385,4 +385,11 @@ export const ru: Record<MatnKaliti, string> = {
   'topshiriq.boshlanmagan': 'Ещё не начато',
   'topshiriq.tugallangan': 'Завершено',
   'topshiriq.vazifaOchirilgan': 'Задача удалена',
+
+  // ---------- Удаление поручений ----------
+  'topshiriq.tanlash': 'Выбрать',
+  'topshiriq.tanlandi': 'выбрано: {son}',
+  'topshiriq.ochirishTasdiq':
+    'Удалить поручений: {son}? Они исчезнут только из вашего списка — у второй стороны останутся.',
+  'topshiriq.ochirildi': 'удалено поручений: {son}',
 }

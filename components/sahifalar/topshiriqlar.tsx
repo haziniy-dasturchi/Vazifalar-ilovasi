@@ -27,6 +27,7 @@ import {
   useTopshiriqBekor,
   useTopshiriqQabul,
   useTopshiriqRad,
+  useTopshiriqlarniOchirish,
   useTopshiriqRuxsatlari,
   useTopshiriqTafsilotlari,
   useTopshiriqYuborish,
@@ -70,6 +71,7 @@ type TopshiriqTab = 'kelgan' | 'yuborilgan'
 
 export function TopshiriqlarKorinishi() {
   const t = useT()
+  const { korsat } = useToast()
   const [tab, setTabHolat] = useState<TopshiriqTab>('kelgan')
 
   // Serverda localStorage yo'q, shuning uchun o'qish chizilgandan
@@ -83,6 +85,7 @@ export function TopshiriqlarKorinishi() {
 
   function setTab(yangi: TopshiriqTab) {
     setTabHolat(yangi)
+    setTanlangan(new Set())
     try {
       localStorage.setItem(TAB_KALITI, yangi)
     } catch {
@@ -98,6 +101,26 @@ export function TopshiriqlarKorinishi() {
   // bo'lim uchun. Migratsiya qo'llanmagan bo'lsa bo'sh qaytadi
   // va kartalar avvalgidek ko'rinadi.
   const { data: tafsilotlar } = useTopshiriqTafsilotlari()
+
+  /*
+    Belgilab, bittada o'chirish.
+
+    Tanlov bo'lim almashganda tozalanadi: "Menga kelgan" da
+    belgilab qo'yib, "Men yuborgan" ga o'tib o'chirish tugmasini
+    bosish — kutilmagan natija bo'lardi.
+  */
+  const [tanlangan, setTanlangan] = useState<Set<string>>(new Set())
+  const [ochirishOchiq, setOchirishOchiq] = useState(false)
+  const ochirish = useTopshiriqlarniOchirish()
+
+  function tanlovniAlmashtir(id: string) {
+    setTanlangan((eski) => {
+      const yangi = new Set(eski)
+      if (yangi.has(id)) yangi.delete(id)
+      else yangi.add(id)
+      return yangi
+    })
+  }
 
   const kutilayotgan =
     kelgan.data?.filter((x) => x.holat === 'kutilmoqda').length ?? 0
@@ -146,6 +169,56 @@ export function TopshiriqlarKorinishi() {
         })}
       </div>
 
+      {/*
+        Tanlov paneli faqat biror narsa belgilanganda chiqadi —
+        bo'sh turganda joy egallab, ro'yxatni pastga surib
+        yuborishi shart emas.
+      */}
+      {tanlangan.size > 0 && (
+        <div className="sticky top-0 z-20 mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-border-subtle bg-surface px-3 py-2 shadow-card">
+          <span className="flex-1 text-sm font-medium text-text-strong">
+            {t('topshiriq.tanlandi', { son: tanlangan.size })}
+          </span>
+          <button
+            type="button"
+            onClick={() => setTanlangan(new Set())}
+            className="min-h-0 rounded-lg px-3 py-1.5 text-sm text-text-muted transition hover:bg-surface-muted"
+          >
+            {t('umumiy.bekor')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setOchirishOchiq(true)}
+            className="flex min-h-0 items-center gap-1.5 rounded-lg bg-danger px-3 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            <Trash2 className="size-4" aria-hidden />
+            {t('umumiy.ochirish')}
+          </button>
+        </div>
+      )}
+
+      {ochirishOchiq && (
+        <Tasdiq
+          sarlavha={t('umumiy.ochirish')}
+          matn={t('topshiriq.ochirishTasdiq', { son: tanlangan.size })}
+          tasdiqla={async () => {
+            try {
+              await ochirish.mutateAsync([...tanlangan])
+              korsat({
+                matn: t('topshiriq.ochirildi', { son: tanlangan.size }),
+                tone: 'muvaffaqiyat',
+              })
+              setTanlangan(new Set())
+              setOchirishOchiq(false)
+            } catch {
+              korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
+            }
+          }}
+          yop={() => setOchirishOchiq(false)}
+          bajarilmoqda={ochirish.isPending}
+        />
+      )}
+
       {tab === 'kelgan' ? (
         kelgan.isPending ? (
           <Yuklanmoqda qator={2} />
@@ -164,6 +237,8 @@ export function TopshiriqlarKorinishi() {
                 key={x.id}
                 topshiriq={x}
                 tafsilot={tafsilotlar?.get(x.id)}
+                tanlanganmi={tanlangan.has(x.id)}
+                tanlovniAlmashtir={() => tanlovniAlmashtir(x.id)}
               />
             ))}
           </ul>
@@ -185,6 +260,8 @@ export function TopshiriqlarKorinishi() {
               key={x.id}
               topshiriq={x}
               tafsilot={tafsilotlar?.get(x.id)}
+              tanlanganmi={tanlangan.has(x.id)}
+              tanlovniAlmashtir={() => tanlovniAlmashtir(x.id)}
             />
           ))}
         </ul>
@@ -225,9 +302,13 @@ function HolatBelgisi({ holat }: { holat: TopshiriqHolati }) {
 function KelganKarta({
   topshiriq,
   tafsilot,
+  tanlanganmi,
+  tanlovniAlmashtir,
 }: {
   topshiriq: Topshiriq
   tafsilot?: TopshiriqTafsiloti
+  tanlanganmi: boolean
+  tanlovniAlmashtir: () => void
 }) {
   const t = useT()
   const { korsat } = useToast()
@@ -263,6 +344,11 @@ function KelganKarta({
   return (
     <li className="rounded-2xl bg-surface p-4 shadow-card">
       <div className="flex items-start justify-between gap-3">
+        <TanlashKatagi
+          tanlanganmi={tanlanganmi}
+          almashtir={tanlovniAlmashtir}
+          nom={topshiriq.sarlavha}
+        />
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-text-strong">{topshiriq.sarlavha}</p>
           {/* Kim so'rayapti — mendan ish talab qilinmoqda, kimligini
@@ -403,9 +489,13 @@ function KelganKarta({
 function YuborilganKarta({
   topshiriq,
   tafsilot,
+  tanlanganmi,
+  tanlovniAlmashtir,
 }: {
   topshiriq: Topshiriq
   tafsilot?: TopshiriqTafsiloti
+  tanlanganmi: boolean
+  tanlovniAlmashtir: () => void
 }) {
   const t = useT()
   const { korsat } = useToast()
@@ -415,6 +505,11 @@ function YuborilganKarta({
   return (
     <li className="rounded-2xl bg-surface p-4 shadow-card">
       <div className="flex items-start justify-between gap-3">
+        <TanlashKatagi
+          tanlanganmi={tanlanganmi}
+          almashtir={tanlovniAlmashtir}
+          nom={topshiriq.sarlavha}
+        />
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-text-strong">{topshiriq.sarlavha}</p>
           {/* Ism faqat qabul qilingandan keyin keladi (maxfiylik
@@ -815,5 +910,36 @@ function Bloklanganlar() {
         </>
       )}
     </section>
+  )
+}
+
+/**
+ * Kartaning oldidagi belgilash katagi.
+ *
+ * `<label>` ichida: barmoq bilan bosish maydoni katta bo'lishi
+ * uchun. `aria-label` da topshiriq nomi — ekran o'qigichda
+ * "Tanlash, Tanlash, Tanlash" o'rniga qaysi birini tanlayotgani
+ * eshitiladi.
+ */
+function TanlashKatagi({
+  tanlanganmi,
+  almashtir,
+  nom,
+}: {
+  tanlanganmi: boolean
+  almashtir: () => void
+  nom: string
+}) {
+  const t = useT()
+  return (
+    <label className="flex shrink-0 cursor-pointer items-center justify-center p-1">
+      <input
+        type="checkbox"
+        checked={tanlanganmi}
+        onChange={almashtir}
+        aria-label={`${t('topshiriq.tanlash')}: ${nom}`}
+        className="size-5 cursor-pointer accent-brand-primary"
+      />
+    </label>
   )
 }

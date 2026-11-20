@@ -358,3 +358,32 @@ export function useRuxsatOzgartirish() {
       qc.invalidateQueries({ queryKey: kalit.topshiriqlarPrefiks }),
   })
 }
+
+// =============================================================
+// Ro'yxatdan o'chirish
+// =============================================================
+
+/**
+ * Belgilangan topshiriqlarni O'Z ro'yxatimdan olib tashlaydi.
+ *
+ * Ikkinchi tomonda qoladi — bu ataylab shunday: xodim o'ziga
+ * berilgan ishning izini o'chirib tashlay olmasligi, boshliq esa
+ * xodim qabul qilgan ishni uning qo'lidan olib qo'ymasligi kerak.
+ * Ikkalasi ham o'chirsa, qator bazadan butunlay ketadi.
+ */
+export function useTopshiriqlarniOchirish() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (idlar: string[]) => {
+      if (idlar.length === 0) return
+      const { error } = await rpcChaqir(supabase, 'topshiriqlarni_ochirish', {
+        p_idlar: idlar,
+      })
+      if (error) throw new Error(error.message)
+    },
+    onSettled: () =>
+      qc.invalidateQueries({ queryKey: kalit.topshiriqlarPrefiks }),
+  })
+}

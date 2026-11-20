@@ -384,4 +384,11 @@ export const en: Record<MatnKaliti, string> = {
   'topshiriq.boshlanmagan': 'Not started yet',
   'topshiriq.tugallangan': 'Completed',
   'topshiriq.vazifaOchirilgan': 'The task was deleted',
+
+  // ---------- Deleting assignments ----------
+  'topshiriq.tanlash': 'Select',
+  'topshiriq.tanlandi': '{son} selected',
+  'topshiriq.ochirishTasdiq':
+    'Delete {son} assignments? They are removed from your list only — the other side keeps them.',
+  'topshiriq.ochirildi': '{son} assignments deleted',
 }
