@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Check,
   Clock,
@@ -101,7 +101,13 @@ export function TopshiriqlarKorinishi() {
   // Qarshi tomon ismi va ish jarayoni — bitta so'rovda, ikkala
   // bo'lim uchun. Migratsiya qo'llanmagan bo'lsa bo'sh qaytadi
   // va kartalar avvalgidek ko'rinadi.
-  const { data: tafsilotlar } = useTopshiriqTafsilotlari()
+  const { data: tafsilotRoyxati } = useTopshiriqTafsilotlari()
+  // Xarita AYNAN shu yerda yasaladi: kesh JSON bo'lgani uchun
+  // `Map` ni so'rov natijasida saqlab bo'lmaydi (izohga qarang)
+  const tafsilotlar = useMemo(
+    () => new Map((tafsilotRoyxati ?? []).map((x) => [x.topshiriq_id, x])),
+    [tafsilotRoyxati]
+  )
 
   /*
     Belgilab, bittada o'chirish.
@@ -248,7 +254,7 @@ export function TopshiriqlarKorinishi() {
               <KelganKarta
                 key={x.id}
                 topshiriq={x}
-                tafsilot={tafsilotlar?.get(x.id)}
+                tafsilot={tafsilotlar.get(x.id)}
                 tanlanganmi={tanlangan.has(x.id)}
                 tanlashRejimi={tanlangan.size > 0}
                 tanlovniAlmashtir={() => tanlovniAlmashtir(x.id)}
@@ -272,7 +278,7 @@ export function TopshiriqlarKorinishi() {
             <YuborilganKarta
               key={x.id}
               topshiriq={x}
-              tafsilot={tafsilotlar?.get(x.id)}
+              tafsilot={tafsilotlar.get(x.id)}
               tanlanganmi={tanlangan.has(x.id)}
               tanlashRejimi={tanlangan.size > 0}
               tanlovniAlmashtir={() => tanlovniAlmashtir(x.id)}

@@ -261,7 +261,7 @@ export type TopshiriqTafsiloti = {
 }
 
 /**
- * `topshiriq_tafsilotlari()` RPC natijasi, id bo'yicha xarita.
+ * `topshiriq_tafsilotlari()` RPC natijasi.
  *
  * Nega alohida so'rov: ism ham, jarayon ham BOSHQA odamning
  * ma'lumoti. RLS ularni to'g'ridan-to'g'ri bermaydi (va to'g'ri
@@ -269,23 +269,28 @@ export type TopshiriqTafsiloti = {
  * qaytaradigan tor funksiya ishlatiladi.
  *
  * Migratsiya hali qo'llanmagan bo'lsa xato bo'ladi — bunda bo'sh
- * xarita qaytadi va kartalar avvalgidek, ismsiz ko'rinadi. Ya'ni
+ * ro'yxat qaytadi va kartalar avvalgidek, ismsiz ko'rinadi. Ya'ni
  * interfeys bazadan oldin chiqsa ham buzilmaydi.
+ *
+ * MUHIM: bu yerda ODDIY MASSIV qaytadi, `Map` emas.
+ * Kesh IndexedDB'ga JSON sifatida yoziladi (`JSON.stringify`),
+ * JSON esa `Map` ni bilmaydi — u bo'sh `{}` bo'lib saqlanardi va
+ * ilova qayta ochilganda `.get()` yo'q obyekt qaytib, sahifa
+ * butunlay qulardi. Xaritaga aylantirish komponentda bo'ladi.
  */
 export function useTopshiriqTafsilotlari() {
   const supabase = useSupabase()
 
   return useQuery({
     queryKey: kalit.topshiriqTafsilotlari(),
-    queryFn: async (): Promise<Map<string, TopshiriqTafsiloti>> => {
+    queryFn: async (): Promise<TopshiriqTafsiloti[]> => {
       const { data, error } = await rpcOqi(
         supabase,
         'topshiriq_tafsilotlari',
         {}
       )
-      if (error) return new Map()
-      const qatorlar = (data ?? []) as TopshiriqTafsiloti[]
-      return new Map(qatorlar.map((q) => [q.topshiriq_id, q]))
+      if (error) return []
+      return (data ?? []) as TopshiriqTafsiloti[]
     },
   })
 }
