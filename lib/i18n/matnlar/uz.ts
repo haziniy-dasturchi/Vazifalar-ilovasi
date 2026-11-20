@@ -294,6 +294,14 @@ export const uz = {
   'sozlamalar.bildirishnoma.ochirildi': 'Bildirishnoma o‘chirildi',
   'sozlamalar.bildirishnoma.ruxsatYoq':
     'Brauzer ruxsat bermadi. Sozlamalardan yoqing.',
+
+  // ---------- Hisobot ----------
+  'hisobot.qisman': 'Qisman bajarilgan ishlar',
+  // Avval bu yerda barcha o'sishlar yig'indisi turardi ("+2460%") —
+  // u foiz emas edi va hech narsaga nisbatan bo'lmagani uchun
+  // chalg'itardi. Endi: nechta ish yarim yo'lda va qay darajada.
+  'hisobot.qismanXulosa': '{soni} ta ish · o‘rtacha {ortacha}%',
+  'hisobot.qismanHolat': 'Hozir {foiz}% bajarilgan',
 } as const
 
 export type MatnKaliti = keyof typeof uz

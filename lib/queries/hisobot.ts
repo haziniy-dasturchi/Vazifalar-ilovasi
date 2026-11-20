@@ -2,6 +2,11 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useSupabase } from '@/lib/supabase/use-supabase'
+import {
+  qismanBajarilganlar,
+  type JurnalQatori,
+  type QismanYozuv,
+} from '@/lib/hisobot-filtr'
 import { kalit } from './keys'
 import type { Task } from '@/types/vazifalar'
 
@@ -64,44 +69,44 @@ export function usePapkaningBarchaVazifalari(papkaId: string | undefined) {
  * Bu — o'zgarmas tarix: vazifa keyinchalik ertangi kunga ko'chirilsa
  * yoki foizi qaytarilsa ham, "o'sha kuni shuncha ish qilingan" degan
  * yozuv joyida qoladi. Hisobot aynan shundan hisoblanadi.
+ *
+ * Jurnal bilan birga vazifaning HOZIRGI holati ham olinadi
+ * (`tasks(title, progress, status)`). Sababi: ro'yxatda faqat yarim
+ * yo'lda turgan ishlar qolishi kerak, to'liq bajarilganlar esa
+ * "bajarildi" kartasida sanaladi — ikki marta emas. Filtrning o'zi
+ * `lib/hisobot-filtr.ts` da, chunki unga test yoziladi.
  */
-export type FoizYozuvi = {
-  task_id: string
-  sarlavha: string
-  /** Davr ichida to'plangan sof o'sish, foizda */
-  osish: number
-}
-
 export function useFoizJurnali(boshlanish: string, tugash: string) {
   const supabase = useSupabase()
 
   return useQuery({
     queryKey: kalit.foizJurnali(boshlanish, tugash),
-    queryFn: async (): Promise<FoizYozuvi[]> => {
+    queryFn: async (): Promise<QismanYozuv[]> => {
       const { data, error } = await supabase
         .from('task_progress_log')
-        .select('task_id, oldingi, yangi, tasks(title)')
+        .select('task_id, oldingi, yangi, tasks(title, progress, status)')
         .gte('created_at', `${boshlanish}T00:00:00.000`)
         .lte('created_at', `${tugash}T23:59:59.999`)
 
       if (error) throw error
 
-      // Bitta vazifa bir kunda bir necha marta o'zgarishi mumkin —
-      // ularni qo'shib, bitta qatorga jamlaymiz.
-      const jami = new Map<string, FoizYozuvi>()
-      for (const q of data ?? []) {
-        const sarlavha =
-          (q.tasks as unknown as { title: string } | null)?.title ?? 'Vazifa'
-        const avvalgi = jami.get(q.task_id)
-        const farq = q.yangi - q.oldingi
-        if (avvalgi) avvalgi.osish += farq
-        else jami.set(q.task_id, { task_id: q.task_id, sarlavha, osish: farq })
-      }
+      const qatorlar: JurnalQatori[] = (data ?? []).map((q) => {
+        const vazifa = q.tasks as unknown as {
+          title: string
+          progress: number
+          status: string
+        } | null
+        return {
+          task_id: q.task_id,
+          sarlavha: vazifa?.title ?? 'Vazifa',
+          oldingi: q.oldingi,
+          yangi: q.yangi,
+          joriyFoiz: vazifa?.progress ?? 0,
+          bajarilganmi: vazifa?.status === 'done',
+        }
+      })
 
-      // Faqat haqiqiy oldinga siljish qiziq (qaytarishlar emas)
-      return [...jami.values()]
-        .filter((y) => y.osish > 0)
-        .sort((a, b) => b.osish - a.osish)
+      return qismanBajarilganlar(qatorlar)
     },
   })
 }

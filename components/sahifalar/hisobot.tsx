@@ -12,6 +12,7 @@ import {
   TriangleAlert,
 } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
+import { useT } from '@/components/app/til-provayder'
 import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
 import {
@@ -19,6 +20,7 @@ import {
   useHisobotVazifalari,
   usePapkaningBarchaVazifalari,
 } from '@/lib/queries/hisobot'
+import { qismanXulosa } from '@/lib/hisobot-filtr'
 import { usePapkalar } from '@/lib/queries/papkalar'
 import { useBarchaBolimlar } from '@/lib/queries/bolimlar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
@@ -599,10 +601,15 @@ function LoyihalarHolati({
 }
 
 /**
- * Davr ichida foizi oshgan vazifalar.
+ * Yarim yo'lda turgan ishlar.
  *
  * Bir kunda tugamaydigan ishlar uchun muhim: vazifa keyin ertangi
  * kunga ko'chirilsa ham, bugun qilingan ish shu yerda ko'rinib turadi.
+ *
+ * Ro'yxatga faqat bajarilishi 0% dan katta va 100% dan kichik
+ * vazifalar kiradi — to'liq tugaganlari yuqoridagi "bajarildi"
+ * kartasida sanaladi. Filtr va sarlavhadagi ko'rsatkich
+ * `lib/hisobot-filtr.ts` da hisoblanadi.
  */
 function FoizTarixi({
   boshlanish,
@@ -611,17 +618,23 @@ function FoizTarixi({
   boshlanish: string
   tugash: string
 }) {
+  const t = useT()
   const { data, isPending } = useFoizJurnali(boshlanish, tugash)
 
   if (isPending || !data || data.length === 0) return null
 
-  const jami = data.reduce((s, y) => s + y.osish, 0)
+  const xulosa = qismanXulosa(data)
 
   return (
     <section className="mt-7">
       <h2 className="mb-2 flex items-center gap-2 px-1 text-sm font-semibold text-text-muted">
-        Qisman bajarilgan ishlar
-        <span className="font-normal text-text-faint">+{jami}%</span>
+        {t('hisobot.qisman')}
+        <span className="font-normal text-text-faint">
+          {t('hisobot.qismanXulosa', {
+            soni: xulosa.soni,
+            ortacha: xulosa.ortacha,
+          })}
+        </span>
       </h2>
 
       <ul className="overflow-hidden rounded-2xl bg-surface shadow-card">
@@ -633,10 +646,15 @@ function FoizTarixi({
             <span className="min-w-0 flex-1 truncate text-sm text-text-strong">
               {y.sarlavha}
             </span>
-            <div className="h-1.5 w-24 shrink-0 overflow-hidden rounded-full bg-surface-sunken">
+            {/* Chiziq — ishning hozirgi holati; o'ngdagi raqam esa
+                aynan shu davrda qancha oldinga siljiganini ko'rsatadi */}
+            <div
+              className="h-1.5 w-24 shrink-0 overflow-hidden rounded-full bg-surface-sunken"
+              title={t('hisobot.qismanHolat', { foiz: y.joriyFoiz })}
+            >
               <div
                 className="h-full rounded-full bg-brand-accent"
-                style={{ width: `${Math.min(y.osish, 100)}%` }}
+                style={{ width: `${y.joriyFoiz}%` }}
               />
             </div>
             <span className="w-12 shrink-0 text-right text-sm font-semibold text-brand-onsoft">

@@ -286,4 +286,9 @@ export const ru: Record<MatnKaliti, string> = {
   'sozlamalar.bildirishnoma.ochirildi': 'Уведомления выключены',
   'sozlamalar.bildirishnoma.ruxsatYoq':
     'Браузер отказал. Разрешите уведомления в его настройках.',
+
+  // ---------- Отчёт ----------
+  'hisobot.qisman': 'Частично выполненные',
+  'hisobot.qismanXulosa': 'задач: {soni} · в среднем {ortacha}%',
+  'hisobot.qismanHolat': 'Сейчас выполнено {foiz}%',
 }

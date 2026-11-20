@@ -286,4 +286,9 @@ export const en: Record<MatnKaliti, string> = {
   'sozlamalar.bildirishnoma.ochirildi': 'Notifications turned off',
   'sozlamalar.bildirishnoma.ruxsatYoq':
     'The browser refused. Allow notifications in its settings.',
+
+  // ---------- Report ----------
+  'hisobot.qisman': 'Partly done',
+  'hisobot.qismanXulosa': '{soni} tasks · {ortacha}% on average',
+  'hisobot.qismanHolat': '{foiz}% done so far',
 }
