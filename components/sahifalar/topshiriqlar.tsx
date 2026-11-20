@@ -325,14 +325,18 @@ function KelganKarta({
         emas, lekin kerak bo'lganda qo'l ostida bo'lishi shart.
         Rad etishni kutish shart emas -- darhol to'xtatish mumkin.
       */}
-      <button
-        type="button"
-        onClick={() => setBlokOchiq(true)}
-        className="mt-3 flex min-h-0 items-center gap-1.5 rounded-lg px-1 py-1 text-xs font-medium text-text-faint transition hover:text-danger"
-      >
-        <Ban className="size-3.5" aria-hidden />
-        {t('topshiriq.bloklash')}
-      </button>
+      {/* Email bo'lmasa bloklab ham bo'lmaydi — tugma ko'rsatilmaydi
+          (bu holat faqat migratsiya qo'llanmaganda yuz beradi) */}
+      {tafsilot?.qarshi_email && (
+        <button
+          type="button"
+          onClick={() => setBlokOchiq(true)}
+          className="mt-3 flex min-h-0 items-center gap-1.5 rounded-lg px-1 py-1 text-xs font-medium text-text-faint transition hover:text-danger"
+        >
+          <Ban className="size-3.5" aria-hidden />
+          {t('topshiriq.bloklash')}
+        </button>
+      )}
 
       {blokOchiq && (
         <Tasdiq
