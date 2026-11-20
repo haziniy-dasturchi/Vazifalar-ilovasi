@@ -21,11 +21,17 @@ import {
   usePapkaningBarchaVazifalari,
 } from '@/lib/queries/hisobot'
 import { qismanXulosa } from '@/lib/hisobot-filtr'
+import {
+  LOYIHA_HOLATLARI,
+  loyihalarniGuruhla,
+  type LoyihaHolati,
+} from '@/lib/loyiha-guruhlari'
 import { usePapkalar } from '@/lib/queries/papkalar'
 import { useBarchaBolimlar } from '@/lib/queries/bolimlar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
 import { bugunISO, isoGa, toliqSana } from '@/lib/sana'
 import { iyerarxiya, saralash, subtasklar as olBolalar } from '@/lib/vazifa-yordam'
+import type { MatnKaliti } from '@/lib/i18n'
 import type { Task } from '@/types/vazifalar'
 
 type Oraliq = { nom: string; boshlanish: string; tugash: string }
@@ -503,6 +509,60 @@ function VazifaRoyxati({
   )
 }
 
+type LoyihaSatri = {
+  id: string
+  nom: string
+  jami: number
+  bajarilgan: number
+  qolgan: number
+  foiz: number
+}
+
+const LOYIHA_GURUH_KALITI: Record<LoyihaHolati, MatnKaliti> = {
+  jarayonda: 'loyiha.guruh.jarayonda',
+  rejada: 'loyiha.guruh.rejada',
+  bajarilgan: 'loyiha.guruh.bajarilgan',
+}
+
+/** Bitta loyiha kartasi — guruhlar ichida takrorlanadi */
+function LoyihaKartasi({ loyiha: l }: { loyiha: LoyihaSatri }) {
+  const tugagan = l.jami > 0 && l.foiz === 100
+
+  return (
+    <li className="rounded-2xl bg-surface p-4 shadow-card">
+      <div className="flex items-center justify-between gap-2">
+        <span className="truncate text-sm font-medium text-text-strong">
+          {l.nom}
+        </span>
+        <span
+          className="shrink-0 text-sm font-semibold"
+          style={{ color: holatRangi(l.foiz) }}
+        >
+          {l.foiz}%
+        </span>
+      </div>
+
+      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-sunken">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{
+            width: `${l.foiz}%`,
+            backgroundColor: holatRangi(l.foiz),
+          }}
+        />
+      </div>
+
+      <p className="mt-1 text-xs text-text-faint">
+        {l.jami === 0
+          ? 'Hali vazifa qo‘shilmagan'
+          : tugagan
+            ? `Tugallandi — ${l.jami} ta ishning hammasi bajarildi`
+            : `${l.bajarilgan}/${l.jami} ta bajarildi · yana ${l.qolgan} ta qoldi`}
+      </p>
+    </li>
+  )
+}
+
 /**
  * Loyihalar holati — Zeygarnik effekti.
  *
@@ -515,18 +575,16 @@ function LoyihalarHolati({
   loyihalar,
   papkaId,
 }: {
-  loyihalar: {
-    id: string
-    nom: string
-    jami: number
-    bajarilgan: number
-    qolgan: number
-    foiz: number
-  }[]
+  loyihalar: LoyihaSatri[]
   papkaId?: string
 }) {
+  const t = useT()
   const tugallanmagan = loyihalar.filter((l) => l.jami > 0 && l.foiz < 100)
   const engYaqin = [...tugallanmagan].sort((a, b) => b.foiz - a.foiz)[0]
+
+  // Tugagan loyihalar sukut bo'yicha yig'ilgan
+  const [bajarilganOchiq, setBajarilganOchiq] = useState(false)
+  const guruhlar = loyihalarniGuruhla(loyihalar, (l) => l)
 
   return (
     <section className="mt-7">
@@ -549,44 +607,57 @@ function LoyihalarHolati({
         </div>
       )}
 
-      <ul className="space-y-2">
-        {loyihalar.map((l) => {
-          const tugagan = l.jami > 0 && l.foiz === 100
-          return (
-            <li key={l.id} className="rounded-2xl bg-surface p-4 shadow-card">
-              <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-sm font-medium text-text-strong">
-                  {l.nom}
-                </span>
-                <span
-                  className="shrink-0 text-sm font-semibold"
-                  style={{ color: holatRangi(l.foiz) }}
-                >
-                  {l.foiz}%
-                </span>
-              </div>
+      {/* Uch guruh: jarayonda → rejada → bajarilgan (yig'iladigan) */}
+      {LOYIHA_HOLATLARI.map((holat) => {
+        const royxat = guruhlar[holat]
+        if (royxat.length === 0) return null
 
-              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-sunken">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${l.foiz}%`,
-                    backgroundColor: holatRangi(l.foiz),
-                  }}
+        const yigiladigan = holat === 'bajarilgan'
+        const ochiq = !yigiladigan || bajarilganOchiq
+
+        return (
+          <div key={holat} className="mb-4 last:mb-0">
+            {yigiladigan ? (
+              <button
+                type="button"
+                onClick={() => setBajarilganOchiq((v) => !v)}
+                aria-expanded={ochiq}
+                className="mb-2 flex w-full min-h-0 items-center gap-2 rounded-lg px-1 py-1.5 text-left transition hover:bg-surface-muted"
+              >
+                <ChevronDown
+                  className={`size-4 shrink-0 text-text-faint transition ${
+                    ochiq ? '' : '-rotate-90'
+                  }`}
+                  aria-hidden
                 />
+                <span className="flex-1 text-xs font-semibold text-text-muted">
+                  {t(LOYIHA_GURUH_KALITI[holat])}
+                </span>
+                <span className="shrink-0 text-xs text-text-faint">
+                  {royxat.length}
+                </span>
+              </button>
+            ) : (
+              <div className="mb-2 flex items-center gap-2 px-1 py-1.5">
+                <span className="flex-1 text-xs font-semibold text-text-muted">
+                  {t(LOYIHA_GURUH_KALITI[holat])}
+                </span>
+                <span className="shrink-0 text-xs text-text-faint">
+                  {royxat.length}
+                </span>
               </div>
+            )}
 
-              <p className="mt-1 text-xs text-text-faint">
-                {l.jami === 0
-                  ? 'Hali vazifa qo‘shilmagan'
-                  : tugagan
-                    ? `Tugallandi — ${l.jami} ta ishning hammasi bajarildi`
-                    : `${l.bajarilgan}/${l.jami} ta bajarildi · yana ${l.qolgan} ta qoldi`}
-              </p>
-            </li>
-          )
-        })}
-      </ul>
+            {ochiq && (
+              <ul className="space-y-2">
+                {royxat.map((l) => (
+                  <LoyihaKartasi key={l.id} loyiha={l} />
+                ))}
+              </ul>
+            )}
+          </div>
+        )
+      })}
 
       {papkaId && (
         <Link

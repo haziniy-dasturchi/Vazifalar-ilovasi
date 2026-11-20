@@ -163,6 +163,9 @@ export const uz = {
   'loyiha.belgisi': 'Loyiha',
   'loyiha.soni': '{son} ta loyiha',
   'loyiha.yangi': 'Yangi loyiha',
+  'loyiha.guruh.jarayonda': 'Jarayondagi loyihalar',
+  'loyiha.guruh.rejada': 'Rejadagi loyihalar',
+  'loyiha.guruh.bajarilgan': 'Bajarilgan loyihalar',
   // ---------- Topshiriqlar ----------
   'topshiriq.bolimi': 'Topshiriqlar',
   'topshiriq.kelgan': 'Menga kelgan',

@@ -33,7 +33,13 @@ import {
 } from '@/lib/queries/bolimlar'
 import { usePapkaVazifalari } from '@/lib/queries/vazifalar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
+import {
+  LOYIHA_HOLATLARI,
+  loyihalarniGuruhla,
+  type LoyihaHolati,
+} from '@/lib/loyiha-guruhlari'
 import { iyerarxiya, saralash, subtasklar } from '@/lib/vazifa-yordam'
+import type { MatnKaliti } from '@/lib/i18n'
 import type { Section, Task } from '@/types/vazifalar'
 
 export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
@@ -288,16 +294,31 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
             <InlineQoshish papkaId={papkaId} />
           </section>
 
-          {bolimlar?.map((bolim) => (
-            <BolimBloki
-              key={bolim.id}
-              bolim={bolim}
+          {/*
+            Loyihalar papkasida bo'limlar holati bo'yicha guruhlanadi:
+            jarayondagilar tepada, tugaganlari pastda va yig'ilgan
+            holda. Oddiy papkada bunday guruhlash ma'nosiz — u yerda
+            bo'lim bu shunchaki mavzu, "bajarilgan bo'lim" degan tushuncha
+            yo'q.
+          */}
+          {loyihalarmi ? (
+            <LoyihalarRoyxati
+              bolimlar={bolimlar ?? []}
               papkaId={papkaId}
-              vazifalar={bolimBoyicha(bolim)}
+              bolimVazifalari={bolimBoyicha}
               qator={qator}
-              loyihami={loyihalarmi}
             />
-          ))}
+          ) : (
+            bolimlar?.map((bolim) => (
+              <BolimBloki
+                key={bolim.id}
+                bolim={bolim}
+                papkaId={papkaId}
+                vazifalar={bolimBoyicha(bolim)}
+                qator={qator}
+              />
+            ))
+          )}
 
           {/* Yangi bo'lim */}
           {yangiBolim ? (
@@ -369,6 +390,111 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
         />
       )}
     </Sahifa>
+  )
+}
+
+// -------------------------------------------------------------
+// Loyihalar ro'yxati — holat bo'yicha uchta guruh
+// -------------------------------------------------------------
+
+const GURUH_KALITI: Record<LoyihaHolati, MatnKaliti> = {
+  jarayonda: 'loyiha.guruh.jarayonda',
+  rejada: 'loyiha.guruh.rejada',
+  bajarilgan: 'loyiha.guruh.bajarilgan',
+}
+
+/**
+ * Loyihalar uch guruhda: jarayondagilar → rejadagilar → bajarilganlar.
+ *
+ * Guruhlash har chizilishda qaytadan hisoblanadi (keshdagi vazifalar
+ * bo'yicha), shuning uchun vazifa bajarilishi bilan loyiha o'zi
+ * kerakli guruhga ko'chadi — sahifani yangilash shart emas.
+ *
+ * `useMemo` ataylab ishlatilmagan: loyihalar soni o'nlab, hisob
+ * arzon, bog'liqliklar ro'yxati esa xato manbai bo'lardi.
+ */
+function LoyihalarRoyxati({
+  bolimlar,
+  papkaId,
+  bolimVazifalari,
+  qator,
+}: {
+  bolimlar: Section[]
+  papkaId: string
+  bolimVazifalari: (bolim: Section) => Task[]
+  qator: (v: Task) => React.ReactNode
+}) {
+  const t = useT()
+  // Tugagan loyihalar sukut bo'yicha yig'ilgan — ular faqat tarix
+  const [bajarilganOchiq, setBajarilganOchiq] = useState(false)
+
+  const guruhlar = loyihalarniGuruhla(bolimlar, (bolim) => {
+    const vazifalar = bolimVazifalari(bolim)
+    return {
+      jami: vazifalar.length,
+      bajarilgan: vazifalar.filter((v) => v.status === 'done').length,
+    }
+  })
+
+  return (
+    <>
+      {LOYIHA_HOLATLARI.map((holat) => {
+        const royxat = guruhlar[holat]
+        if (royxat.length === 0) return null
+
+        const yigiladigan = holat === 'bajarilgan'
+        const ochiq = !yigiladigan || bajarilganOchiq
+
+        const sarlavha = (
+          <>
+            <span className="flex-1 text-sm font-semibold text-text-muted">
+              {t(GURUH_KALITI[holat])}
+            </span>
+            <span className="shrink-0 text-sm font-normal text-text-faint">
+              {royxat.length}
+            </span>
+          </>
+        )
+
+        return (
+          <section key={holat} className="mb-5">
+            {yigiladigan ? (
+              <button
+                type="button"
+                onClick={() => setBajarilganOchiq((v) => !v)}
+                aria-expanded={ochiq}
+                aria-label={t('loyiha.soni', { son: royxat.length })}
+                className="mb-2 flex w-full min-h-0 items-center gap-2 rounded-lg px-1 py-2 text-left transition hover:bg-surface-muted"
+              >
+                <ChevronDown
+                  className={`size-4 shrink-0 text-text-faint transition ${
+                    ochiq ? '' : '-rotate-90'
+                  }`}
+                  aria-hidden
+                />
+                {sarlavha}
+              </button>
+            ) : (
+              <div className="mb-2 flex items-center gap-2 px-1 py-2">
+                {sarlavha}
+              </div>
+            )}
+
+            {ochiq &&
+              royxat.map((bolim) => (
+                <BolimBloki
+                  key={bolim.id}
+                  bolim={bolim}
+                  papkaId={papkaId}
+                  vazifalar={bolimVazifalari(bolim)}
+                  qator={qator}
+                  loyihami
+                />
+              ))}
+          </section>
+        )
+      })}
+    </>
   )
 }
 

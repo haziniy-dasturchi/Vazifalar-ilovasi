@@ -155,6 +155,9 @@ export const ru: Record<MatnKaliti, string> = {
   'loyiha.belgisi': 'Проект',
   'loyiha.soni': 'проектов: {son}',
   'loyiha.yangi': 'Новый проект',
+  'loyiha.guruh.jarayonda': 'Проекты в работе',
+  'loyiha.guruh.rejada': 'Проекты в планах',
+  'loyiha.guruh.bajarilgan': 'Завершённые проекты',
   // ---------- Поручения ----------
   'topshiriq.bolimi': 'Поручения',
   'topshiriq.kelgan': 'Входящие',
