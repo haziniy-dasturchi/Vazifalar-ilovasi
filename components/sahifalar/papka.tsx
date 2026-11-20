@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import {
   Archive,
   ChevronDown,
+  CircleCheckBig,
   EllipsisVertical,
   FolderKanban,
   ListChecks,
@@ -91,7 +92,20 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
   const { otalar, bolalar } = iyerarxiya(vazifalar ?? [])
   const ochiqSoni = otalar.filter((v) => v.status !== 'done').length
 
-  const bolimsiz = saralash(otalar.filter((v) => v.section_id === null))
+  /*
+    Bajarilgan ishlar papka va loyihalarda KO'RSATILMAYDI.
+
+    Nega: ular to'planib borgani sari ro'yxat uzayib, hali
+    qilinmagan ish ko'zdan yo'qoladi -- papkaning butun foydasi
+    shunda edi. Tugagan ish esa endi harakat talab qilmaydi,
+    uning o'rni Hisobot sahifasida.
+
+    MUHIM: faqat KO'RINISH filtrlanadi. Sonlar (nechtadan nechta
+    bajarildi, qancha qoldi) to'liq ro'yxatdan hisoblanadi.
+  */
+  const bolimsiz = saralash(
+    otalar.filter((v) => v.section_id === null && v.status !== 'done')
+  )
   const bolimBoyicha = (bolim: Section) =>
     saralash(otalar.filter((v) => v.section_id === bolim.id))
 
@@ -271,7 +285,19 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
               <ul className="mb-2 space-y-2">{bolimsiz.map(qator)}</ul>
             ) : (
               bolimlar?.length === 0 &&
-              (papka?.is_inbox ? (
+              /*
+                Papkada vazifa bor, lekin hammasi bajarilgan --
+                "bo'sh" deyish noto'g'ri bo'lardi: odam ishlarim
+                qayoqqa ketdi deb o'ylaydi. Shuning uchun alohida
+                xabar va ular qayerdaligi aytiladi.
+              */
+              (otalar.length > 0 ? (
+                <BoshHolat
+                  ikonka={CircleCheckBig}
+                  sarlavha={t('papka.hammasiBajarildi')}
+                  matn={t('papka.hammasiBajarildiMatn')}
+                />
+              ) : papka?.is_inbox ? (
                 <BoshHolat
                   rasm="/illustrations/empty-inbox.svg"
                   sarlavha="Kiruvchi bo‘sh"
@@ -533,9 +559,12 @@ function BolimBloki({
   const [ochirishOchiq, setOchirishOchiq] = useState(false)
 
   const yopiq = bolim.is_collapsed
+  // Sonlar BARCHA vazifalardan hisoblanadi...
   const ochiqSoni = vazifalar.filter((v) => v.status !== 'done').length
   const jami = vazifalar.length
   const bajarilgan = jami - ochiqSoni
+  // ...ro'yxatda esa faqat hali qilinmaganlari ko'rinadi
+  const korinadigan = vazifalar.filter((v) => v.status !== 'done')
   const foiz = jami === 0 ? 0 : Math.round((bajarilgan / jami) * 100)
 
   async function nomniSaqla() {
@@ -693,8 +722,8 @@ function BolimBloki({
 
       {!yopiq && (
         <>
-          {vazifalar.length > 0 && (
-            <ul className="mb-2 space-y-2">{vazifalar.map(qator)}</ul>
+          {korinadigan.length > 0 && (
+            <ul className="mb-2 space-y-2">{korinadigan.map(qator)}</ul>
           )}
           <InlineQoshish papkaId={papkaId} bolimId={bolim.id} />
         </>

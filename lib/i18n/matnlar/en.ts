@@ -357,4 +357,9 @@ export const en: Record<MatnKaliti, string> = {
   'xato.offlineSarlavha': 'No internet',
   'xato.offlineMatn':
     'Right now you can only see what is stored on this device. Nothing you write is lost — it is saved automatically once you are back online.',
+
+  // ---------- Folder: everything done ----------
+  'papka.hammasiBajarildi': 'All done',
+  'papka.hammasiBajarildiMatn':
+    'Nothing open is left here. Completed tasks are hidden so they do not clutter the list — you can see them on the Report page.',
 }

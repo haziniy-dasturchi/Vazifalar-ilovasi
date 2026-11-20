@@ -370,6 +370,11 @@ export const uz = {
   'xato.offlineSarlavha': 'Internet yo‘q',
   'xato.offlineMatn':
     'Hozir faqat shu qurilmada saqlangan ro‘yxatni ko‘ra olasiz. Yozganlaringiz yo‘qolmaydi — internet qaytganda hammasi o‘zi saqlanadi.',
+
+  // ---------- Papka: hammasi bajarilgan holati ----------
+  'papka.hammasiBajarildi': 'Hammasi bajarildi',
+  'papka.hammasiBajarildiMatn':
+    'Bu yerda ochiq ish qolmadi. Bajarilgan ishlar ro‘yxatni to‘sib qo‘ymasligi uchun yashiriladi — ularni Hisobot sahifasida ko‘rasiz.',
 } as const
 
 export type MatnKaliti = keyof typeof uz
