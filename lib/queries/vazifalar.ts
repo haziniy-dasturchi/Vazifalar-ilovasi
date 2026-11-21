@@ -1,12 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-  type QueryClient,
-} from '@tanstack/react-query'
+import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
@@ -14,6 +9,7 @@ import { yangiId } from '@/lib/id'
 import { bugunISO, isoGa } from '@/lib/sana'
 import { rruleEskiga, vazifaningKeyingiSanasi } from '@/lib/takrorlanish'
 import { kalit } from './keys'
+import { useOutboxMutation } from './outbox-mutatsiya'
 import {
   MUTATSIYA,
   type HolatHarakati,
@@ -304,6 +300,89 @@ function vazifalarniYangilash(qc: QueryClient) {
 }
 
 // =============================================================
+// "Aqlli" ro'yxatlar (bugun/jarayonda/kelgusi/ertangi) — holat yoki
+// sana o'zgarsa, vazifa ulardan BIRIDAN IKKINCHISIGA "ko'chishi"
+// kerak. `keshdaYangila` buni qilolmaydi — u faqat allaqachon
+// ro'yxatda turgan yozuvning MAYDONLARINI yangilaydi, uni ro'yxatga
+// qo'shmaydi yoki ro'yxatdan chiqarmaydi.
+//
+// Internet bor paytda bu sezilmasdi: `onSettled` darhol serverdan
+// haqiqiy ro'yxatni qayta yuklardi (bir necha yuz millisekundda).
+// Internetsiz esa bu so'rov HECH QACHON tugamaydi (mutatsiya "pauza"da
+// turadi, `onSettled` ham chaqirilmaydi), shuning uchun noto'g'ri
+// ro'yxat cheksiz vaqt ko'rinib qoladi — masalan "Jarayonda"
+// sahifasiga o'tkazilgan vazifa u yerda ko'rinmaydi, "rejaga
+// qaytarilgan" vazifa esa o'sha sahifada osilib qolaveradi.
+// =============================================================
+
+function jarayondaMi(v: Pick<Task, 'status'>) {
+  return v.status === 'in_progress'
+}
+
+function bugundaMi(v: Pick<Task, 'status' | 'due_date' | 'completed_at'>) {
+  if (v.status === 'done') {
+    return Boolean(v.completed_at) && v.completed_at!.slice(0, 10) === bugunISO()
+  }
+  return Boolean(v.due_date) && v.due_date! <= bugunISO()
+}
+
+function kelgusidaMi(v: Pick<Task, 'status' | 'due_date'>) {
+  return v.status !== 'done' && Boolean(v.due_date) && v.due_date! > bugunISO()
+}
+
+function ertangaMi(v: Pick<Task, 'status' | 'due_date'>) {
+  const ertaga = new Date()
+  ertaga.setDate(ertaga.getDate() + 1)
+  return v.status !== 'done' && v.due_date === isoGa(ertaga)
+}
+
+/** Bitta ro'yxatda vazifani qo'shadi/yangilaydi (tegishli bo'lsa) yoki olib tashlaydi (bo'lmasa) */
+function royxatdaKochir(
+  qc: QueryClient,
+  queryKey: readonly unknown[],
+  vazifa: Task,
+  tegishlimi: boolean
+) {
+  qc.setQueryData<Task[]>(queryKey as unknown as readonly unknown[], (eski) => {
+    if (!eski) return eski
+    const bor = eski.some((v) => v.id === vazifa.id)
+    if (tegishlimi) {
+      return bor
+        ? eski.map((v) => (v.id === vazifa.id ? vazifa : v))
+        : [...eski, vazifa]
+    }
+    return bor ? eski.filter((v) => v.id !== vazifa.id) : eski
+  })
+}
+
+/** Keshdagi istalgan ro'yxatdan vazifaning TO'LIQ (oxirgi ma'lum) nusxasini topadi */
+function joriyVazifa(qc: QueryClient, id: string): Task | undefined {
+  for (const [, data] of qc.getQueriesData<Task[]>({ queryKey: kalit.vazifalar })) {
+    const topilgan = data?.find((v) => v.id === id)
+    if (topilgan) return topilgan
+  }
+  return undefined
+}
+
+/**
+ * Holat yoki sana o'zgarganda "aqlli" ro'yxatlarni (va papka
+ * o'zgargan bo'lsa — papka ro'yxatini ham) to'g'rilaydi.
+ * `keshdaYangila`dan KEYIN chaqiriladi — u maydonlarni yangilaydi,
+ * bu funksiya esa ro'yxatga qo'shish/chiqarishni bajaradi.
+ */
+function royxatlarniKochir(qc: QueryClient, eski: Task | undefined, yangi: Task) {
+  royxatdaKochir(qc, kalit.jarayondagi(), yangi, jarayondaMi(yangi))
+  royxatdaKochir(qc, kalit.bugungi(), yangi, bugundaMi(yangi))
+  royxatdaKochir(qc, kalit.kelgusi(), yangi, kelgusidaMi(yangi))
+  royxatdaKochir(qc, kalit.ertangi(), yangi, ertangaMi(yangi))
+
+  if (eski && eski.folder_id !== yangi.folder_id) {
+    royxatdaKochir(qc, kalit.papkaVazifalari(eski.folder_id), yangi, false)
+    royxatdaKochir(qc, kalit.papkaVazifalari(yangi.folder_id), yangi, true)
+  }
+}
+
+// =============================================================
 // O'zgartirishlar
 // =============================================================
 
@@ -314,7 +393,7 @@ export function useVazifaYaratish() {
   const qc = useQueryClient()
   const { id: userId } = useFoydalanuvchi()
 
-  return useMutation({
+  return useOutboxMutation({
     mutationKey: MUTATSIYA.vazifaYaratish,
 
     onMutate: async (yangi: YangiVazifa) => {
@@ -348,6 +427,8 @@ export function useVazifaYaratish() {
         sort_order: 9999,
         started_at: holat === 'in_progress' ? hozir : null,
         completed_at: null,
+        // Faqat takrorlanuvchi vazifa bajarilganda to'ladi
+        prev_due_date: null,
         notified_at: null,
         deleted_at: null,
         created_at: hozir,
@@ -386,7 +467,7 @@ export function useVazifaYangilash() {
   const supabase = useSupabase()
   const qc = useQueryClient()
 
-  return useMutation({
+  return useOutboxMutation({
     mutationKey: MUTATSIYA.vazifaYangilash,
 
     onMutate: async ({
@@ -397,7 +478,9 @@ export function useVazifaYangilash() {
     }: VazifaOzgarishi & { id: string; mijozVaqti?: string }) => {
       await qc.cancelQueries({ queryKey: kalit.vazifalar })
       const nusxa = keshNusxasi(qc)
+      const eskiVazifa = joriyVazifa(qc, id)
       keshdaYangila(qc, id, ozgarish as Partial<Task>)
+      if (eskiVazifa) royxatlarniKochir(qc, eskiVazifa, { ...eskiVazifa, ...ozgarish })
       return { nusxa }
     },
 
@@ -410,7 +493,7 @@ export function useVazifaOchirish() {
   const supabase = useSupabase()
   const qc = useQueryClient()
 
-  return useMutation({
+  return useOutboxMutation({
     mutationKey: MUTATSIYA.vazifaOchirish,
 
     onMutate: async (id: string) => {
@@ -430,13 +513,6 @@ export function useVazifaOchirish() {
 // -------------------------------------------------------------
 
 
-const RPC_NOMI: Record<HolatHarakati, 'start_task' | 'move_back' | 'complete_task' | 'uncomplete_task'> = {
-  boshlash: 'start_task',
-  rejaga: 'move_back',
-  bajarish: 'complete_task',
-  qaytarish: 'uncomplete_task',
-}
-
 /** Optimistik ko'rinish uchun kutilayotgan holat */
 const KUTILGAN_HOLAT: Record<HolatHarakati, Task['status']> = {
   boshlash: 'in_progress',
@@ -449,7 +525,7 @@ export function useVazifaHolati() {
   const supabase = useSupabase()
   const qc = useQueryClient()
 
-  return useMutation({
+  return useOutboxMutation({
     mutationKey: MUTATSIYA.vazifaHolati,
 
     onMutate: async ({
@@ -466,6 +542,7 @@ export function useVazifaHolati() {
     }) => {
       await qc.cancelQueries({ queryKey: kalit.vazifalar })
       const nusxa = keshNusxasi(qc)
+      const eskiVazifa = joriyVazifa(qc, id)
       const hozir = new Date().toISOString()
       const holat = KUTILGAN_HOLAT[harakat]
 
@@ -496,9 +573,36 @@ export function useVazifaHolati() {
         ozgarish.progress = 0
         ozgarish.completed_at = null
         ozgarish.started_at = null
+        // Bekor qilinsa shu sanaga qaytariladi — serverda ham
+        // shunday yoziladi. Internetsiz bajarib, keyin darhol
+        // bekor qilish uchun ham shart.
+        ozgarish.prev_due_date = eskiVazifa?.due_date ?? null
+      }
+
+      /*
+        BEKOR QILISH ikki xil bo'ladi:
+
+        * oddiy vazifa — holati "done", uni "planned" ga qaytarish
+          kifoya (yuqoridagi `status` o'zgarishi);
+        * takrorlanuvchi — bajarilgan zahoti keyingi sanaga surilgan
+          va holati allaqachon "planned". Uni "qaytarish" aslida
+          SANANI orqaga olish demak.
+
+        `prev_due_date` bo'sh bo'lishi mumkin: bu imkoniyat
+        qo'shilishidan oldin bajarilgan vazifalarda u yo'q. O'shanda
+        server oxirgi "bajarildi" hodisasining kuniga qaytaradi —
+        bu yerda esa u deyarli har doim bugun bo'ladi.
+      */
+      if (harakat === 'qaytarish') {
+        ozgarish.prev_due_date = null
+        if (eskiVazifa && eskiVazifa.status !== 'done') {
+          ozgarish.due_date = eskiVazifa.prev_due_date ?? bugunISO()
+          ozgarish.started_at = null
+        }
       }
 
       keshdaYangila(qc, id, ozgarish)
+      if (eskiVazifa) royxatlarniKochir(qc, eskiVazifa, { ...eskiVazifa, ...ozgarish })
 
       if (harakat === 'bajarish' && subtasklarBilan && !keyingiSana) {
         qc.setQueriesData<Task[]>({ queryKey: kalit.vazifalar }, (eski) =>
@@ -516,7 +620,11 @@ export function useVazifaHolati() {
     onSuccess: (vazifa: Task | undefined) => {
       // Takrorlanuvchi vazifa serverda keyingi sanaga suriladi —
       // serverdan kelgan qator bilan almashtiramiz
-      if (vazifa?.id) keshdaYangila(qc, vazifa.id, vazifa)
+      if (vazifa?.id) {
+        const eskiVazifa = joriyVazifa(qc, vazifa.id)
+        keshdaYangila(qc, vazifa.id, vazifa)
+        royxatlarniKochir(qc, eskiVazifa, vazifa)
+      }
     },
 
     onError: (_xato, _args, context) => keshniTikla(qc, context?.nusxa),

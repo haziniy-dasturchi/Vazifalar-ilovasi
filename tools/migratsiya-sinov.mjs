@@ -237,6 +237,110 @@ try {
   console.log(" OK: noto'g'ri email rad etildi")
 }
 
+// -------------------------------------------------------------
+// Bajarishni bekor qilish — undo_complete_task
+// -------------------------------------------------------------
+console.log('\n== bajarishni bekor qilish ==')
+
+const PAPKA = '11111111-0000-4000-8000-000000000001'
+
+function belgi(nom, shart) {
+  if (!shart) xato += 1
+  console.log(` ${shart ? 'OK' : 'XATO'}: ${nom}`)
+}
+
+/** Taqqoslashlar SQL ichida: sana hisobi JS va Postgres orasida sirpanmasin */
+const holatSorovi = (id, ifodalar) =>
+  db.query(`
+    select status,
+           (select count(*)::int from public.task_events e
+             where e.task_id = t.id and e.event = 'completed') as hodisa,
+           ${ifodalar}
+      from public.tasks t where t.id = '${id}'`)
+
+// --- Takrorlanuvchi: bajarildi -> surildi -> bekor qilindi
+const T1 = '22222222-0000-4000-8000-000000000001'
+await db.exec(`
+  insert into public.tasks
+    (id, user_id, folder_id, title, due_date, deadline, rrule, rrule_start)
+  values ('${T1}', '${uid}', '${PAPKA}', 'Har kuni',
+          current_date, current_date + 5, 'FREQ=DAILY', current_date);
+`)
+await db.exec(`select public.complete_task('${T1}', false, (current_date + 1)::date, true);`)
+
+let h = (
+  await holatSorovi(
+    T1,
+    `due_date = current_date + 1 as sana,
+     prev_due_date = current_date as oldingi,
+     deadline = current_date + 6 as muddat`
+  )
+).rows[0]
+belgi('keyingi kunga surildi', h.sana === true && h.status === 'planned')
+belgi('oldingi sana saqlandi', h.oldingi === true)
+belgi('muddat ham surildi', h.muddat === true)
+belgi("'completed' hodisasi yozildi", h.hodisa === 1)
+
+await db.exec(`select public.undo_complete_task('${T1}');`)
+h = (
+  await holatSorovi(
+    T1,
+    `due_date = current_date as sana,
+     prev_due_date is null as oldingi,
+     deadline = current_date + 5 as muddat`
+  )
+).rows[0]
+belgi('sana orqaga qaytdi', h.sana === true && h.status === 'planned')
+belgi('oldingi sana tozalandi', h.oldingi === true)
+belgi('muddat ham qaytdi', h.muddat === true)
+belgi('hisobotdagi yozuv olib tashlandi', h.hodisa === 0)
+
+// --- Oddiy (takrorlanmaydigan) vazifa
+const T2 = '22222222-0000-4000-8000-000000000002'
+await db.exec(`
+  insert into public.tasks (id, user_id, folder_id, title, due_date)
+  values ('${T2}', '${uid}', '${PAPKA}', 'Bir martalik', current_date);
+`)
+await db.exec(`select public.complete_task('${T2}');`)
+h = (await holatSorovi(T2, `true as x`)).rows[0]
+belgi('oddiy vazifa bajarildi', h.status === 'done' && h.hodisa === 1)
+
+await db.exec(`select public.undo_complete_task('${T2}');`)
+h = (await holatSorovi(T2, `due_date = current_date as sana`)).rows[0]
+belgi(
+  'oddiy vazifa rejaga qaytdi',
+  h.status === 'planned' && h.hodisa === 0 && h.sana === true
+)
+
+// --- Eski yozuv: prev_due_date yo'q, faqat hodisa kuni ma'lum
+const T3 = '22222222-0000-4000-8000-000000000003'
+await db.exec(`
+  insert into public.tasks
+    (id, user_id, folder_id, title, due_date, rrule, rrule_start)
+  values ('${T3}', '${uid}', '${PAPKA}', 'Eski takror',
+          current_date, 'FREQ=DAILY', current_date);
+`)
+await db.exec(`select public.complete_task('${T3}', false, (current_date + 2)::date, true);`)
+// Migratsiyadan oldin bajarilgan vazifani taqlid qilamiz
+await db.exec(`update public.tasks set prev_due_date = null where id = '${T3}';`)
+
+await db.exec(`select public.undo_complete_task('${T3}');`)
+h = (await holatSorovi(T3, `due_date = current_date as sana`)).rows[0]
+belgi(
+  'eski yozuv hodisa kuniga qaytdi',
+  h.status === 'planned' && h.sana === true && h.hodisa === 0
+)
+
+// --- Ikkinchi marta chaqirilsa xato bermasin (offline navbat qayta yuborishi mumkin)
+try {
+  await db.exec(`select public.undo_complete_task('${T3}');`)
+  h = (await holatSorovi(T3, `due_date = current_date as sana`)).rows[0]
+  belgi('ikkinchi bekor qilish zararsiz', h.status === 'planned' && h.sana === true)
+} catch (e) {
+  xato += 1
+  console.log(` XATO: ikkinchi bekor qilish xato berdi — ${e.message}`)
+}
+
 await db.close()
 console.log(xato === 0 ? '\nHAMMASI JOYIDA' : `\n${xato} ta muammo`)
 process.exit(xato === 0 ? 0 : 1)

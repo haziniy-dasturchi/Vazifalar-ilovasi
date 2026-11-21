@@ -7,6 +7,7 @@ import { del, get, set } from 'idb-keyval'
 import { useEffect, useState } from 'react'
 import { ToastProvider } from '@/components/ui/toast'
 import { OfflineBelgisi } from '@/components/app/offline-belgisi'
+import { OfflineTahrirlashOynasi } from '@/components/app/offline-tahrirlash-oynasi'
 import { mutatsiyalarniRoyxatdanOtkaz } from '@/lib/queries/mutatsiya-sozlamalari'
 
 /** Kesh IndexedDB'da — localStorage'dan farqli, katta va bloklamaydi */
@@ -97,6 +98,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       */}
       <ToastProvider>
         <OfflineBelgisi />
+        <OfflineTahrirlashOynasi />
         {children}
       </ToastProvider>
     </PersistQueryClientProvider>

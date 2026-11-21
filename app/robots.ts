@@ -1,6 +1,9 @@
 import type { MetadataRoute } from 'next'
 import { DOMEN } from '@/lib/huquqiy'
 
+// Mazmuni har doim bir xil — statik eksport (Capacitor build) buni talab qiladi
+export const dynamic = 'force-static'
+
 /**
  * Qidiruv robotlari uchun qoidalar.
  *

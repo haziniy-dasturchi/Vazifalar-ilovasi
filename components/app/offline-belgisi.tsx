@@ -1,78 +1,119 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { onlineManager, useMutationState } from '@tanstack/react-query'
-import { CloudOff, RefreshCw, TriangleAlert } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import {
+  onlineManager,
+  useMutationState,
+  useQueryClient,
+} from '@tanstack/react-query'
+import { CircleCheck, CloudOff, RefreshCw, TriangleAlert } from 'lucide-react'
 import { useT } from '@/components/app/til-provayder'
+import { ilovaNativemi } from '@/lib/platform'
 
 /**
  * Yuqoridagi ingichka holat chizig'i.
  *
- * Uchta holat ko'rsatiladi:
- *   1. Internet yo'q — ishlashda davom etish mumkinligi;
- *   2. Navbatda turgan o'zgarishlar soni;
- *   3. Saqlanmagan o'zgarishlar (server rad etgan).
+ * Platformaga qarab MA'NOSI boshqacha:
+ *   - Appda: o'zgarishlar internetsiz ham navbatga (outbox) tushadi —
+ *     shuning uchun "ishlashda davom eting, saqlanmoqda" deyiladi.
+ *   - Veb'da: offline paytda tahrirlash bloklangan (`useOutboxMutation`),
+ *     shuning uchun bu yerda faqat "faqat ko'rish" ekanini aytamiz —
+ *     "o'zgarish kutmoqda" degan gap veb'da HECH QACHON chiqmaydi,
+ *     chunki navbatga hech narsa tushmaydi.
  *
- * Nega muhim: bu shunchaki ogohlantirish emas. Foydalanuvchi
- * yozganlari yo'qolmasligini KO'RIB turishi kerak, aks holda
- * ishonchni yo'qotadi va ilovani tashlab ketadi. "N ta o'zgarish
- * kutmoqda" degan aniq raqam "hammasi joyida" degan umumiy
- * so'zdan ko'ra ishonchliroq.
+ * Ikkisida ham: texnik xato matni (server javobi) foydalanuvchiga
+ * KO'RSATILMAYDI — faqat console'ga yoziladi. Ekranda faqat umumiy,
+ * do'stona xabar turadi.
  */
 export function OfflineBelgisi() {
   const t = useT()
+  const qc = useQueryClient()
   const [onlayn, setOnlayn] = useState(true)
+  const [sinxronlandiKorsat, setSinxronlandiKorsat] = useState(false)
 
   useEffect(() => {
     setOnlayn(onlineManager.isOnline())
     return onlineManager.subscribe((holat) => setOnlayn(holat))
   }, [])
 
-  // Internet yo'qligi sababli to'xtab turgan yozuvlar
+  // Internet yo'qligi sababli to'xtab turgan yozuvlar (faqat appda bo'ladi)
   const kutayotgan = useMutationState({
     filters: { predicate: (m) => m.state.isPaused },
   }).length
 
-  /*
-    Server rad etgan yozuvlar — bular o'zi qayta urinmaydi.
-
-    Xatoning O'Z XABARI ham ko'rsatiladi. Oldin faqat "saqlanmadi"
-    deyilardi va sababni bilishning yagona yo'li brauzer
-    konsolini ochish edi — oddiy foydalanuvchi uchun bu imkonsiz,
-    men uchun esa har safar so'rab-surishtirish demakdi.
-  */
+  // Server rad etgan yozuvlar — o'zi qayta urinmaydi, lekin yo'qolmaydi
   const xatoXabarlari = useMutationState({
     filters: { status: 'error' },
     select: (m) => (m.state.error as Error | null)?.message ?? '',
   })
   const xatolar = xatoXabarlari.length
-  const birinchiXabar = xatoXabarlari.find((x) => x.length > 0)
 
-  if (onlayn && kutayotgan === 0 && xatolar === 0) return null
+  // Haqiqiy xato matni faqat konsolga — foydalanuvchi texnik tilni
+  // o'qishi shart emas, lekin dastur ustida ishlayotgan odam ko'rishi kerak
+  useEffect(() => {
+    if (xatoXabarlari.length > 0) console.error('[offline]', xatoXabarlari)
+  }, [xatoXabarlari])
+
+  // "Sinxronlandi" belgisi: navbat N>0 dan 0 ga TUSHGAN zahoti 2.5
+  // soniya ko'rinib, o'zi yo'qoladi. Oldingi qiymatni o'zimiz
+  // kuzatamiz — aks holda sahifa ochilganda (navbat boshidanoq 0
+  // bo'lsa) ham bu belgi behuda chiqib ketardi.
+  const oldingiKutayotgan = useRef(kutayotgan)
+  useEffect(() => {
+    if (onlayn && oldingiKutayotgan.current > 0 && kutayotgan === 0) {
+      setSinxronlandiKorsat(true)
+      const vaqt = window.setTimeout(() => setSinxronlandiKorsat(false), 2500)
+      oldingiKutayotgan.current = kutayotgan
+      return () => window.clearTimeout(vaqt)
+    }
+    oldingiKutayotgan.current = kutayotgan
+  }, [onlayn, kutayotgan])
+
+  function qaytaUrin() {
+    const mutatsiyalar = qc
+      .getMutationCache()
+      .getAll()
+      .filter((m) => m.state.status === 'error')
+    for (const m of mutatsiyalar) {
+      m.execute(m.state.variables).catch((xato) => console.error('[offline]', xato))
+    }
+  }
+
+  if (onlayn && kutayotgan === 0 && xatolar === 0 && !sinxronlandiKorsat) {
+    return null
+  }
 
   return (
     <div className="sticky top-0 z-50">
       {!onlayn && (
-        <Chiziq uslub="qora" ikonka={CloudOff}>
-          {t('offline.yoq')}
-          {kutayotgan > 0 && ` · ${t('offline.kutmoqda', { n: kutayotgan })}`}
+        <Chiziq ikonka={CloudOff}>
+          {ilovaNativemi()
+            ? t('offline.yoq')
+            : t('offline.faqatKorish')}
+          {ilovaNativemi() && kutayotgan > 0 && ` · ${t('offline.kutmoqda', { n: kutayotgan })}`}
         </Chiziq>
       )}
 
       {onlayn && kutayotgan > 0 && (
-        <Chiziq uslub="qora" ikonka={RefreshCw}>
+        <Chiziq ikonka={RefreshCw} aylanmoqda>
           {t('offline.yuborilmoqda', { n: kutayotgan })}
         </Chiziq>
       )}
 
+      {onlayn && kutayotgan === 0 && xatolar === 0 && sinxronlandiKorsat && (
+        <Chiziq ikonka={CircleCheck}>{t('offline.sinxronlandi')}</Chiziq>
+      )}
+
       {xatolar > 0 && (
-        <Chiziq uslub="xato" ikonka={TriangleAlert}>
+        <Chiziq ikonka={TriangleAlert} xato>
           {t('offline.xato', { n: xatolar })}
-          {birinchiXabar && (
-            <span className="ml-2 font-normal opacity-90">
-              — {birinchiXabar.slice(0, 160)}
-            </span>
-          )}
+          <button
+            type="button"
+            onClick={qaytaUrin}
+            className="ml-2 shrink-0 underline underline-offset-2"
+          >
+            {t('offline.qaytaUrinish')}
+          </button>
         </Chiziq>
       )}
     </div>
@@ -80,22 +121,26 @@ export function OfflineBelgisi() {
 }
 
 function Chiziq({
-  uslub,
   ikonka: Ikonka,
+  xato = false,
+  aylanmoqda = false,
   children,
 }: {
-  uslub: 'qora' | 'xato'
   ikonka: typeof CloudOff
+  xato?: boolean
+  aylanmoqda?: boolean
   children: React.ReactNode
 }) {
   return (
     <div
       role="status"
-      className={`flex items-center justify-center gap-2 px-4 py-1.5 text-xs font-medium text-white ${
-        uslub === 'xato' ? 'bg-danger' : 'bg-brand-ink'
+      className={`flex items-center justify-center gap-2 border-b px-4 py-1.5 text-xs font-medium ${
+        xato
+          ? 'border-danger/20 bg-danger-soft text-danger'
+          : 'border-border-subtle bg-surface-sunken text-text-muted'
       }`}
     >
-      <Ikonka className="size-3.5 shrink-0" aria-hidden />
+      <Ikonka className={`size-3.5 shrink-0 ${aylanmoqda ? 'animate-spin' : ''}`} aria-hidden />
       <span className="truncate">{children}</span>
     </div>
   )

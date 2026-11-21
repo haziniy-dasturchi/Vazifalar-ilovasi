@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
+import { useOrqagaYopish } from '@/lib/orqaga'
 
 /**
  * Bir nechta oyna ustma-ust ochilishi mumkin (masalan vazifani
@@ -54,6 +55,9 @@ export function Oyna({
   */
   const yopRef = useRef(yop)
   yopRef.current = yop
+
+  // Android "orqaga" tugmasi ilovani emas, shu oynani yopadi
+  useOrqagaYopish(true, () => yopRef.current())
 
   // Escape bilan yopish (faqat eng tepadagi oyna uchun) va orqa fonni qotirish
   useEffect(() => {

@@ -43,6 +43,7 @@ import {
 } from '@/lib/takrorlanish'
 import { TakrorlanishOynasi } from '@/components/ui/takrorlanish-oynasi'
 import type { MatnKaliti } from '@/lib/i18n'
+import { useOrqagaYopish } from '@/lib/orqaga'
 
 /** Dushanbadan boshlab hafta kunlari qisqartmasi (kalendar sarlavhasi uchun) */
 const HAFTA_KUNLARI: MatnKaliti[] = [
@@ -102,6 +103,7 @@ export function SanaTanlagich({
 }) {
   const t = useT()
   const [ochiq, setOchiq] = useState(false)
+  useOrqagaYopish(ochiq, () => setOchiq(false))
   // "Boshqa…" oynasi. Sana paneli portalda z-[100] da turadi,
   // oyna esa z-50 — shuning uchun oyna ochilishidan oldin panel
   // yopiladi, aks holda oyna panel ostida qolib ketardi.

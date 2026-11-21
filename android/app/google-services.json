@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "238062493967",
+    "project_id": "samara-88f9a",
+    "storage_bucket": "samara-88f9a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:238062493967:android:3d1c7289787543efdd5e7a",
+        "android_client_info": {
+          "package_name": "uz.samaralikun.samara"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9Lgr9JMrpGIBpGd7IzcFIDOhIcxwaZc0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

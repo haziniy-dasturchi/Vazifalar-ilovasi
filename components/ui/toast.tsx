@@ -81,8 +81,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
+      {/* Telefonda pastki menyu (≈4rem) USTIDA chiqadi — avval uni
+          to'sib qo'yardi va xabar yopilguncha bo'limga o'tib bo'lmasdi */}
       <div
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-100 flex flex-col items-center gap-2 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:items-end md:p-6"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-100 flex flex-col items-center gap-2 p-4 pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:items-end md:p-6"
         role="status"
         aria-live="polite"
       >

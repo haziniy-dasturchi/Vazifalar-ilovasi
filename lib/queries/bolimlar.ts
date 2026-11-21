@@ -1,11 +1,12 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { kalit } from './keys'
+import { useOutboxMutation } from './outbox-mutatsiya'
 import {
   MUTATSIYA,
   type BolimOzgarishi,
@@ -96,7 +97,7 @@ export function useBolimYaratish(papkaId: string) {
   // yerda tipni aniq bog'lamaslik "Bo'lim qo'shilmadi" xatosiga olib
   // kelgandi — chaqiruvchi matn yuborardi, mutationFn esa obyekt
   // kutardi va TypeScript buni sezmasdi.
-  return useMutation<Section, Error, YangiBolim, { oldingi?: Section[] }>({
+  return useOutboxMutation<Section, Error, YangiBolim, { oldingi?: Section[] }>({
     mutationKey: MUTATSIYA.bolimYaratish,
 
     onMutate: async (yangi) => {
@@ -135,7 +136,7 @@ export function useBolimYaratish(papkaId: string) {
 export function useBolimYangilash(papkaId: string) {
   const qc = useQueryClient()
 
-  return useMutation<Section, Error, BolimOzgarishi, { oldingi?: Section[] }>({
+  return useOutboxMutation<Section, Error, BolimOzgarishi, { oldingi?: Section[] }>({
     mutationKey: MUTATSIYA.bolimYangilash,
 
     onMutate: async ({ id, ...ozgarish }) => {
@@ -162,7 +163,7 @@ export function useBolimYangilash(papkaId: string) {
 export function useBolimOchirish(papkaId: string) {
   const qc = useQueryClient()
 
-  return useMutation<string, Error, string, { oldingi?: Section[] }>({
+  return useOutboxMutation<string, Error, string, { oldingi?: Section[] }>({
     mutationKey: MUTATSIYA.bolimOchirish,
 
     onMutate: async (id) => {

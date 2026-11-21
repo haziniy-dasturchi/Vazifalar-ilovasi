@@ -32,10 +32,7 @@ export function BugunKorinishi() {
   const bugungi = saralash(
     otalar.filter((v) => v.status !== 'done' && v.due_date === bugun)
   )
-  const { bajarilgan, takrorBajarilganIdlari } = bugungiBajarilganlar(
-    otalar,
-    bugun
-  )
+  const { bajarilgan } = bugungiBajarilganlar(otalar, bugun)
 
   const hammasiBosh =
     kechikkan.length === 0 && bugungi.length === 0 && bajarilgan.length === 0
@@ -50,7 +47,6 @@ export function BugunKorinishi() {
         papkaNomi={papka?.name}
         papkaRangi={papka?.color}
         bolimNomi={v.section_id ? bolimNomlari.get(v.section_id) : undefined}
-        qaytarishMumkinEmas={takrorBajarilganIdlari.has(v.id)}
       />
     )
   }

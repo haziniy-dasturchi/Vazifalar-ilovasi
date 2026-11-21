@@ -288,6 +288,14 @@ export const ru: Record<MatnKaliti, string> = {
     'Без напоминаний задачи с указанным временем легко пропустить. Браузер один раз спросит разрешение.',
   'sozlamalar.bildirishnoma.qaytarish':
     'Чтобы вернуть разрешение, нажмите значок замка в адресной строке браузера и переведите «Уведомления» в разрешённые.',
+  'sozlamalar.bildirishnoma.tavsiyaMatnIlova':
+    'Без напоминаний задачи с указанным временем легко пропустить. Телефон один раз спросит разрешение.',
+  'sozlamalar.bildirishnoma.radEtilganIlova':
+    'Уведомления запрещены в настройках телефона.',
+  'sozlamalar.bildirishnoma.qaytarishIlova':
+    'Чтобы вернуть разрешение, откройте «Настройки» → «Приложения» → «Samara» → «Уведомления» и включите их.',
+  'sozlamalar.bildirishnoma.ruxsatYoqIlova':
+    'Телефон отказал. Разрешите уведомления в настройках телефона.',
   'sozlamalar.bildirishnoma.yoqildi': 'Уведомления включены',
   'sozlamalar.bildirishnoma.ochirildi': 'Уведомления выключены',
   'sozlamalar.bildirishnoma.ruxsatYoq':
@@ -351,8 +359,21 @@ export const ru: Record<MatnKaliti, string> = {
   'offline.yoq': 'Нет интернета — продолжайте работать, изменения сохранятся при подключении',
   'offline.kutmoqda': 'изменений в очереди: {n}',
   'offline.yuborilmoqda': 'Синхронизация изменений: {n}',
+  'offline.sinxronlandi': 'Синхронизировано',
   'offline.xato':
     'Не сохранено изменений: {n}. Перезагрузите приложение и попробуйте снова.',
+  'offline.qaytaUrinish': 'Повторить',
+  'offline.faqatKorish': 'Офлайн-режим: только просмотр',
+
+  // ---------- Окно "Нет интернета" (веб, при попытке изменить) ----------
+  'offlineOyna.sarlavha': 'Нет подключения к интернету',
+  'offlineOyna.matn':
+    'Чтобы изменить данные, подключите устройство к интернету. Сохранённые задачи пока можно только просматривать.',
+  'offlineOyna.tushunarli': 'Понятно',
+  'offlineOyna.qaytaTekshirish': 'Проверить снова',
+  'offlineOyna.hamonYoq': 'Интернет пока не найден',
+  'offlineOyna.qaytdi': 'Подключение восстановлено',
+  'offlineOyna.ilovaniYukla': 'Скачайте приложение Samara для работы офлайн',
 
   // ---------- Ошибка и состояние соединения ----------
   'xato.sarlavha': 'Не удалось загрузить данные',

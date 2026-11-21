@@ -8,6 +8,7 @@ import {
   bildirishnomaHolati,
   bildirishnomaniYoqish,
 } from '@/lib/bildirishnoma'
+import { ilovaNativemi } from '@/lib/platform'
 
 /** Oxirgi marta qachon ko'rsatilgani (millisekund) */
 const KALIT = 'samara-bildirishnoma-eslatmasi'
@@ -83,9 +84,17 @@ export function BildirishnomaEslatmasi() {
           tone: 'muvaffaqiyat',
         })
       } else if (yangi === 'rad-etilgan') {
-        toast({ matn: t('sozlamalar.bildirishnoma.ruxsatYoq'), tone: 'xato' })
+        toast({
+          matn: t(
+            ilovaNativemi()
+              ? 'sozlamalar.bildirishnoma.ruxsatYoqIlova'
+              : 'sozlamalar.bildirishnoma.ruxsatYoq'
+          ),
+          tone: 'xato',
+        })
       }
-    } catch {
+    } catch (xato) {
+      console.error('Bildirishnoma:', xato)
       toast({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
       keyinroq()
     } finally {

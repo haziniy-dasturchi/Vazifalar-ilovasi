@@ -288,6 +288,14 @@ export const en: Record<MatnKaliti, string> = {
     'Without reminders, tasks with a set time are easy to miss. Your browser will ask for permission once.',
   'sozlamalar.bildirishnoma.qaytarish':
     'To allow them again, click the lock icon in your browser’s address bar and set “Notifications” to allowed.',
+  'sozlamalar.bildirishnoma.tavsiyaMatnIlova':
+    'Without reminders, tasks with a set time are easy to miss. Your phone will ask for permission once.',
+  'sozlamalar.bildirishnoma.radEtilganIlova':
+    'Notifications are blocked in your phone settings.',
+  'sozlamalar.bildirishnoma.qaytarishIlova':
+    'To allow them again, open Settings → Apps → Samara → Notifications on your phone and turn them on.',
+  'sozlamalar.bildirishnoma.ruxsatYoqIlova':
+    'Your phone refused. Allow notifications in the phone settings.',
   'sozlamalar.bildirishnoma.yoqildi': 'Notifications turned on',
   'sozlamalar.bildirishnoma.ochirildi': 'Notifications turned off',
   'sozlamalar.bildirishnoma.ruxsatYoq':
@@ -351,7 +359,20 @@ export const en: Record<MatnKaliti, string> = {
   'offline.yoq': 'No internet — keep working, changes are saved when you are back online',
   'offline.kutmoqda': '{n} changes waiting',
   'offline.yuborilmoqda': 'Syncing {n} changes',
+  'offline.sinxronlandi': 'Synced',
   'offline.xato': '{n} changes were not saved. Reload the app and try again.',
+  'offline.qaytaUrinish': 'Try again',
+  'offline.faqatKorish': 'Offline mode: view only',
+
+  // ---------- "No internet" dialog (web, when trying to edit) ----------
+  'offlineOyna.sarlavha': 'No internet connection',
+  'offlineOyna.matn':
+    'Connect your device to the internet to make changes. You can still view your saved tasks for now.',
+  'offlineOyna.tushunarli': 'Got it',
+  'offlineOyna.qaytaTekshirish': 'Check again',
+  'offlineOyna.hamonYoq': 'Still no internet',
+  'offlineOyna.qaytdi': 'Back online',
+  'offlineOyna.ilovaniYukla': 'Get the Samara app to work offline',
 
   // ---------- Error and connection state ----------
   'xato.sarlavha': 'Could not load the data',

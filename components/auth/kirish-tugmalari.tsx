@@ -1,9 +1,38 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/toast'
+import { ilovaNativemi } from '@/lib/platform'
+import { googleBilanNativeKirish } from '@/lib/google-kirish'
+
+const XATOLAR: Record<string, string> = {
+  kod_yoq: 'Kirish yakunlanmadi. Qayta urinib ko‘ring.',
+  sessiya: 'Kirish yakunlanmadi. Qayta urinib ko‘ring.',
+}
+
+/**
+ * `useSearchParams()` ishlatadi — Capacitor statik eksporti uchun MUHIM:
+ * query parametrini SERVERDA o'qish (`await searchParams`) statik
+ * eksportda umuman ishlamaydi, mijoz tomonda o'qish esa web'da ham,
+ * appda ham bir xil ishlaydi.
+ */
+export function KirishXatosi() {
+  const xato = useSearchParams().get('xato')
+  if (!xato) return null
+  const matn = XATOLAR[xato] ?? XATOLAR.sessiya
+
+  return (
+    <p
+      role="alert"
+      className="mt-6 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger"
+    >
+      {matn}
+    </p>
+  )
+}
 
 /**
  * Apple bilan kirish YOQILGANMI.
@@ -55,7 +84,9 @@ function AppleBelgi() {
 
 type Provayder = 'google' | 'apple'
 
-export function KirishTugmalari({ keyin }: { keyin?: string }) {
+export function KirishTugmalari() {
+  const keyin = useSearchParams().get('keyin') ?? undefined
+  const router = useRouter()
   // Qaysi tugma bosilgani — ikkalasini birdan bloklamaslik uchun
   const [band, setBand] = useState<Provayder | null>(null)
   const { korsat } = useToast()
@@ -64,6 +95,22 @@ export function KirishTugmalari({ keyin }: { keyin?: string }) {
     if (band) return
     setBand(provayder)
     try {
+      /*
+        Ilova ichida (Capacitor): Google WebView orqali OAuth'ni
+        bloklaydi (embedded WebView siyosati), shuning uchun brauzerga
+        chiqilmaydi — native plugin to'g'ridan-to'g'ri idToken qaytaradi
+        va biz uni Supabase'ga beramiz. Muvaffaqiyatli bo'lsa serverdan
+        qaytadigan redirect yo'q, shuning uchun o'zimiz yo'naltiramiz.
+
+        Apple uchun native oqim hali yo'q (Apple Developer hisobi
+        kerak) — tugma `APPLE_YOQILGAN` bo'lmasa umuman ko'rinmaydi.
+      */
+      if (ilovaNativemi() && provayder === 'google') {
+        await googleBilanNativeKirish()
+        router.replace(keyin?.startsWith('/') ? keyin : '/jarayonda')
+        return
+      }
+
       const supabase = createClient()
       const manzil = new URL('/auth/callback', window.location.origin)
       if (keyin) manzil.searchParams.set('keyin', keyin)
@@ -82,7 +129,8 @@ export function KirishTugmalari({ keyin }: { keyin?: string }) {
 
       if (error) throw error
       // Muvaffaqiyatli bo'lsa brauzer provayder sahifasiga o'tadi
-    } catch {
+    } catch (xato) {
+      console.error(xato)
       setBand(null)
       korsat({
         matn: 'Kirib bo‘lmadi. Internetni tekshirib, qayta urinib ko‘ring.',

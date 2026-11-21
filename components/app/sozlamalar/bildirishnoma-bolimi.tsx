@@ -11,12 +11,15 @@ import {
   bildirishnomaniYoqish,
   type BildirishnomaHolati,
 } from '@/lib/bildirishnoma'
+import { ilovaNativemi } from '@/lib/platform'
 
 export function BildirishnomaBolimi() {
   const [holat, setHolat] = useState<BildirishnomaHolati | null>(null)
   const [band, setBand] = useState(false)
   const { korsat } = useToast()
   const t = useT()
+  // Appda "brauzer" emas, "telefon" deyish kerak — matnlar shunga qarab
+  const app = ilovaNativemi() ? 'Ilova' : ''
 
   useEffect(() => {
     bildirishnomaHolati().then(setHolat)
@@ -41,14 +44,15 @@ export function BildirishnomaBolimi() {
           tone: 'muvaffaqiyat',
         })
       } else if (yangi === 'rad-etilgan') {
-        korsat({ matn: t('sozlamalar.bildirishnoma.ruxsatYoq'), tone: 'xato' })
+        korsat({ matn: t(`sozlamalar.bildirishnoma.ruxsatYoq${app}`), tone: 'xato' })
       } else if (yoqilgan) {
         korsat({
           matn: t('sozlamalar.bildirishnoma.ochirildi'),
           tone: 'muvaffaqiyat',
         })
       }
-    } catch {
+    } catch (xato) {
+      console.error('Bildirishnoma:', xato)
       korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
     } finally {
       setBand(false)
@@ -62,7 +66,7 @@ export function BildirishnomaBolimi() {
   const tavsif = qollamaydi
     ? t('sozlamalar.bildirishnoma.qollamaydi')
     : radEtilgan
-      ? t('sozlamalar.bildirishnoma.radEtilgan')
+      ? t(`sozlamalar.bildirishnoma.radEtilgan${app}`)
       : yoqilgan
         ? t('sozlamalar.bildirishnoma.yoqilgan')
         : t('sozlamalar.bildirishnoma.ochiq')
@@ -121,7 +125,7 @@ export function BildirishnomaBolimi() {
       {!yoqilgan && !radEtilgan && !qollamaydi && (
         <SozlamaKartasi
           sarlavha={t('sozlamalar.bildirishnoma.tavsiya')}
-          tavsif={t('sozlamalar.bildirishnoma.tavsiyaMatn')}
+          tavsif={t(`sozlamalar.bildirishnoma.tavsiyaMatn${app}`)}
         />
       )}
 
@@ -129,7 +133,7 @@ export function BildirishnomaBolimi() {
         <div className="flex gap-3 rounded-2xl border border-danger/35 bg-danger-soft p-4">
           <TriangleAlert className="size-5 shrink-0 text-danger" aria-hidden />
           <p className="text-sm leading-relaxed text-danger">
-            {t('sozlamalar.bildirishnoma.qaytarish')}
+            {t(`sozlamalar.bildirishnoma.qaytarish${app}`)}
           </p>
         </div>
       )}

@@ -15,6 +15,7 @@ import {
   papkaIkonkasi,
 } from '@/lib/papka-stillari'
 import type { Folder } from '@/types/vazifalar'
+import { papkaYoli } from '@/lib/yollar'
 
 export function PapkaOynasi({
   papka,
@@ -62,7 +63,7 @@ export function PapkaOynasi({
         const yangi = await yaratish.mutateAsync(maydonlar)
         korsat({ matn: 'Papka yaratildi', tone: 'muvaffaqiyat' })
         yop()
-        router.push(`/papka/${yangi.id}`)
+        router.push(papkaYoli(yangi.id))
       } catch {
         korsat({ matn: 'Saqlab bo‘lmadi. Qayta urinib ko‘ring.', tone: 'xato' })
       }

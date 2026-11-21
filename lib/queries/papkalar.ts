@@ -1,9 +1,10 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { kalit } from './keys'
+import { useOutboxMutation } from './outbox-mutatsiya'
 import { MUTATSIYA, type YangiPapka } from './mutatsiya-sozlamalari'
 import type { Folder } from '@/types/vazifalar'
 
@@ -48,7 +49,7 @@ export function usePapkaYaratish() {
 
   // Generiklar aniq ko'rsatilgan: mutationFn endi markazda (offline
   // navbat uchun), shuning uchun TS qaytish turini o'zi topa olmaydi
-  return useMutation<Folder, Error, YangiPapka, { oldingi?: Folder[] }>({
+  return useOutboxMutation<Folder, Error, YangiPapka, { oldingi?: Folder[] }>({
     mutationKey: MUTATSIYA.papkaYaratish,
 
     onMutate: async (yangi) => {
@@ -89,7 +90,7 @@ export function usePapkaYangilash() {
   const supabase = useSupabase()
   const qc = useQueryClient()
 
-  return useMutation({
+  return useOutboxMutation({
     mutationKey: MUTATSIYA.papkaYangilash,
 
     onMutate: async ({ id, ...ozgarish }: PapkaOzgarishi & { id: string }) => {
@@ -116,7 +117,7 @@ export function usePapkaOchirish() {
   const supabase = useSupabase()
   const qc = useQueryClient()
 
-  return useMutation({
+  return useOutboxMutation({
     mutationKey: MUTATSIYA.papkaOchirish,
 
     onMutate: async (id: string) => {

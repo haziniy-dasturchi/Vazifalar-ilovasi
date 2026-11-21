@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
 import { Providers } from './providers'
+import { NativeBootstrap } from '@/components/app/native-bootstrap'
 import { DOMEN } from '@/lib/huquqiy'
 
 const inter = Inter({
@@ -95,6 +96,10 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  // Capacitor'da holat paneli kontent ustiga chiqadi (overlaysWebView) —
+  // bu `env(safe-area-inset-*)` CSS o'zgaruvchilarini yoqadi. Veb'da
+  // notch'siz qurilmalarda ta'siri yo'q
+  viewportFit: 'cover',
   // Qorong'i mavzuda brauzer paneli ham qorayadi. Foydalanuvchi
   // mavzuni qo'lda tanlasa, `lib/mavzu.ts` shu tegni yangilaydi.
   themeColor: [
@@ -114,7 +119,9 @@ export default function RootLayout({
         {/*
           Mavzu sahifa CHIZILISHIDAN OLDIN qo'llanishi shart: aks holda
           qorong'i rejimdagi foydalanuvchi har safar bir lahza oq
-          ekranni ko'radi.
+          ekranni ko'radi. Shu skript appda (Capacitor) `data-native`
+          belgisini ham qo'yadi — bosh sahifa appda chizilmasligi uchun
+          (`components/app/native-darvoza.tsx`).
 
           Oddiy <script> ishlatilgan — React uni hujjat boshiga o'zi
           ko'taradi va hidratsiyadan oldin bajaradi. <head> tegini
@@ -125,7 +132,7 @@ export default function RootLayout({
         */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem('samara-mavzu');if(m==='dark'||m==='light'){document.documentElement.dataset.mavzu=m;}}catch(e){}})();`,
+            __html: `(function(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){document.documentElement.dataset.native='';}}catch(e){}try{var m=localStorage.getItem('samara-mavzu');if(m==='dark'||m==='light'){document.documentElement.dataset.mavzu=m;}}catch(e){}})();`,
           }}
         />
         {/*
@@ -153,6 +160,7 @@ export default function RootLayout({
             });
           `}
         </Script>
+        <NativeBootstrap />
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -46,24 +46,22 @@ export function subtasklar(bolalar: Map<string, Task[]>, otaId: string) {
  * jurnalidan topib, ro'yxatga qo'shib beradi — bu yerda esa ular
  * ko'rsatish uchun "done"/"bugun" qilib almashtiriladi.
  *
- * `takrorBajarilganIdlari` — shu almashtirilgan qatorlarning ID
- * ro'yxati: ularning HAQIQIY holati "done" emasligi uchun "rejaga
- * qaytarish" harakati serverda xatolik beradi, shuning uchun
- * chaqiruvchi tomon buni ko'rsatib, tugmani o'chirib qo'yishi kerak.
+ * Bunday qatorni qayta bosib bekor qilish MUMKIN: `undo_complete_task`
+ * sanani bajarishdan oldingi holatiga qaytaradi (`tasks.prev_due_date`).
+ * Avval bu imkonsiz edi va doira umuman o'chirib qo'yilgandi.
  */
 export function bugungiBajarilganlar(vazifalar: Task[], bugun: string) {
   const haqiqiyBajarilgan = vazifalar.filter((v) => v.status === 'done')
   const takrorBajarilgan = vazifalar.filter(
     (v) => v.status !== 'done' && v.due_date !== null && v.due_date > bugun
   )
-  const takrorBajarilganIdlari = new Set(takrorBajarilgan.map((v) => v.id))
 
   const bajarilgan = [
     ...haqiqiyBajarilgan,
     ...takrorBajarilgan.map((v) => ({ ...v, status: 'done' as const, due_date: bugun })),
   ]
 
-  return { bajarilgan, takrorBajarilganIdlari }
+  return { bajarilgan }
 }
 
 /**

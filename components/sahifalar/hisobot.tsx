@@ -33,6 +33,7 @@ import { bugunISO, isoGa, toliqSana } from '@/lib/sana'
 import { iyerarxiya, saralash, subtasklar as olBolalar } from '@/lib/vazifa-yordam'
 import type { MatnKaliti } from '@/lib/i18n'
 import type { Task } from '@/types/vazifalar'
+import { papkaYoli } from '@/lib/yollar'
 
 type Oraliq = { nom: string; boshlanish: string; tugash: string }
 
@@ -665,7 +666,7 @@ function LoyihalarHolati({
 
       {papkaId && (
         <Link
-          href={`/papka/${papkaId}`}
+          href={papkaYoli(papkaId)}
           className="mt-3 flex min-h-touch items-center justify-center rounded-xl border border-border-subtle text-sm font-medium text-text-strong transition hover:bg-surface-muted"
         >
           Loyihalar papkasini ochish

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bildirishnoma ikonkasi rangi (brend yashili) -->
+    <color name="bildirishnoma_rangi">#10B981</color>
+    <!-- `NativeBootstrap` yaratadigan kanal bilan BIR XIL bo'lishi shart -->
+    <string name="bildirishnoma_kanali" translatable="false">eslatmalar</string>
+</resources>

@@ -296,6 +296,14 @@ export const uz = {
     'Eslatmalarsiz vaqti belgilangan vazifalar e’tibordan chetda qolishi mumkin. Yoqish uchun brauzer bir marta ruxsat so‘raydi.',
   'sozlamalar.bildirishnoma.qaytarish':
     'Ruxsatni qaytarish uchun brauzer manzil qatoridagi qulf belgisini bosing va «Bildirishnomalar» ni ruxsat etilgan holatga o‘tkazing.',
+  'sozlamalar.bildirishnoma.tavsiyaMatnIlova':
+    'Eslatmalarsiz vaqti belgilangan vazifalar e’tibordan chetda qolishi mumkin. Yoqish uchun telefon bir marta ruxsat so‘raydi.',
+  'sozlamalar.bildirishnoma.radEtilganIlova':
+    'Telefon sozlamalarida ruxsat berilmagan.',
+  'sozlamalar.bildirishnoma.qaytarishIlova':
+    'Ruxsatni qaytarish uchun telefon «Sozlamalar» → «Ilovalar» → «Samara» → «Bildirishnomalar» bo‘limiga kiring va ularni yoqing.',
+  'sozlamalar.bildirishnoma.ruxsatYoqIlova':
+    'Telefon ruxsat bermadi. Telefon sozlamalaridan yoqing.',
   'sozlamalar.bildirishnoma.yoqildi': 'Bildirishnoma yoqildi',
   'sozlamalar.bildirishnoma.ochirildi': 'Bildirishnoma o‘chirildi',
   'sozlamalar.bildirishnoma.ruxsatYoq':
@@ -359,11 +367,28 @@ export const uz = {
   'takror.kunTanlashKerak': 'Kamida bitta kun tanlang',
 
   // ---------- Offline holati ----------
+  // Ilovada (Capacitor): internetsiz ham to'liq ishlaydi, o'zgarishlar
+  // navbatga (outbox) tushadi va aloqa tiklanganda o'zi yuboriladi.
   'offline.yoq': 'Internet yo‘q — ishlashda davom eting, aloqa tiklanganda saqlanadi',
   'offline.kutmoqda': '{n} ta o‘zgarish kutmoqda',
   'offline.yuborilmoqda': '{n} ta o‘zgarish sinxronlanmoqda',
+  'offline.sinxronlandi': 'Sinxronlandi',
   'offline.xato':
     '{n} ta o‘zgarish saqlanmadi. Ilovani yangilab, qayta urinib ko‘ring.',
+  'offline.qaytaUrinish': 'Qayta urinish',
+  // Veb'da: internetsiz faqat ko'rish mumkin, o'zgartirish bloklanadi
+  // (pastdagi `offlineOyna.*`)
+  'offline.faqatKorish': 'Offline rejim: faqat ko‘rish',
+
+  // ---------- "Internet yo'q" oynasi (veb, tahrirlashga urinilganda) ----------
+  'offlineOyna.sarlavha': 'Internet aloqasi yo‘q',
+  'offlineOyna.matn':
+    'Ma’lumotlarni o‘zgartirish uchun qurilmangizni internetga ulang. Hozircha saqlangan vazifalaringizni ko‘rishingiz mumkin.',
+  'offlineOyna.tushunarli': 'Tushunarli',
+  'offlineOyna.qaytaTekshirish': 'Qayta tekshirish',
+  'offlineOyna.hamonYoq': 'Hali ham internet topilmadi',
+  'offlineOyna.qaytdi': 'Internet qaytdi',
+  'offlineOyna.ilovaniYukla': 'Internetsiz ishlash uchun Samara ilovasini yuklab oling',
 
   // ---------- Xato va internet holati ----------
   'xato.sarlavha': 'Ma’lumotni yuklab bo‘lmadi',

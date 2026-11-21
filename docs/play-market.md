@@ -21,68 +21,25 @@ Bu yerda ikki xil ro'yxat bor:
 > jarayonni bir necha haftaga cho'zadi. Yakka tartibda (shaxs sifatida)
 > ochish ancha tez.
 
-## A2. Android paketini yaratish — PWABuilder
+## A2. Android paketini yaratish — Android Studio (Capacitor)
 
-Sizda Android SDK ham, Java ham o'rnatilmagan. Ularni o'rnatish shart
-emas — **PWABuilder** brauzerda paket yasab beradi.
-
-1. [pwabuilder.com](https://www.pwabuilder.com) ga kiring
-2. `https://samarali-kun.uz` manzilini kiriting, **Start** bosing
-3. **Package for stores → Android** ni tanlang
-4. Sozlamalarni tekshiring:
-
-   | Maydon | Qiymat |
-   |---|---|
-   | Package ID | `uz.samaralikun.samara` |
-   | App name | `Samara` |
-   | Short name | `Samara` |
-   | Start URL | `/jarayonda` |
-   | Signing key | **Create new** |
-
-5. **Download** bosing
-
-Arxivda ikkita muhim narsa bo'ladi:
-
-- `app-release-bundle.aab` — Play Console'ga yuklanadi
-- `signing.keystore` + parollar (`assetlinks.json` fayli ichida ham
-  barmoq izi bo'ladi)
+> **Eslatma:** bu loyiha endi PWABuilder orqali emas, **Capacitor**
+> orqali chiqariladi — ilova statik fayllardan quriladi va
+> internetsiz ham to'liq ishlaydi (PWABuilder'ning "sayt o'rami"dan
+> farqli). Shu sababli Android Studio (bepul) kerak bo'ladi.
+>
+> To'liq, "qayerga bosish" darajasidagi qadamlar:
+> **[DEPLOY_GUIDE_UZ.md](../DEPLOY_GUIDE_UZ.md)** — 1, 2 va 3-qismlar.
+>
+> Natijada siz o'zingiz yaratgan keystore (`.secrets\samara-release.jks`)
+> va `android\app\release\app-release.aab` fayliga ega bo'lasiz —
+> shuni Play Console'ga yuklaysiz.
 
 > ### ⚠️ Eng muhim ogohlantirish
 >
-> `signing.keystore` faylini va parolini **yo'qotmang**. Yo'qotsangiz,
-> ilovani boshqa hech qachon yangilay olmaysiz — yangi ilova sifatida
-> noldan chiqarishga to'g'ri keladi va barcha o'rnatgan foydalanuvchilar
-> yo'qoladi.
->
-> Nusxasini kamida ikki joyda saqlang (masalan Google Drive + tashqi
-> disk). Parolni ham o'sha yerda yozib qo'ying.
-
-## A3. Barmoq izini Vercel'ga qo'shish
-
-Paket yaratilgach, SHA-256 barmoq izi kerak bo'ladi. Uni ikki joydan
-olish mumkin:
-
-- PWABuilder arxividagi `assetlinks.json` fayli ichidan, **yoki**
-- Play Console → Setup → App integrity → *App signing key certificate*
-
-Keyin Vercel'da: **Project → Settings → Environment Variables**
-
-| Nomi | Qiymati |
-|---|---|
-| `ANDROID_SHA256` | `AB:CD:EF:...` (olingan barmoq izi) |
-| `ANDROID_PAKET` | `uz.samaralikun.samara` |
-
-Qo'shgandan keyin **Redeploy** qiling va tekshiring:
-
-```
-https://samarali-kun.uz/.well-known/assetlinks.json
-```
-
-Bo'sh `[]` emas, barmoq izi bilan to'lgan bo'lishi kerak.
-
-> Buni qilmasangiz, ilova ochilganda yuqorida brauzer manzil satri
-> ko'rinib turadi — foydalanuvchi "bu ilova emas, sayt ekan" deb
-> o'ylaydi.
+> Keystore faylini va parolini **yo'qotmang**. Yo'qotsangiz, ilovani
+> boshqa hech qachon yangilay olmaysiz. Zaxiralash haqida
+> `DEPLOY_GUIDE_UZ.md` 3-qismida batafsil yozilgan.
 
 ## A4. Play Console'ni to'ldirish
 

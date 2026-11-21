@@ -24,6 +24,7 @@ import {
 } from '@/lib/queries/vazifalar'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
+import { papkaYoli } from '@/lib/yollar'
 import { bugunISO, sarlavhaSana } from '@/lib/sana'
 import { bugungiBajarilganlar, iyerarxiya } from '@/lib/vazifa-yordam'
 
@@ -47,7 +48,7 @@ export function KorishKorinishi() {
     return (
       <li key={papka.id} className="border-b border-border-subtle last:border-0">
         <Link
-          href={`/papka/${papka.id}`}
+          href={papkaYoli(papka.id)}
           className="flex min-h-touch items-center gap-3 px-4 py-3 transition hover:bg-surface-muted"
         >
           <Ikonka

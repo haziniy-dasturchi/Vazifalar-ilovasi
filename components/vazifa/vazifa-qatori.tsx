@@ -39,7 +39,6 @@ export function VazifaQatori({
   papkaNomi,
   papkaRangi,
   bolimNomi,
-  qaytarishMumkinEmas = false,
 }: {
   vazifa: Task
   subtasklar?: Task[]
@@ -47,13 +46,6 @@ export function VazifaQatori({
   papkaRangi?: string
   /** Papka ichidagi bo'lim (Loyihalar papkasida — loyiha nomi) */
   bolimNomi?: string
-  /**
-   * Takrorlanuvchi vazifa allaqachon keyingi sanaga ko'chib ketgan —
-   * bazadagi haqiqiy holati endi "done" emas, shuning uchun "rejaga
-   * qaytarish" so'rovi serverda xatolik beradi. Shu holatda doira
-   * faqat ko'rsatish uchun, bosilmaydi.
-   */
-  qaytarishMumkinEmas?: boolean
 }) {
   const t = useT()
   const holat = useVazifaHolati()
@@ -104,12 +96,7 @@ export function VazifaQatori({
             bajarilgan foizga qarab "suv" bilan to'ladi */}
         <button
           type="button"
-          onClick={
-            qaytarishMumkinEmas
-              ? undefined
-              : () => harakat(bajarilgan ? 'qaytarish' : 'bajarish')
-          }
-          disabled={qaytarishMumkinEmas}
+          onClick={() => harakat(bajarilgan ? 'qaytarish' : 'bajarish')}
           aria-label={
             bajarilgan
               ? 'Rejaga qaytarish'
@@ -118,7 +105,7 @@ export function VazifaQatori({
                 : 'Bajarildi'
           }
           title={MUHIMLIK_NOMI[vazifa.priority]}
-          className={`flex size-10 min-h-0 shrink-0 items-center justify-center rounded-full sm:mt-0.5 sm:size-11 ${qaytarishMumkinEmas ? 'cursor-default' : ''}`}
+          className="flex size-10 min-h-0 shrink-0 items-center justify-center rounded-full sm:mt-0.5 sm:size-11"
         >
           <SuvDoira
             foiz={foiz}

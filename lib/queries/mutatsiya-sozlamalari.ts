@@ -160,12 +160,20 @@ export type HolatHarakati = 'boshlash' | 'rejaga' | 'bajarish' | 'qaytarish'
 
 const RPC_NOMI: Record<
   HolatHarakati,
-  'start_task' | 'move_back' | 'complete_task' | 'uncomplete_task'
+  'start_task' | 'move_back' | 'complete_task' | 'undo_complete_task'
 > = {
   boshlash: 'start_task',
   rejaga: 'move_back',
   bajarish: 'complete_task',
-  qaytarish: 'uncomplete_task',
+  /*
+    `uncomplete_task` EMAS: u faqat haqiqatan "done" holatdagi
+    vazifani qaytara oladi. Takrorlanuvchi vazifa esa bajarilgan
+    zahoti keyingi sanaga surilib "planned" bo'lib qoladi — uni
+    qaytarish uchun sanani ham orqaga olish kerak.
+    Eskisi bazada qoldirilgan: telefon keshidagi eski JS hamon
+    uni chaqirishi mumkin.
+  */
+  qaytarish: 'undo_complete_task',
 }
 
 /**

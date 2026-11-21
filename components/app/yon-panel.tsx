@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { Plus, Send } from 'lucide-react'
 import { ProfilMenyu } from './profil-menyu'
@@ -13,9 +13,12 @@ import { papkaIkonkasi } from '@/lib/papka-stillari'
 import { PapkaOynasi } from '@/components/papka/papka-oynasi'
 import { usePapkaniOldindanYuklash } from '@/lib/queries/vazifalar'
 import { useBolimlarniOldindanYuklash } from '@/lib/queries/bolimlar'
+import { PAPKA_ZAXIRA_ID, papkaYoli } from '@/lib/yollar'
 
 export function YonPanel() {
   const yol = usePathname()
+  // Appda papka ID'si so'rov parametrida keladi (izoh: lib/yollar.ts)
+  const soroqId = useSearchParams().get('id')
   const BOLIMLAR = useBolimTartibi()
   const t = useT()
   const { data: papkalar, isPending } = useFaolPapkalar()
@@ -38,11 +41,13 @@ export function YonPanel() {
 
   function papkaQatori(papka: (typeof oddiyPapkalar)[number]) {
     const Ikonka = papkaIkonkasi(papka.icon, papka.is_inbox)
-    const faol = yol === `/papka/${papka.id}`
+    const faol =
+      yol.replace(/\/$/, '') === `/papka/${papka.id}` ||
+      (yol.replace(/\/$/, '') === `/papka/${PAPKA_ZAXIRA_ID}` && soroqId === papka.id)
     return (
       <li key={papka.id}>
         <Link
-          href={`/papka/${papka.id}`}
+          href={papkaYoli(papka.id)}
           aria-current={faol ? 'page' : undefined}
           onPointerEnter={() => papkaUstigaTegish(papka.id)}
           onPointerDown={() => papkaUstigaTegish(papka.id)}
