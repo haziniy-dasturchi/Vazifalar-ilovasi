@@ -49,12 +49,51 @@ async function papkaVazifalariSorovi(
   return (data ?? []) as Task[]
 }
 
+/**
+ * Takrorlanuvchi vazifa bajarilganda server uni DARHOL keyingi sanaga
+ * suradi (`status` yana "planned" bo'lib qoladi) — shuning uchun
+ * `status === 'done'` bo'yicha qidirish uni hech qachon topmaydi,
+ * garchi odam bugun uni bajargan bo'lsa ham.
+ *
+ * `task_events` jurnalida esa bajarilgan paytdagi "completed" yozuvi
+ * saqlanib qoladi (hisobot shu orqali ishlaydi). Shu yozuvlardan
+ * foydalanib, bugun bajarilgan-u keyingi sanaga ko'chib ketgan
+ * takrorlanuvchi vazifalarni topib olamiz.
+ */
+async function takrorBugunBajarilganlarSorovi(
+  supabase: Mijoz,
+  kunBoshi: Date
+): Promise<Task[]> {
+  const { data: hodisalar, error: hodisaXatosi } = await supabase
+    .from('task_events')
+    .select('task_id')
+    .eq('event', 'completed')
+    .gte('created_at', kunBoshi.toISOString())
+    .not('task_id', 'is', null)
+
+  if (hodisaXatosi) throw hodisaXatosi
+
+  const idlar = [...new Set((hodisalar ?? []).map((h) => h.task_id as string))]
+  if (idlar.length === 0) return []
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .select(USTUNLAR)
+    .is('deleted_at', null)
+    .neq('status', 'done')
+    .not('rrule', 'is', null)
+    .in('id', idlar)
+
+  if (error) throw error
+  return (data ?? []) as Task[]
+}
+
 async function bugungiSorovi(supabase: Mijoz): Promise<Task[]> {
   const bugun = bugunISO()
   const kunBoshi = new Date()
   kunBoshi.setHours(0, 0, 0, 0)
 
-  const [ochiq, bajarilgan] = await Promise.all([
+  const [ochiq, bajarilgan, takrorBajarilgan] = await Promise.all([
     supabase
       .from('tasks')
       .select(USTUNLAR)
@@ -71,12 +110,17 @@ async function bugungiSorovi(supabase: Mijoz): Promise<Task[]> {
       .eq('status', 'done')
       .gte('completed_at', kunBoshi.toISOString())
       .order('completed_at', { ascending: false }),
+    takrorBugunBajarilganlarSorovi(supabase, kunBoshi),
   ])
 
   if (ochiq.error) throw ochiq.error
   if (bajarilgan.error) throw bajarilgan.error
 
-  return [...(ochiq.data ?? []), ...(bajarilgan.data ?? [])] as Task[]
+  return [
+    ...(ochiq.data ?? []),
+    ...(bajarilgan.data ?? []),
+    ...takrorBajarilgan,
+  ] as Task[]
 }
 
 async function jarayondagiSorovi(supabase: Mijoz): Promise<Task[]> {

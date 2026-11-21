@@ -32,21 +32,36 @@ export function BugunKorinishi() {
   const bugungi = saralash(
     otalar.filter((v) => v.status !== 'done' && v.due_date === bugun)
   )
-  const bajarilgan = otalar.filter((v) => v.status === 'done')
+  /*
+    Takrorlanuvchi vazifa bajarilganda server uni darhol keyingi
+    sanaga suradi — bu qatorlar `status: 'planned'` va `due_date`
+    kelajakda bo'lgan holda keladi (`lib/queries/vazifalar.ts`dagi
+    `takrorBugunBajarilganlarSorovi`). Ro'yxatda esa bugun bajarilgan
+    bo'lib ko'rinishi kerak, shuning uchun ko'rsatish uchun nusxasi
+    "done" va sanasi "bugun" qilib almashtiriladi.
+  */
+  const haqiqiyBajarilgan = otalar.filter((v) => v.status === 'done')
+  const takrorBajarilgan = otalar.filter(
+    (v) => v.status !== 'done' && v.due_date !== null && v.due_date > bugun
+  )
+  const takrorBajarilganIdlari = new Set(takrorBajarilgan.map((v) => v.id))
+  const bajarilgan = [...haqiqiyBajarilgan, ...takrorBajarilgan]
 
   const hammasiBosh =
     kechikkan.length === 0 && bugungi.length === 0 && bajarilgan.length === 0
 
   function qator(v: (typeof otalar)[number]) {
     const papka = papkaMap.get(v.folder_id)
+    const takrorlanganmi = takrorBajarilganIdlari.has(v.id)
     return (
       <VazifaQatori
         key={v.id}
-        vazifa={v}
+        vazifa={takrorlanganmi ? { ...v, status: 'done', due_date: bugun } : v}
         subtasklar={subtasklar(bolalar, v.id)}
         papkaNomi={papka?.name}
         papkaRangi={papka?.color}
         bolimNomi={v.section_id ? bolimNomlari.get(v.section_id) : undefined}
+        qaytarishMumkinEmas={takrorlanganmi}
       />
     )
   }
@@ -84,23 +99,25 @@ export function BugunKorinishi() {
               matn="Bugun rejalashtirilgan vazifalar qolmadi."
             />
           )}
-
-          {bajarilgan.length > 0 && (
-            <Guruh sarlavha="Bugun bajarildi" soni={bajarilgan.length}>
-              <ul className="space-y-2">{bajarilgan.map(qator)}</ul>
-            </Guruh>
-          )}
         </>
       )}
 
       {/*
-        Todoist uslubidagi tezkor qo'shish — ro'yxat pastida, sahifa
-        qaysi qurilmada ochilishidan qat'i nazar doim ko'rinadi. Sana
+        Todoist uslubidagi tezkor qo'shish — ochiq vazifalar bilan
+        "Bugun bajarildi" orasida turadi (ochiq ro'yxat davomidek).
+        Bajarilganlar pastda qolishi kerak, aks holda yangi qo'shilgan
+        ish bajarilganlar orasiga "tushib qolgandek" ko'rinardi. Sana
         "bugun" bilan oldindan to'ldirilgan, chunki shu sahifaga
         qo'shilgan ish aynan bugunga tegishli bo'lishi kutiladi.
       */}
       {kiruvchi && !isPending && !isError && (
         <InlineQoshish papkaId={kiruvchi.id} defaultDate={bugun} />
+      )}
+
+      {!isPending && !isError && bajarilgan.length > 0 && (
+        <Guruh sarlavha="Bugun bajarildi" soni={bajarilgan.length}>
+          <ul className="space-y-2">{bajarilgan.map(qator)}</ul>
+        </Guruh>
       )}
     </Sahifa>
   )
