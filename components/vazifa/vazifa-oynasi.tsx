@@ -109,13 +109,22 @@ export function VazifaOynasi({
   const tozaNom = tahlil.nom
 
   const papkaQiymati = tanlanganPapka || kiruvchi?.id || ''
-  const toliq = tozaNom.length > 0 && papkaQiymati.length > 0
   const bajarilmoqda = yaratish.isPending || yangilash.isPending
 
   // "Loyihalar" papkasida bo'limlar aslida loyihalar — nomlanishi boshqa
   const tanlanganPapkaLoyihalarmi = Boolean(
     papkalar?.find((p) => p.id === papkaQiymati)?.is_projects
   )
+  /*
+    Loyihalar papkasida vazifa albatta biror loyihaga tegishli bo'lishi
+    kerak — yolg'iz vazifa loyiha emas. Subtask bu talabdan ozod (u
+    umuman bo'lim tanlamaydi, doim ota-vazifaning papkasida qoladi).
+  */
+  const loyihaTanlanmagan =
+    !subtaskmi && tanlanganPapkaLoyihalarmi && !tanlanganBolim
+
+  const toliq =
+    tozaNom.length > 0 && papkaQiymati.length > 0 && !loyihaTanlanmagan
 
   const { data: bolimlar } = useBolimlar(subtaskmi ? undefined : papkaQiymati)
 
@@ -311,27 +320,39 @@ export function VazifaOynasi({
             </div>
           )}
 
-          {!subtaskmi && bolimlar && bolimlar.length > 0 && (
-            <div className="mt-5">
-              <p className="mb-2 text-sm font-medium text-text-muted">
-                {tanlanganPapkaLoyihalarmi ? t('vazifa.loyiha') : t('vazifa.bolim')}
-              </p>
-              <Tanlagich
-                ariaLabel={tanlanganPapkaLoyihalarmi ? t('vazifa.loyiha') : t('vazifa.bolim')}
-                qiymat={tanlanganBolim}
-                onChange={setTanlanganBolim}
-                variantlar={[
-                  {
-                    qiymat: '',
-                    nom: tanlanganPapkaLoyihalarmi
-                      ? t('vazifa.loyihasiz')
-                      : t('vazifa.bolimsiz'),
-                  },
-                  ...bolimlar.map((b) => ({ qiymat: b.id, nom: b.name })),
-                ]}
-              />
-            </div>
-          )}
+          {/*
+            Loyihalar papkasida bu tanlagich HAR DOIM ko'rsatiladi
+            (loyiha hali yo'q bo'lsa ham) — aks holda "nega qo'shib
+            bo'lmayapti" tushunarsiz qolardi. Oddiy papkada esa
+            bo'lim bo'lmasa, bu qator shunchaki keraksiz.
+          */}
+          {!subtaskmi &&
+            (tanlanganPapkaLoyihalarmi || (bolimlar && bolimlar.length > 0)) && (
+              <div className="mt-5">
+                <p className="mb-2 text-sm font-medium text-text-muted">
+                  {tanlanganPapkaLoyihalarmi ? t('vazifa.loyiha') : t('vazifa.bolim')}
+                </p>
+                <Tanlagich
+                  ariaLabel={tanlanganPapkaLoyihalarmi ? t('vazifa.loyiha') : t('vazifa.bolim')}
+                  qiymat={tanlanganBolim}
+                  onChange={setTanlanganBolim}
+                  variantlar={[
+                    {
+                      qiymat: '',
+                      nom: tanlanganPapkaLoyihalarmi
+                        ? t('vazifa.loyihasiz')
+                        : t('vazifa.bolimsiz'),
+                    },
+                    ...(bolimlar ?? []).map((b) => ({ qiymat: b.id, nom: b.name })),
+                  ]}
+                />
+                {loyihaTanlanmagan && (
+                  <p className="mt-2 text-sm text-danger">
+                    {t('vazifa.loyihaShart')}
+                  </p>
+                )}
+              </div>
+            )}
 
           <div className="mt-7 flex items-center gap-3">
             {tahrir && (

@@ -110,6 +110,8 @@ export const en: Record<MatnKaliti, string> = {
   'vazifa.bolimsiz': 'No section',
   'vazifa.loyiha': 'Project',
   'vazifa.loyihasiz': 'No project',
+  'vazifa.loyihaShart':
+    'In the Projects folder, a task must belong to a project. Choose a project first.',
   'vazifa.izoh': 'Description',
   'vazifa.qoshildi': 'Task added',
   'vazifa.yangilandi': 'Task updated',

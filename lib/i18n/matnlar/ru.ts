@@ -110,6 +110,8 @@ export const ru: Record<MatnKaliti, string> = {
   'vazifa.bolimsiz': 'Без раздела',
   'vazifa.loyiha': 'Проект',
   'vazifa.loyihasiz': 'Без проекта',
+  'vazifa.loyihaShart':
+    'В папке «Проекты» задача обязательно должна относиться к какому-то проекту. Сначала выберите проект.',
   'vazifa.izoh': 'Описание',
   'vazifa.qoshildi': 'Задача добавлена',
   'vazifa.yangilandi': 'Задача обновлена',

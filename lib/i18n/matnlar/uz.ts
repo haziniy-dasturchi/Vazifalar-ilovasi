@@ -118,6 +118,8 @@ export const uz = {
   'vazifa.bolimsiz': 'Bo‘limsiz',
   'vazifa.loyiha': 'Loyiha',
   'vazifa.loyihasiz': 'Loyihasiz',
+  'vazifa.loyihaShart':
+    'Loyihalar papkasida vazifa albatta biror loyihaga tegishli bo‘lishi kerak. Avval loyihani tanlang.',
   'vazifa.izoh': 'Izoh',
   'vazifa.qoshildi': 'Vazifa qo‘shildi',
   'vazifa.yangilandi': 'Vazifa yangilandi',

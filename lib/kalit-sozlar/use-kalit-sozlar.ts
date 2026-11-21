@@ -57,8 +57,24 @@ export function useKalitSozlar(
   const qollaRef = useRef(qolla)
   qollaRef.current = qolla
 
-  /** Oldingi marta parser QO'YGAN qiymatlar */
-  const oldingi = useRef<KalitQollanma>({})
+  /*
+    Oldingi marta parser QO'YGAN qiymatlar.
+
+    Boshlang'ich qiymat ATAYLAB `{}` emas, balki hammasi `null`:
+    `matn` bo'sh bo'lganda `tahlil`ning har bir maydoni ham `null`
+    bo'ladi. Agar bu yerda `{}` tursa, birinchi effektda
+    `null !== undefined` farq sifatida ko'rinib, `qolla({sana: null,
+    ...})` chaqirilardi — natijada chaqiruvchi bergan `defaultDate`
+    (masalan, "Bugun" sahifasida bugungi sana) komponent mont
+    bo'lgan zahoti, hech narsa yozilmasdan turib, `null`ga
+    tozalanib ketardi.
+  */
+  const oldingi = useRef<KalitQollanma>({
+    sana: null,
+    vaqt: null,
+    rrule: null,
+    muhimlik: null,
+  })
 
   useEffect(() => {
     const ozgarish: KalitQollanma = {}
@@ -95,7 +111,11 @@ export function useKalitSozlar(
   /** Yangi vazifaga o'tilganda ro'yxat tozalanadi */
   const tozala = useCallback(() => {
     setBekorlar([])
-    oldingi.current = {}
+    // `{}` emas — yuqoridagi izohdagi sabab shu yerda ham amal qiladi:
+    // tezkor qo'shishda ketma-ket vazifa qo'shilganda, har safar
+    // tozalashdan keyin ham `defaultDate` darhol tozalanib ketmasligi
+    // kerak.
+    oldingi.current = { sana: null, vaqt: null, rrule: null, muhimlik: null }
   }, [])
 
   return { tahlil, bekorQil, tozala } as {

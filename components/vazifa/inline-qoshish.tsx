@@ -86,6 +86,13 @@ export function InlineQoshish({
   const tanlanganPapkaLoyihalarmi = Boolean(
     papkalar?.find((p) => p.id === papkaQiymati)?.is_projects
   )
+  /*
+    Loyihalar papkasida vazifa albatta biror loyihaga tegishli
+    bo'lishi kerak — yolg'iz vazifa loyiha emas. Subtask uchun bu
+    talab yo'q (u umuman bo'lim tanlamaydi).
+  */
+  const loyihaTanlanmagan =
+    !otaId && tanlanganPapkaLoyihalarmi && !tanlanganBolim
 
   // Papka o'zgarsa, oldin tanlangan bo'lim endi boshqa papkaga tegishli
   // bo'lib qolishi mumkin — shu sababli qaytadan tanlashga majburlaymiz
@@ -131,6 +138,14 @@ export function InlineQoshish({
     const tozalangan = tahlil.nom
     if (!tozalangan) {
       yop()
+      return
+    }
+
+    // Loyihalar papkasida vazifa albatta biror loyihaga tegishli
+    // bo'lishi kerak — yolg'iz vazifa loyiha emas. Forma OCHIQ qoladi,
+    // shunda foydalanuvchi loyihani tanlab, yozganini yo'qotmaydi.
+    if (loyihaTanlanmagan) {
+      korsat({ matn: t('vazifa.loyihaShart'), tone: 'xato' })
       return
     }
 
@@ -249,27 +264,37 @@ export function InlineQoshish({
           </div>
         )}
 
-        {papkaniTanlasaBoladi && bolimlar && bolimlar.length > 0 && (
-          <div className="min-w-36 flex-1">
-            <Tanlagich
-              ariaLabel={
-                tanlanganPapkaLoyihalarmi ? t('vazifa.loyiha') : t('vazifa.bolim')
-              }
-              qiymat={tanlanganBolim}
-              onChange={setTanlanganBolim}
-              variantlar={[
-                {
-                  qiymat: '',
-                  nom: tanlanganPapkaLoyihalarmi
-                    ? t('vazifa.loyihasiz')
-                    : t('vazifa.bolimsiz'),
-                },
-                ...bolimlar.map((b) => ({ qiymat: b.id, nom: b.name })),
-              ]}
-            />
-          </div>
-        )}
+        {/*
+          Loyihalar papkasida bu tanlagich HAR DOIM ko'rsatiladi
+          (loyiha hali yo'q bo'lsa ham) — aks holda "nega
+          saqlanmayapti" tushunarsiz qolardi.
+        */}
+        {papkaniTanlasaBoladi &&
+          (tanlanganPapkaLoyihalarmi || (bolimlar && bolimlar.length > 0)) && (
+            <div className="min-w-36 flex-1">
+              <Tanlagich
+                ariaLabel={
+                  tanlanganPapkaLoyihalarmi ? t('vazifa.loyiha') : t('vazifa.bolim')
+                }
+                qiymat={tanlanganBolim}
+                onChange={setTanlanganBolim}
+                variantlar={[
+                  {
+                    qiymat: '',
+                    nom: tanlanganPapkaLoyihalarmi
+                      ? t('vazifa.loyihasiz')
+                      : t('vazifa.bolimsiz'),
+                  },
+                  ...(bolimlar ?? []).map((b) => ({ qiymat: b.id, nom: b.name })),
+                ]}
+              />
+            </div>
+          )}
       </div>
+
+      {loyihaTanlanmagan && (
+        <p className="mt-1 px-1 text-sm text-danger">{t('vazifa.loyihaShart')}</p>
+      )}
 
       <div className="mt-2 flex justify-end gap-2 px-1 pb-1">
         <button
@@ -281,7 +306,8 @@ export function InlineQoshish({
         </button>
         <button
           type="submit"
-          disabled={!tahlil.nom}
+          disabled={!tahlil.nom || loyihaTanlanmagan}
+          title={loyihaTanlanmagan ? t('vazifa.loyihaShart') : undefined}
           className="min-h-0 cursor-pointer rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {t('umumiy.qoshish')}
