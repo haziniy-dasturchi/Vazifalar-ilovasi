@@ -198,14 +198,14 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
             setBolimNomi('')
             setYangiBolim(false)
           }}
-          className="min-h-0 rounded-lg px-3 py-2 text-sm text-text-muted transition hover:bg-surface-muted"
+          className="min-h-0 cursor-pointer rounded-lg px-3 py-2 text-sm text-text-muted transition hover:bg-surface-muted"
         >
           Bekor
         </button>
         <button
           type="submit"
           disabled={!bolimNomi.trim()}
-          className="min-h-0 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-40"
+          className="min-h-0 cursor-pointer rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Qo‘shish
         </button>
@@ -215,10 +215,14 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
     <button
       type="button"
       onClick={() => setYangiBolim(true)}
-      className="mt-2 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-text-faint transition hover:bg-surface-muted hover:text-brand-onsoft"
+      className="group mt-2 flex min-h-touch w-full cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed border-border-subtle bg-surface px-4 py-3 text-left transition hover:border-brand-primary hover:bg-brand-soft hover:shadow-card"
     >
-      <Plus className="size-4" aria-hidden />
-      {loyihalarmi ? 'Loyiha qo‘shish' : 'Bo‘lim qo‘shish'}
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-onsoft transition group-hover:bg-brand-primary group-hover:text-white">
+        <Plus className="size-5" aria-hidden />
+      </span>
+      <span className="text-base font-semibold text-text-muted transition group-hover:text-brand-onsoft">
+        {loyihalarmi ? 'Loyiha qo‘shish' : 'Bo‘lim qo‘shish'}
+      </span>
     </button>
   )
 
