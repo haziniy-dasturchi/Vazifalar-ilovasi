@@ -115,9 +115,11 @@ export function BugunKorinishi() {
       )}
 
       {!isPending && !isError && bajarilgan.length > 0 && (
-        <Guruh sarlavha="Bugun bajarildi" soni={bajarilgan.length}>
-          <ul className="space-y-2">{bajarilgan.map(qator)}</ul>
-        </Guruh>
+        <div className="mt-6">
+          <Guruh sarlavha="Bugun bajarildi" soni={bajarilgan.length}>
+            <ul className="space-y-2">{bajarilgan.map(qator)}</ul>
+          </Guruh>
+        </div>
       )}
     </Sahifa>
   )
