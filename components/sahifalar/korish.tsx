@@ -25,7 +25,7 @@ import {
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
 import { papkaIkonkasi } from '@/lib/papka-stillari'
 import { bugunISO, sarlavhaSana } from '@/lib/sana'
-import { iyerarxiya } from '@/lib/vazifa-yordam'
+import { bugungiBajarilganlar, iyerarxiya } from '@/lib/vazifa-yordam'
 
 export function KorishKorinishi() {
   const t = useT()
@@ -68,7 +68,7 @@ export function KorishKorinishi() {
   const { otalar: jarayondagilar } = iyerarxiya(jarayondaData ?? [])
   const jarayonda = jarayondagilar.length
 
-  const bajarilgan = vazifalar.filter((v) => v.status === 'done').length
+  const bajarilgan = bugungiBajarilganlar(vazifalar, bugun).bajarilgan.length
   // Boshlanganlar alohida kartada sanaladi — bu yerda faqat hali
   // boshlanmaganlar ('planned'), shunda sonlar takrorlanmaydi.
   const kechikkan = vazifalar.filter(

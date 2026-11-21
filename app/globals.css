@@ -258,6 +258,23 @@
     min-height: var(--spacing-touch);
   }
 
+  /*
+    Sichqoncha ko'rsatkichi: brauzer andozasi bo'yicha <button> "default"
+    kursor bilan chiziladi (qo'l emas), ammo bu ilovada deyarli har bir
+    tugma bosiladigan. Har birida alohida `cursor-pointer` yozib
+    chiqishdan ko'ra, shu yerda bir martada hal qilinadi. O'chirilgan
+    tugma esa andozadagidek "not-allowed" bo'lib qoladi.
+  */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role='button'][aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+
   /* Fokus halqasi — klaviatura bilan yurganda ko'rinadi */
   :focus-visible {
     outline: 2px solid var(--brand-accent);

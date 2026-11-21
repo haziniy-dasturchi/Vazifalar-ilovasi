@@ -9,7 +9,7 @@ import { useBugungiVazifalar } from '@/lib/queries/vazifalar'
 import { usePapkalar } from '@/lib/queries/papkalar'
 import { useBolimNomlari } from '@/lib/queries/bolimlar'
 import { bugunISO, sarlavhaSana } from '@/lib/sana'
-import { iyerarxiya, saralash, subtasklar } from '@/lib/vazifa-yordam'
+import { bugungiBajarilganlar, iyerarxiya, saralash, subtasklar } from '@/lib/vazifa-yordam'
 
 export function BugunKorinishi() {
   const { data, isPending, isError, refetch } = useBugungiVazifalar()
@@ -32,36 +32,25 @@ export function BugunKorinishi() {
   const bugungi = saralash(
     otalar.filter((v) => v.status !== 'done' && v.due_date === bugun)
   )
-  /*
-    Takrorlanuvchi vazifa bajarilganda server uni darhol keyingi
-    sanaga suradi — bu qatorlar `status: 'planned'` va `due_date`
-    kelajakda bo'lgan holda keladi (`lib/queries/vazifalar.ts`dagi
-    `takrorBugunBajarilganlarSorovi`). Ro'yxatda esa bugun bajarilgan
-    bo'lib ko'rinishi kerak, shuning uchun ko'rsatish uchun nusxasi
-    "done" va sanasi "bugun" qilib almashtiriladi.
-  */
-  const haqiqiyBajarilgan = otalar.filter((v) => v.status === 'done')
-  const takrorBajarilgan = otalar.filter(
-    (v) => v.status !== 'done' && v.due_date !== null && v.due_date > bugun
+  const { bajarilgan, takrorBajarilganIdlari } = bugungiBajarilganlar(
+    otalar,
+    bugun
   )
-  const takrorBajarilganIdlari = new Set(takrorBajarilgan.map((v) => v.id))
-  const bajarilgan = [...haqiqiyBajarilgan, ...takrorBajarilgan]
 
   const hammasiBosh =
     kechikkan.length === 0 && bugungi.length === 0 && bajarilgan.length === 0
 
   function qator(v: (typeof otalar)[number]) {
     const papka = papkaMap.get(v.folder_id)
-    const takrorlanganmi = takrorBajarilganIdlari.has(v.id)
     return (
       <VazifaQatori
         key={v.id}
-        vazifa={takrorlanganmi ? { ...v, status: 'done', due_date: bugun } : v}
+        vazifa={v}
         subtasklar={subtasklar(bolalar, v.id)}
         papkaNomi={papka?.name}
         papkaRangi={papka?.color}
         bolimNomi={v.section_id ? bolimNomlari.get(v.section_id) : undefined}
-        qaytarishMumkinEmas={takrorlanganmi}
+        qaytarishMumkinEmas={takrorBajarilganIdlari.has(v.id)}
       />
     )
   }

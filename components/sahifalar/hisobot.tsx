@@ -235,7 +235,7 @@ export function HisobotKorinishi() {
               aria-pressed={faol}
               className={`min-h-0 rounded-full border px-4 py-2 text-sm font-medium transition ${
                 faol
-                  ? 'border-brand-onsoft bg-brand-soft text-brand-onsoft'
+                  ? 'border-brand-onsoft bg-brand-soft text-brand-onsoft hover:bg-brand-soft/70'
                   : 'border-border-subtle text-text-strong hover:bg-surface-muted'
               }`}
             >
@@ -452,7 +452,7 @@ function StatKarta({
       onClick={bosilganda}
       aria-pressed={faol}
       className={`min-h-0 rounded-2xl p-4 text-center shadow-card transition ${
-        faol ? 'bg-brand-soft' : 'bg-surface hover:bg-surface-muted'
+        faol ? 'bg-brand-soft hover:bg-brand-soft/70' : 'bg-surface hover:bg-surface-muted'
       }`}
     >
       <Ikonka className="mx-auto size-5" style={{ color: rang }} aria-hidden />
