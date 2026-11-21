@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { ListChecks, Plus } from 'lucide-react'
+import { ListChecks } from 'lucide-react'
 import { Guruh, Sahifa } from '@/components/app/sahifa'
 import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
-import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
+import { InlineQoshish } from '@/components/vazifa/inline-qoshish'
 import { useBugungiVazifalar } from '@/lib/queries/vazifalar'
 import { usePapkalar } from '@/lib/queries/papkalar'
 import { useBolimNomlari } from '@/lib/queries/bolimlar'
@@ -16,10 +15,12 @@ export function BugunKorinishi() {
   const { data, isPending, isError, refetch } = useBugungiVazifalar()
   const { data: papkalar } = usePapkalar()
   const bolimNomlari = useBolimNomlari()
-  const [qoshishOchiq, setQoshishOchiq] = useState(false)
 
   const papkaMap = new Map(papkalar?.map((p) => [p.id, p]))
   const bugun = bugunISO()
+  // Pastdagi tezkor qo'shish qaysi papkadan boshlanishini bildiradi —
+  // Kiruvchi hali yuklanmagan paytda maydon ko'rsatilmaydi
+  const kiruvchi = papkalar?.find((p) => p.is_inbox)
 
   const { otalar, bolalar } = iyerarxiya(data ?? [])
 
@@ -51,20 +52,7 @@ export function BugunKorinishi() {
   }
 
   return (
-    <Sahifa
-      sarlavha="Bugun"
-      tavsif={sarlavhaSana()}
-      harakat={
-        <button
-          type="button"
-          onClick={() => setQoshishOchiq(true)}
-          className="hidden items-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-primary-hover md:flex"
-        >
-          <Plus className="size-4" aria-hidden />
-          Vazifa
-        </button>
-      }
-    >
+    <Sahifa sarlavha="Bugun" tavsif={sarlavhaSana()}>
       {isPending ? (
         <Yuklanmoqda />
       ) : isError ? (
@@ -73,8 +61,7 @@ export function BugunKorinishi() {
         <BoshHolat
           ikonka={ListChecks}
           sarlavha="Bugunga vazifa yo‘q"
-          matn="Hali vazifa yo‘q — + tugmasini bosing."
-          harakat={{ matn: 'Vazifa qo‘shish', bajar: () => setQoshishOchiq(true) }}
+          matn="Hali vazifa yo‘q — pastdagi maydondan qo‘shing."
         />
       ) : (
         <>
@@ -95,10 +82,6 @@ export function BugunKorinishi() {
               rasm="/illustrations/empty-today-done.svg"
               sarlavha="Bugungi ishlar tugadi"
               matn="Bugun rejalashtirilgan vazifalar qolmadi."
-              harakat={{
-                matn: 'Yana vazifa qo‘shish',
-                bajar: () => setQoshishOchiq(true),
-              }}
             />
           )}
 
@@ -110,11 +93,14 @@ export function BugunKorinishi() {
         </>
       )}
 
-      {qoshishOchiq && (
-        <VazifaOynasi
-          yop={() => setQoshishOchiq(false)}
-          defaultDate={bugun}
-        />
+      {/*
+        Todoist uslubidagi tezkor qo'shish — ro'yxat pastida, sahifa
+        qaysi qurilmada ochilishidan qat'i nazar doim ko'rinadi. Sana
+        "bugun" bilan oldindan to'ldirilgan, chunki shu sahifaga
+        qo'shilgan ish aynan bugunga tegishli bo'lishi kutiladi.
+      */}
+      {kiruvchi && !isPending && !isError && (
+        <InlineQoshish papkaId={kiruvchi.id} defaultDate={bugun} />
       )}
     </Sahifa>
   )

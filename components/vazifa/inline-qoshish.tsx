@@ -14,7 +14,7 @@ import { useT } from '@/components/app/til-provayder'
 import { yangiId } from '@/lib/id'
 import { bugunISO } from '@/lib/sana'
 import { useKalitSozlar } from '@/lib/kalit-sozlar/use-kalit-sozlar'
-import type { TaskPriority } from '@/types/vazifalar'
+import type { Task, TaskPriority } from '@/types/vazifalar'
 
 /**
  * Bo'lim oxiridagi "+ Vazifa qo'shish".
@@ -29,17 +29,23 @@ export function InlineQoshish({
   bolimId = null,
   otaId = null,
   matn,
+  defaultDate = null,
+  defaultStatus,
 }: {
   papkaId: string
   bolimId?: string | null
   otaId?: string | null
   matn?: string
+  /** Yangi vazifaga oldindan qo'yiladigan sana (masalan, "Bugun" sahifasida bugun) */
+  defaultDate?: string | null
+  /** Yangi vazifa qaysi holatda tug'ilsin ("Jarayonda" sahifasida 'in_progress') */
+  defaultStatus?: Task['status']
 }) {
   const t = useT()
   const [ochiq, setOchiq] = useState(false)
   const [sarlavha, setSarlavha] = useState('')
   const [izoh, setIzoh] = useState('')
-  const [sana, setSana] = useState<string | null>(null)
+  const [sana, setSana] = useState<string | null>(defaultDate)
   const [vaqt, setVaqt] = useState<string | null>(null)
   const [takrorlanish, setTakrorlanish] = useState<string | null>(null)
   const [takrorBoshi, setTakrorBoshi] = useState<string | null>(null)
@@ -69,7 +75,7 @@ export function InlineQoshish({
     kalitlarniTozala()
     setSarlavha('')
     setIzoh('')
-    setSana(null)
+    setSana(defaultDate)
     setVaqt(null)
     setTakrorlanish(null)
     setTakrorBoshi(null)
@@ -121,6 +127,7 @@ export function InlineQoshish({
         : null,
       rrule_from_completion: takrorlanish ? bajarilgandan : false,
       priority: muhimlik,
+      status: defaultStatus,
     }
 
     // Maydon darhol bo'shaydi — ketma-ket qo'shish uzilmasin

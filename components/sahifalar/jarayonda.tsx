@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { ListChecks, Play, Plus } from 'lucide-react'
+import { ListChecks, Play } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
 import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
-import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
+import { InlineQoshish } from '@/components/vazifa/inline-qoshish'
 import {
   useBugungiVazifalar,
   useJarayondagiVazifalar,
@@ -30,7 +29,8 @@ export function JarayondaKorinishi() {
   const { data: papkalar } = usePapkalar()
   const bolimNomlari = useBolimNomlari()
   const papkaMap = new Map(papkalar?.map((p) => [p.id, p]))
-  const [qoshishOchiq, setQoshishOchiq] = useState(false)
+  // Pastdagi tezkor qo'shish qaysi papkadan boshlanishini bildiradi
+  const kiruvchi = papkalar?.find((p) => p.is_inbox)
 
   const { otalar, bolalar } = iyerarxiya(data ?? [])
 
@@ -49,50 +49,40 @@ export function JarayondaKorinishi() {
   }
 
   return (
-    <>
-      <Sahifa
-        sarlavha="Jarayonda"
-        tavsif={
-          otalar.length > 0
-            ? `${otalar.length} ta vazifa ustida ishlayapsiz`
-            : undefined
-        }
-        harakat={
-          <button
-            type="button"
-            onClick={() => setQoshishOchiq(true)}
-            className="hidden items-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-primary-hover md:flex"
-          >
-            <Plus className="size-4" aria-hidden />
-            Vazifa
-          </button>
-        }
-      >
-        {isPending ? (
-          <Yuklanmoqda qator={2} />
-        ) : isError ? (
-          <XatoHolati qayta={() => refetch()} />
-        ) : otalar.length === 0 ? (
-          <BugundanTanlash qator={qator} />
-        ) : (
-          <ul className="space-y-2">{otalar.map((v) => qator(v))}</ul>
-        )}
-      </Sahifa>
+    <Sahifa
+      sarlavha="Jarayonda"
+      tavsif={
+        otalar.length > 0
+          ? `${otalar.length} ta vazifa ustida ishlayapsiz`
+          : undefined
+      }
+    >
+      {isPending ? (
+        <Yuklanmoqda qator={2} />
+      ) : isError ? (
+        <XatoHolati qayta={() => refetch()} />
+      ) : otalar.length === 0 ? (
+        <BugundanTanlash qator={qator} />
+      ) : (
+        <ul className="space-y-2">{otalar.map((v) => qator(v))}</ul>
+      )}
 
       {/*
-        Shu sahifadan qo'shilgan vazifa darhol boshlangan bo'ladi —
-        odam "Jarayonda" bo'limida turib ish qo'shsa, uni aynan hozir
-        bajarmoqchi. Holat yaratishning o'zida beriladi (ikki qadamda
-        emas), shunda internet yo'q paytda ham to'g'ri ishlaydi.
+        Todoist uslubidagi tezkor qo'shish — ro'yxat pastida, doim
+        ko'rinadi. Shu sahifadan qo'shilgan vazifa darhol boshlangan
+        bo'ladi: odam "Jarayonda" bo'limida turib ish qo'shsa, uni
+        aynan hozir bajarmoqchi. Holat yaratishning o'zida beriladi
+        (ikki qadamda emas), shunda internet yo'q paytda ham to'g'ri
+        ishlaydi.
       */}
-      {qoshishOchiq && (
-        <VazifaOynasi
-          yop={() => setQoshishOchiq(false)}
+      {kiruvchi && !isPending && !isError && (
+        <InlineQoshish
+          papkaId={kiruvchi.id}
           defaultDate={bugunISO()}
           defaultStatus="in_progress"
         />
       )}
-    </>
+    </Sahifa>
   )
 }
 
