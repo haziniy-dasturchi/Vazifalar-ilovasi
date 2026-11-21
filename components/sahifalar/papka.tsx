@@ -160,6 +160,68 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
     }
   }
 
+  /*
+    Yangi bo'lim/loyiha qo'shish qatori.
+
+    Loyihalar papkasida bu BIRINCHI bo'lib ko'rsatiladi (pastda emas):
+    avval loyiha nomlanadi, ANDAN KEYIN uning ichiga vazifa qo'shish
+    imkoniyati chiqadi — aksincha emas. Oddiy papkada esa bo'lim
+    ro'yxat oxirida qo'shiladi, chunki u yerda bo'lim shunchaki mavzu,
+    tartib ahamiyatsiz.
+  */
+  const yangiBolimBlok = yangiBolim ? (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        bolimQosh()
+      }}
+      className="mt-2 rounded-xl bg-surface p-2 shadow-card"
+    >
+      <input
+        value={bolimNomi}
+        onChange={(e) => setBolimNomi(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            setBolimNomi('')
+            setYangiBolim(false)
+          }
+        }}
+        placeholder={loyihalarmi ? 'Loyiha nomi' : 'Bo‘lim nomi'}
+        maxLength={120}
+        autoFocus
+        className="min-h-touch w-full bg-transparent px-2 text-base font-semibold text-text-strong outline-none placeholder:font-normal placeholder:text-text-faint"
+      />
+      <div className="flex justify-end gap-2 px-1 pb-1">
+        <button
+          type="button"
+          onClick={() => {
+            setBolimNomi('')
+            setYangiBolim(false)
+          }}
+          className="min-h-0 rounded-lg px-3 py-2 text-sm text-text-muted transition hover:bg-surface-muted"
+        >
+          Bekor
+        </button>
+        <button
+          type="submit"
+          disabled={!bolimNomi.trim()}
+          className="min-h-0 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-40"
+        >
+          Qo‘shish
+        </button>
+      </div>
+    </form>
+  ) : (
+    <button
+      type="button"
+      onClick={() => setYangiBolim(true)}
+      className="mt-2 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-text-faint transition hover:bg-surface-muted hover:text-brand-onsoft"
+    >
+      <Plus className="size-4" aria-hidden />
+      {loyihalarmi ? 'Loyiha qo‘shish' : 'Bo‘lim qo‘shish'}
+    </button>
+  )
+
   return (
     <Sahifa
       sarlavha={papka?.name ?? '…'}
@@ -279,125 +341,98 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
             </div>
           )}
 
-          {/* Bo'limga tegishli bo'lmagan vazifalar */}
-          <section className="mb-7">
-            {bolimsiz.length > 0 ? (
-              <ul className="mb-2 space-y-2">{bolimsiz.map(qator)}</ul>
-            ) : (
-              bolimlar?.length === 0 &&
-              /*
-                Papkada vazifa bor, lekin hammasi bajarilgan --
-                "bo'sh" deyish noto'g'ri bo'lardi: odam ishlarim
-                qayoqqa ketdi deb o'ylaydi. Shuning uchun alohida
-                xabar va ular qayerdaligi aytiladi.
-              */
-              (otalar.length > 0 ? (
-                <BoshHolat
-                  ikonka={CircleCheckBig}
-                  sarlavha={t('papka.hammasiBajarildi')}
-                  matn={t('papka.hammasiBajarildiMatn')}
-                />
-              ) : papka?.is_inbox ? (
-                <BoshHolat
-                  rasm="/illustrations/empty-inbox.svg"
-                  sarlavha="Kiruvchi bo‘sh"
-                  matn="Hali vazifa yo‘q — + tugmasini bosing."
-                />
-              ) : loyihalarmi ? (
+          {loyihalarmi ? (
+            <>
+              {/*
+                1. Loyiha qo'shish — BIRINCHI. Avval loyiha nomlanadi,
+                ANDAN KEYIN uning ichiga vazifa qo'shish imkoniyati
+                chiqadi (har bir loyiha kartasining o'zida). Bitta
+                vazifani loyihasiz, papka ichiga shunchaki "osilgan"
+                holda qo'shish endi mumkin emas — yolg'iz vazifa
+                loyiha emas.
+              */}
+              {yangiBolimBlok}
+
+              {/* 2. Mavjud loyihalar — holati bo'yicha guruhlangan */}
+              <LoyihalarRoyxati
+                bolimlar={bolimlar ?? []}
+                papkaId={papkaId}
+                bolimVazifalari={bolimBoyicha}
+                qator={qator}
+              />
+
+              {/*
+                3. Eski, loyihasiz qolib ketgan vazifalar — faqat
+                mavjud bo'lsa ko'rsatiladi (ko'rish uchun, qo'shish
+                uchun emas: yangisini qo'shish faqat loyiha ichida).
+              */}
+              {bolimsiz.length > 0 && (
+                <section className="mb-7">
+                  <h2 className="mb-2 px-1 text-sm font-semibold text-text-muted">
+                    Loyihasiz vazifalar
+                  </h2>
+                  <ul className="space-y-2">{bolimsiz.map(qator)}</ul>
+                </section>
+              )}
+
+              {(bolimlar?.length ?? 0) === 0 && bolimsiz.length === 0 && (
                 <BoshHolat
                   ikonka={ListChecks}
                   sarlavha="Hali loyiha yo‘q"
-                  matn="Har bir loyihangiz shu papka ichida alohida bo‘lim bo‘ladi. Pastdagi “Loyiha qo‘shish” tugmasidan boshlang."
+                  matn="Har bir loyihangiz shu papka ichida alohida bo‘lim bo‘ladi. Yuqoridagi “Loyiha qo‘shish” tugmasidan boshlang."
                 />
-              ) : (
-                <BoshHolat
-                  ikonka={ListChecks}
-                  sarlavha="Bu papka bo‘sh"
-                  matn="Hali vazifa yo‘q — + tugmasini bosing."
+              )}
+            </>
+          ) : (
+            <>
+              {/* Bo'limga tegishli bo'lmagan vazifalar */}
+              <section className="mb-7">
+                {bolimsiz.length > 0 ? (
+                  <ul className="mb-2 space-y-2">{bolimsiz.map(qator)}</ul>
+                ) : (
+                  bolimlar?.length === 0 &&
+                  /*
+                    Papkada vazifa bor, lekin hammasi bajarilgan --
+                    "bo'sh" deyish noto'g'ri bo'lardi: odam ishlarim
+                    qayoqqa ketdi deb o'ylaydi. Shuning uchun alohida
+                    xabar va ular qayerdaligi aytiladi.
+                  */
+                  (otalar.length > 0 ? (
+                    <BoshHolat
+                      ikonka={CircleCheckBig}
+                      sarlavha={t('papka.hammasiBajarildi')}
+                      matn={t('papka.hammasiBajarildiMatn')}
+                    />
+                  ) : papka?.is_inbox ? (
+                    <BoshHolat
+                      rasm="/illustrations/empty-inbox.svg"
+                      sarlavha="Kiruvchi bo‘sh"
+                      matn="Hali vazifa yo‘q — + tugmasini bosing."
+                    />
+                  ) : (
+                    <BoshHolat
+                      ikonka={ListChecks}
+                      sarlavha="Bu papka bo‘sh"
+                      matn="Hali vazifa yo‘q — + tugmasini bosing."
+                    />
+                  ))
+                )}
+                <InlineQoshish papkaId={papkaId} />
+              </section>
+
+              {bolimlar?.map((bolim) => (
+                <BolimBloki
+                  key={bolim.id}
+                  bolim={bolim}
+                  papkaId={papkaId}
+                  vazifalar={bolimBoyicha(bolim)}
+                  qator={qator}
                 />
-              ))
-            )}
-            <InlineQoshish papkaId={papkaId} />
-          </section>
+              ))}
 
-          {/*
-            Loyihalar papkasida bo'limlar holati bo'yicha guruhlanadi:
-            jarayondagilar tepada, tugaganlari pastda va yig'ilgan
-            holda. Oddiy papkada bunday guruhlash ma'nosiz — u yerda
-            bo'lim bu shunchaki mavzu, "bajarilgan bo'lim" degan tushuncha
-            yo'q.
-          */}
-          {loyihalarmi ? (
-            <LoyihalarRoyxati
-              bolimlar={bolimlar ?? []}
-              papkaId={papkaId}
-              bolimVazifalari={bolimBoyicha}
-              qator={qator}
-            />
-          ) : (
-            bolimlar?.map((bolim) => (
-              <BolimBloki
-                key={bolim.id}
-                bolim={bolim}
-                papkaId={papkaId}
-                vazifalar={bolimBoyicha(bolim)}
-                qator={qator}
-              />
-            ))
-          )}
-
-          {/* Yangi bo'lim */}
-          {yangiBolim ? (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                bolimQosh()
-              }}
-              className="mt-2 rounded-xl bg-surface p-2 shadow-card"
-            >
-              <input
-                value={bolimNomi}
-                onChange={(e) => setBolimNomi(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape') {
-                    setBolimNomi('')
-                    setYangiBolim(false)
-                  }
-                }}
-                placeholder={loyihalarmi ? 'Loyiha nomi' : 'Bo‘lim nomi'}
-                maxLength={120}
-                autoFocus
-                className="min-h-touch w-full bg-transparent px-2 text-base font-semibold text-text-strong outline-none placeholder:font-normal placeholder:text-text-faint"
-              />
-              <div className="flex justify-end gap-2 px-1 pb-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setBolimNomi('')
-                    setYangiBolim(false)
-                  }}
-                  className="min-h-0 rounded-lg px-3 py-2 text-sm text-text-muted transition hover:bg-surface-muted"
-                >
-                  Bekor
-                </button>
-                <button
-                  type="submit"
-                  disabled={!bolimNomi.trim()}
-                  className="min-h-0 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-40"
-                >
-                  Qo‘shish
-                </button>
-              </div>
-            </form>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setYangiBolim(true)}
-              className="mt-2 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-text-faint transition hover:bg-surface-muted hover:text-brand-onsoft"
-            >
-              <Plus className="size-4" aria-hidden />
-              {loyihalarmi ? 'Loyiha qo‘shish' : 'Bo‘lim qo‘shish'}
-            </button>
+              {/* Yangi bo'lim — oddiy papkada ro'yxat oxirida */}
+              {yangiBolimBlok}
+            </>
           )}
         </>
       )}

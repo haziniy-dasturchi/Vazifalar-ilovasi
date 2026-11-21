@@ -69,9 +69,15 @@ export function InlineQoshish({
   const { data: papkalar } = useFaolPapkalar()
   const { korsat } = useToast()
 
-  // Subtask doim ota-vazifa papkasida qoladi — papkani tanlash
-  // faqat mustaqil vazifa uchun ma'noga ega
-  const papkaniTanlasaBoladi = otaId === null
+  /*
+    Papkani (va bo'limni) tanlash ikki holatda yopiq:
+    - Subtask doim ota-vazifa papkasida qoladi.
+    - Aniq bo'lim ichidan qo'shilayotganda (masalan, bitta loyiha
+      kartasining o'zidan) vazifa AYNAN o'sha bo'limda qolishi kerak —
+      papka almashtirgich bu yerda vazifani boshqa joyga olib
+      ketib qo'yishi mumkin edi.
+  */
+  const papkaniTanlasaBoladi = otaId === null && bolimId === null
   const papkaQiymati = papkaniTanlasaBoladi ? tanlanganPapka : papkaId
 
   // Tanlangan papkaning bo'limlari — vazifa oynasidagi bilan bir xil mantiq
