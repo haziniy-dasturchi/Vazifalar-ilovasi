@@ -33,10 +33,20 @@ export function OfflineBelgisi() {
     filters: { predicate: (m) => m.state.isPaused },
   }).length
 
-  // Server rad etgan yozuvlar — bular o'zi qayta urinmaydi
-  const xatolar = useMutationState({
+  /*
+    Server rad etgan yozuvlar — bular o'zi qayta urinmaydi.
+
+    Xatoning O'Z XABARI ham ko'rsatiladi. Oldin faqat "saqlanmadi"
+    deyilardi va sababni bilishning yagona yo'li brauzer
+    konsolini ochish edi — oddiy foydalanuvchi uchun bu imkonsiz,
+    men uchun esa har safar so'rab-surishtirish demakdi.
+  */
+  const xatoXabarlari = useMutationState({
     filters: { status: 'error' },
-  }).length
+    select: (m) => (m.state.error as Error | null)?.message ?? '',
+  })
+  const xatolar = xatoXabarlari.length
+  const birinchiXabar = xatoXabarlari.find((x) => x.length > 0)
 
   if (onlayn && kutayotgan === 0 && xatolar === 0) return null
 
@@ -58,6 +68,11 @@ export function OfflineBelgisi() {
       {xatolar > 0 && (
         <Chiziq uslub="xato" ikonka={TriangleAlert}>
           {t('offline.xato', { n: xatolar })}
+          {birinchiXabar && (
+            <span className="ml-2 font-normal opacity-90">
+              — {birinchiXabar.slice(0, 160)}
+            </span>
+          )}
         </Chiziq>
       )}
     </div>
