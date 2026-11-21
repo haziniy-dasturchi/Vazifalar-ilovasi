@@ -4,7 +4,6 @@ import { ListChecks, Play } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
 import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
-import { InlineQoshish } from '@/components/vazifa/inline-qoshish'
 import {
   useBugungiVazifalar,
   useJarayondagiVazifalar,
@@ -29,8 +28,6 @@ export function JarayondaKorinishi() {
   const { data: papkalar } = usePapkalar()
   const bolimNomlari = useBolimNomlari()
   const papkaMap = new Map(papkalar?.map((p) => [p.id, p]))
-  // Pastdagi tezkor qo'shish qaysi papkadan boshlanishini bildiradi
-  const kiruvchi = papkalar?.find((p) => p.is_inbox)
 
   const { otalar, bolalar } = iyerarxiya(data ?? [])
 
@@ -65,22 +62,6 @@ export function JarayondaKorinishi() {
         <BugundanTanlash qator={qator} />
       ) : (
         <ul className="space-y-2">{otalar.map((v) => qator(v))}</ul>
-      )}
-
-      {/*
-        Todoist uslubidagi tezkor qo'shish — ro'yxat pastida, doim
-        ko'rinadi. Shu sahifadan qo'shilgan vazifa darhol boshlangan
-        bo'ladi: odam "Jarayonda" bo'limida turib ish qo'shsa, uni
-        aynan hozir bajarmoqchi. Holat yaratishning o'zida beriladi
-        (ikki qadamda emas), shunda internet yo'q paytda ham to'g'ri
-        ishlaydi.
-      */}
-      {kiruvchi && !isPending && !isError && (
-        <InlineQoshish
-          papkaId={kiruvchi.id}
-          defaultDate={bugunISO()}
-          defaultStatus="in_progress"
-        />
       )}
     </Sahifa>
   )
