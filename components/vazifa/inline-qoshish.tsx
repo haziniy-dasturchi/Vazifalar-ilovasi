@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { IzohMaydoni } from '@/components/ui/izoh-maydoni'
 import { KalitMaydon } from '@/components/vazifa/kalit-maydon'
@@ -9,6 +9,7 @@ import { Tanlagich } from '@/components/ui/tanlagich'
 import { MuhimlikTanlagich } from '@/components/vazifa/muhimlik-tanlagich'
 import { useVazifaYaratish } from '@/lib/queries/vazifalar'
 import { useFaolPapkalar } from '@/lib/queries/papkalar'
+import { useBolimlar } from '@/lib/queries/bolimlar'
 import { useToast } from '@/components/ui/toast'
 import { useT } from '@/components/app/til-provayder'
 import { yangiId } from '@/lib/id'
@@ -52,6 +53,7 @@ export function InlineQoshish({
   const [bajarilgandan, setBajarilgandan] = useState(false)
   const [muhimlik, setMuhimlik] = useState<TaskPriority>(4)
   const [tanlanganPapka, setTanlanganPapka] = useState(papkaId)
+  const [tanlanganBolim, setTanlanganBolim] = useState(bolimId ?? '')
 
   const { tahlil, bekorQil, tozala: kalitlarniTozala } = useKalitSozlar(
     sarlavha,
@@ -70,6 +72,23 @@ export function InlineQoshish({
   // Subtask doim ota-vazifa papkasida qoladi — papkani tanlash
   // faqat mustaqil vazifa uchun ma'noga ega
   const papkaniTanlasaBoladi = otaId === null
+  const papkaQiymati = papkaniTanlasaBoladi ? tanlanganPapka : papkaId
+
+  // Tanlangan papkaning bo'limlari — vazifa oynasidagi bilan bir xil mantiq
+  const { data: bolimlar } = useBolimlar(otaId ? undefined : papkaQiymati)
+  // "Loyihalar" papkasida bo'lim aslida loyiha — nomlanishi boshqa
+  const tanlanganPapkaLoyihalarmi = Boolean(
+    papkalar?.find((p) => p.id === papkaQiymati)?.is_projects
+  )
+
+  // Papka o'zgarsa, oldin tanlangan bo'lim endi boshqa papkaga tegishli
+  // bo'lib qolishi mumkin — shu sababli qaytadan tanlashga majburlaymiz
+  useEffect(() => {
+    if (!bolimlar) return
+    setTanlanganBolim((eski) =>
+      bolimlar.some((b) => b.id === eski) ? eski : ''
+    )
+  }, [bolimlar])
 
   function tozala() {
     kalitlarniTozala()
@@ -82,6 +101,7 @@ export function InlineQoshish({
     setBajarilgandan(false)
     setMuhimlik(4)
     setTanlanganPapka(papkaId)
+    setTanlanganBolim(bolimId ?? '')
   }
 
   function yop() {
@@ -113,9 +133,8 @@ export function InlineQoshish({
 
     const yuboriladigan = {
       id: yangiId(),
-      folder_id: papkaniTanlasaBoladi ? tanlanganPapka : papkaId,
-      // Papka o'zgartirilgan bo'lsa, eski bo'limga bog'lab bo'lmaydi
-      section_id: tanlanganPapka === papkaId ? bolimId : null,
+      folder_id: papkaQiymati,
+      section_id: otaId ? null : tanlanganBolim || null,
       parent_id: otaId,
       title: tozalangan,
       description: izoh.trim() || null,
@@ -220,6 +239,27 @@ export function InlineQoshish({
                 nom: p.name,
                 rang: p.color,
               }))}
+            />
+          </div>
+        )}
+
+        {papkaniTanlasaBoladi && bolimlar && bolimlar.length > 0 && (
+          <div className="min-w-36 flex-1">
+            <Tanlagich
+              ariaLabel={
+                tanlanganPapkaLoyihalarmi ? t('vazifa.loyiha') : t('vazifa.bolim')
+              }
+              qiymat={tanlanganBolim}
+              onChange={setTanlanganBolim}
+              variantlar={[
+                {
+                  qiymat: '',
+                  nom: tanlanganPapkaLoyihalarmi
+                    ? t('vazifa.loyihasiz')
+                    : t('vazifa.bolimsiz'),
+                },
+                ...bolimlar.map((b) => ({ qiymat: b.id, nom: b.name })),
+              ]}
             />
           </div>
         )}
