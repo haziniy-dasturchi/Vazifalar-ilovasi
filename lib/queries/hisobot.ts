@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import {
   qismanBajarilganlar,
@@ -8,7 +9,60 @@ import {
   type QismanYozuv,
 } from '@/lib/hisobot-filtr'
 import { kalit } from './keys'
+import type { Database } from '@/types/database'
 import type { Task } from '@/types/vazifalar'
+
+type Mijoz = SupabaseClient<Database>
+
+/**
+ * Takrorlanuvchi vazifa bajarilganda server uni DARHOL keyingi sanaga
+ * suradi — uning qatori shu davrda necha marta bajarilganini saqlab
+ * turmaydi, faqat OXIRGI (hali tugamagan bo'lsa — hali bajarilmagan)
+ * holatini ko'rsatadi. Har safar bajarilganda esa `task_events`ga
+ * "completed" yozuvi tushadi (`lib/queries/vazifalar.ts`dagi bir xil
+ * muammo va yechim). Shu yozuvlardan foydalanib, davr ichida necha
+ * marta bajarilgani — har biri alohida qator sifatida — tiklanadi.
+ */
+async function takrorBajarilganlarSorovi(
+  supabase: Mijoz,
+  boshlanishBoshi: string,
+  tugashOxiri: string
+): Promise<Task[]> {
+  const { data: hodisalar, error: hodisaXatosi } = await supabase
+    .from('task_events')
+    .select('task_id, created_at')
+    .eq('event', 'completed')
+    .gte('created_at', boshlanishBoshi)
+    .lte('created_at', tugashOxiri)
+    .not('task_id', 'is', null)
+
+  if (hodisaXatosi) throw hodisaXatosi
+  if (!hodisalar || hodisalar.length === 0) return []
+
+  const idlar = [...new Set(hodisalar.map((h) => h.task_id as string))]
+
+  const { data: vazifalar, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .is('deleted_at', null)
+    .not('rrule', 'is', null)
+    .in('id', idlar)
+
+  if (error) throw error
+
+  const vazifaMap = new Map((vazifalar ?? []).map((v) => [v.id, v as Task]))
+
+  // Har hodisa — alohida "bajarilgan" qator: sarlavha/papka hozirgi
+  // qatordan, sana va holati esa o'sha kungi hodisadan olinadi.
+  const natija: Task[] = []
+  for (const h of hodisalar) {
+    const asl = vazifaMap.get(h.task_id as string)
+    if (!asl) continue
+    const kun = (h.created_at as string).slice(0, 10)
+    natija.push({ ...asl, status: 'done', completed_at: h.created_at as string, due_date: kun })
+  }
+  return natija
+}
 
 /**
  * Hisobot uchun vazifalar: tanlangan sana oralig'ida muddati bor YOKI
@@ -25,16 +79,32 @@ export function useHisobotVazifalari(boshlanish: string, tugash: string) {
       const boshlanishBoshi = `${boshlanish}T00:00:00.000`
       const tugashOxiri = `${tugash}T23:59:59.999`
 
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .is('deleted_at', null)
-        .or(
-          `and(due_date.gte.${boshlanish},due_date.lte.${tugash}),and(completed_at.gte.${boshlanishBoshi},completed_at.lte.${tugashOxiri})`
-        )
+      const [asosiy, takrorBajarilgan] = await Promise.all([
+        supabase
+          .from('tasks')
+          .select('*')
+          .is('deleted_at', null)
+          .or(
+            `and(due_date.gte.${boshlanish},due_date.lte.${tugash}),and(completed_at.gte.${boshlanishBoshi},completed_at.lte.${tugashOxiri})`
+          ),
+        takrorBajarilganlarSorovi(supabase, boshlanishBoshi, tugashOxiri),
+      ])
 
-      if (error) throw error
-      return (data ?? []) as Task[]
+      if (asosiy.error) throw asosiy.error
+
+      // Takrorlanish TUGAB, vazifa haqiqatda "done"da qotib qolgan bo'lsa,
+      // o'sha kungi yakuniy bajarilish asosiy so'rovda ham bor — dublikat
+      // bo'lmasligi uchun o'sha (id, kun) jufti bu yerdan chiqarib tashlanadi.
+      const asosiyBajarilganlar = new Set(
+        (asosiy.data ?? [])
+          .filter((v) => v.status === 'done' && v.completed_at)
+          .map((v) => `${v.id}:${(v.completed_at as string).slice(0, 10)}`)
+      )
+      const qoshimcha = takrorBajarilgan.filter(
+        (v) => !asosiyBajarilganlar.has(`${v.id}:${v.completed_at!.slice(0, 10)}`)
+      )
+
+      return [...(asosiy.data ?? []), ...qoshimcha] as Task[]
     },
   })
 }

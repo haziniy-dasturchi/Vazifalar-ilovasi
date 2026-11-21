@@ -494,7 +494,11 @@ function VazifaRoyxati({
         const papka = papkaMap.get(v.folder_id)
         return (
           <VazifaQatori
-            key={v.id}
+            // Takrorlanuvchi vazifa davr ichida bir necha marta
+            // bajarilgan bo'lsa, bir xil `id` bilan bir necha marta
+            // chiqishi mumkin (har kuni alohida qator) — shuning
+            // uchun kalitga bajarilgan sana ham qo'shiladi.
+            key={`${v.id}:${v.completed_at ?? v.due_date ?? ''}`}
             vazifa={v}
             subtasklar={olBolalar(bolalar, v.id)}
             papkaNomi={yashirPapka ? undefined : papka?.name}
