@@ -11,16 +11,12 @@ import {
   Trash2,
   X,
 } from 'lucide-react'
-import { Oyna } from '@/components/ui/oyna'
-import { OsuvchiMaydon } from '@/components/ui/osuvchi-maydon'
 import { Tasdiq } from '@/components/ui/tasdiq'
 import { useToast } from '@/components/ui/toast'
 import { useT } from '@/components/app/til-provayder'
 import {
   useTopshiriqBekor,
   useTopshiriqlarniOchirish,
-  useTopshiriqQaytarish,
-  useTopshiriqTasdiqlash,
 } from '@/lib/queries/topshiriqlar'
 import { MUHIMLIK_NOMI, MUHIMLIK_RANGI } from '@/lib/papka-stillari'
 import { toliqSana, vaqtMatni } from '@/lib/sana'
@@ -32,6 +28,7 @@ import {
   korinishHolati,
   type KorinishHolati,
 } from './holat'
+import { QarorOynasi, type Qaror } from './qaror-oynasi'
 
 export function topshiriqYoli(id: string) {
   return `/topshiriq?id=${id}`
@@ -117,38 +114,15 @@ export function TopshiriqKartasi({
   const t = useT()
   const { korsat } = useToast()
   const holat = korinishHolati(topshiriq, vazifaHolati, kechikkan)
-  const tasdiqlash = useTopshiriqTasdiqlash()
-  const qaytarish = useTopshiriqQaytarish()
   const ochirish = useTopshiriqlarniOchirish()
   const bekor = useTopshiriqBekor()
-  const [radOchiq, setRadOchiq] = useState(false)
+  const [qaror, setQaror] = useState<Qaror | null>(null)
   const [ochirishOchiq, setOchirishOchiq] = useState(false)
-  const [sabab, setSabab] = useState('')
 
   const kim = qarshiIsm ?? (menYuborganman ? topshiriq.qabul_qiluvchi_email : '…')
   const sana = sanaOraligi(topshiriq)
   const yopiq = topshiriq.holat === 'bajarildi' || topshiriq.holat === 'rad'
   const rang = MUHIMLIK_RANGI[topshiriq.muhimlik] ?? '#9ca3af'
-
-  async function qabulQil() {
-    try {
-      await tasdiqlash.mutateAsync({ id: topshiriq.id })
-      korsat({ matn: t('tk.qabulQilindi'), tone: 'muvaffaqiyat' })
-    } catch {
-      korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
-    }
-  }
-
-  async function radEt() {
-    try {
-      await qaytarish.mutateAsync({ id: topshiriq.id, sabab })
-      setRadOchiq(false)
-      setSabab('')
-      korsat({ matn: t('tk.radEtildi'), tone: 'muvaffaqiyat' })
-    } catch {
-      korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
-    }
-  }
 
   return (
     <li
@@ -255,8 +229,8 @@ export function TopshiriqKartasi({
           <div className="relative z-10 mt-3 grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={qabulQil}
-              disabled={!onlayn || tasdiqlash.isPending}
+              onClick={() => setQaror('qabul')}
+              disabled={!onlayn}
               className="flex min-h-touch items-center justify-center gap-1.5 rounded-xl bg-brand-accent px-2 text-base whitespace-nowrap font-semibold text-white transition hover:bg-brand-accent-hover disabled:opacity-50"
             >
               <Check className="size-5" aria-hidden />
@@ -264,7 +238,7 @@ export function TopshiriqKartasi({
             </button>
             <button
               type="button"
-              onClick={() => setRadOchiq(true)}
+              onClick={() => setQaror('rad')}
               disabled={!onlayn}
               className="flex min-h-touch items-center justify-center gap-1.5 rounded-xl border-2 border-danger px-2 text-base whitespace-nowrap font-semibold text-danger transition hover:bg-danger-soft disabled:opacity-50"
             >
@@ -275,14 +249,8 @@ export function TopshiriqKartasi({
         )}
       </div>
 
-      {radOchiq && (
-        <RadOynasi
-          sabab={sabab}
-          setSabab={setSabab}
-          yop={() => setRadOchiq(false)}
-          yubor={radEt}
-          band={qaytarish.isPending}
-        />
+      {qaror && (
+        <QarorOynasi topshiriqId={topshiriq.id} qaror={qaror} yop={() => setQaror(null)} />
       )}
 
       {ochirishOchiq && (
@@ -312,55 +280,5 @@ export function TopshiriqKartasi({
         />
       )}
     </li>
-  )
-}
-
-/** Rad etish: nima yetishmayotganini yozish (ijrochiga boradi) */
-export function RadOynasi({
-  sabab,
-  setSabab,
-  yop,
-  yubor,
-  band,
-}: {
-  sabab: string
-  setSabab: (s: string) => void
-  yop: () => void
-  yubor: () => void
-  band: boolean
-}) {
-  const t = useT()
-  return (
-    <Oyna sarlavha={t('tk.radSarlavha')} yop={yop}>
-      <p className="mb-3 text-base text-text-muted">{t('tk.radIzoh')}</p>
-      <OsuvchiMaydon
-        qiymat={sabab}
-        onChange={setSabab}
-        placeholder={t('tk.radJoy')}
-        ariaLabel={t('tk.radSarlavha')}
-        maxLength={1000}
-        autoFocus
-        engKattaBalandlik={200}
-        className="min-h-24 rounded-xl border border-border-control bg-surface px-4 py-3 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft"
-      />
-      <div className="mt-5 flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={yop}
-          className="min-h-touch rounded-xl px-4 text-base font-medium text-text-muted transition hover:bg-surface-muted"
-        >
-          {t('umumiy.bekor')}
-        </button>
-        <button
-          type="button"
-          onClick={yubor}
-          disabled={band || sabab.trim() === ''}
-          className="flex min-h-touch items-center gap-2 rounded-xl bg-danger px-5 text-base font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-        >
-          <X className="size-5" aria-hidden />
-          {t('tk.radEtish')}
-        </button>
-      </div>
-    </Oyna>
   )
 }

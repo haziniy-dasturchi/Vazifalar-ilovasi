@@ -23,9 +23,7 @@ import {
   useOnlaynmi,
   useRuxsatOzgartirish,
   useTopshiriqKorildi,
-  useTopshiriqQaytarish,
   useTopshiriqTafsilotlari,
-  useTopshiriqTasdiqlash,
   useTopshiriqTopshirish,
   useYuborilganTopshiriqlar,
 } from '@/lib/queries/topshiriqlar'
@@ -41,12 +39,12 @@ import {
   Avatar,
   HolatBelgisi,
   MuhimlikBelgisi,
-  RadOynasi,
   sanaOraligi,
 } from './karta'
 import { korinishHolati } from './holat'
 import { TopshiriqFormasi } from './topshiriq-formasi'
 import { Yulduzlar } from './yulduzlar'
+import { QarorOynasi, type Qaror } from './qaror-oynasi'
 
 /**
  * Topshiriqning to'liq sahifasi: tepada hamma ma'lumot va amallar,
@@ -64,17 +62,13 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
   const { data: xabarlar = [] } = useTopshiriqIzohlari(id ?? '')
   const { data: tarix = [] } = useTopshiriqTarixi(id ?? '')
   const korildi = useTopshiriqKorildi()
-  const tasdiqlash = useTopshiriqTasdiqlash()
-  const qaytarish = useTopshiriqQaytarish()
   const topshirish = useTopshiriqTopshirish()
   const takrorToxtat = useTakrorniToxtatish()
   const ruxsat = useRuxsatOzgartirish()
 
   const [tahrirOchiq, setTahrirOchiq] = useState(false)
-  const [radOchiq, setRadOchiq] = useState(false)
+  const [qaror, setQaror] = useState<Qaror | null>(null)
   const [blokOchiq, setBlokOchiq] = useState(false)
-  const [sabab, setSabab] = useState('')
-  const [baho, setBaho] = useState(0)
 
   const topshiriq = [...(yuborilgan.data ?? []), ...(kelgan.data ?? [])].find((x) => x.id === id)
   const tafsilot = (Array.isArray(tafsilotlar) ? tafsilotlar : []).find((x) => x.topshiriq_id === id)
@@ -199,16 +193,12 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
           {meniki && topshiriq.holat === 'tekshiruvda' && (
             <div className="w-full rounded-2xl bg-surface-muted p-4">
               <p className="text-base font-semibold text-text-strong">{t('tk.tekshiringSarlavha')}</p>
-              <div className="mt-2 flex flex-wrap items-center gap-x-2 text-sm text-text-muted">
-                {t('tk.bahoIxtiyoriy')} <Yulduzlar qiymat={baho} ozgartir={setBaho} />
-              </div>
+              <p className="mt-1 text-sm text-text-muted">{t('tk.qarorIzoh')}</p>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  disabled={!onlayn || tasdiqlash.isPending}
-                  onClick={() =>
-                    amal(() => tasdiqlash.mutateAsync({ id: topshiriq.id, baho: baho || null }), t('tk.qabulQilindi'))
-                  }
+                  disabled={!onlayn}
+                  onClick={() => setQaror('qabul')}
                   className="flex min-h-touch items-center justify-center gap-1.5 rounded-xl bg-brand-accent px-2 text-base font-semibold whitespace-nowrap text-white transition hover:bg-brand-accent-hover disabled:opacity-50"
                 >
                   <Check className="size-5" aria-hidden />
@@ -217,7 +207,7 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
                 <button
                   type="button"
                   disabled={!onlayn}
-                  onClick={() => setRadOchiq(true)}
+                  onClick={() => setQaror('rad')}
                   className="flex min-h-touch items-center justify-center gap-1.5 rounded-xl border-2 border-danger px-2 text-base font-semibold whitespace-nowrap text-danger transition hover:bg-danger-soft disabled:opacity-50"
                 >
                   <X className="size-5" aria-hidden />
@@ -280,20 +270,8 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
       )}
 
       {tahrirOchiq && <TopshiriqFormasi tahrir={topshiriq} yop={() => setTahrirOchiq(false)} />}
-      {radOchiq && (
-        <RadOynasi
-          sabab={sabab}
-          setSabab={setSabab}
-          yop={() => setRadOchiq(false)}
-          band={qaytarish.isPending}
-          yubor={async () => {
-            const ok = await amal(() => qaytarish.mutateAsync({ id: topshiriq.id, sabab }), t('tk.radEtildi'))
-            if (ok) {
-              setRadOchiq(false)
-              setSabab('')
-            }
-          }}
-        />
+      {qaror && (
+        <QarorOynasi topshiriqId={topshiriq.id} qaror={qaror} yop={() => setQaror(null)} />
       )}
       {blokOchiq && (
         <Tasdiq
