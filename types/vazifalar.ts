@@ -162,4 +162,52 @@ export type Topshiriq = {
   topshirilgan_at?: string | null
   qaytarish_sababi?: string | null
   tasdiqlangan_at?: string | null
+  /** Bir yuborishda bir nechta odamga ketgan nusxalar umumiy belgisi */
+  guruh_id?: string | null
+  takror?: TopshiriqTakrori | null
+  oldingi_id?: string | null
+  /** Yuboruvchi bahosi, 1-5 (tasdiqlashda) */
+  baho?: number | null
+  /** Jamoa ichida yuborilgani uchun o'zi qabul qilingan */
+  avto_qabul?: boolean
+}
+
+export const TOPSHIRIQ_TAKRORLARI = ['kunlik', 'haftalik', 'oylik'] as const
+export type TopshiriqTakrori = (typeof TOPSHIRIQ_TAKRORLARI)[number]
+
+export type TopshiriqIzohi = {
+  id: string
+  topshiriq_id: string
+  muallif_id: string
+  matn: string | null
+  fayl_yoli: string | null
+  fayl_nomi: string | null
+  fayl_hajmi: number | null
+  fayl_turi: string | null
+  created_at: string
+}
+
+export type TopshiriqHodisasi = {
+  id: number
+  topshiriq_id: string
+  kim_id: string | null
+  hodisa: string
+  izoh: string | null
+  created_at: string
+}
+
+export type Jamoa = {
+  id: string
+  nom: string
+  egasi_id: string
+  taklif_kodi: string
+  created_at: string
+}
+
+export type JamoaAzosi = {
+  jamoa_id: string
+  user_id: string
+  email: string
+  ism: string | null
+  rol: 'rahbar' | 'azo'
 }

@@ -9,6 +9,7 @@ import { useBugungiVazifalar } from '@/lib/queries/vazifalar'
 import { usePapkalar } from '@/lib/queries/papkalar'
 import { useBolimNomlari } from '@/lib/queries/bolimlar'
 import { bugunISO, sarlavhaSana } from '@/lib/sana'
+import { BugunTopshiriqXulosasi } from '@/components/topshiriq/hisobot'
 import { bugungiBajarilganlar, iyerarxiya, saralash, subtasklar } from '@/lib/vazifa-yordam'
 
 export function BugunKorinishi() {
@@ -57,6 +58,8 @@ export function BugunKorinishi() {
 
   return (
     <Sahifa sarlavha="Bugun" tavsif={sarlavhaSana()}>
+      {/* Topshiriqlardan mendan harakat kutayotganlari (bo'lmasa — ko'rinmaydi) */}
+      <BugunTopshiriqXulosasi />
       {isPending ? (
         <Yuklanmoqda />
       ) : isError ? (

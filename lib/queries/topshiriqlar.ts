@@ -4,7 +4,23 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { kalit } from './keys'
-import type { Topshiriq, TaskPriority } from '@/types/vazifalar'
+import { onlineManager } from '@tanstack/react-query'
+import { useSyncExternalStore } from 'react'
+import type { Topshiriq, TaskPriority, TopshiriqTakrori } from '@/types/vazifalar'
+
+/**
+ * Internet bormi. Topshiriq amallari (qabul, topshirish, tasdiqlash)
+ * ATAYLAB faqat onlayn: ikki kishi offline'da bir topshiriqni
+ * o'zgartirsa ziddiyat chiqardi (SWOT tahdidi). Shuning uchun
+ * tugmalar offline'da o'chadi va sababi aytiladi.
+ */
+export function useOnlaynmi(): boolean {
+  return useSyncExternalStore(
+    (f) => onlineManager.subscribe(f),
+    () => onlineManager.isOnline(),
+    () => true
+  )
+}
 
 /**
  * Topshiriqlar — foydalanuvchidan foydalanuvchiga.
@@ -30,7 +46,9 @@ type XomJadval = {
       sozlama: { ascending: boolean }
     ) => PromiseLike<{ data: unknown; error: { message: string } | null }>
   }
-  insert: (qator: Record<string, unknown>) => PromiseLike<{
+  insert: (
+    qator: Record<string, unknown> | Record<string, unknown>[]
+  ) => PromiseLike<{
     error: { message: string } | null
   }>
   delete: () => {
@@ -144,6 +162,12 @@ export function useYuborilganTopshiriqlar() {
 
 export type YangiTopshiriq = {
   qabul_qiluvchi_email: string
+  /**
+   * Bir nechta odamga — har biriga alohida nusxa (umumiy `guruh_id`
+   * bilan). Berilsa, `qabul_qiluvchi_email` o'rniga shu ishlatiladi.
+   */
+  qabul_qiluvchilar?: string[]
+  takror?: TopshiriqTakrori | null
   sarlavha: string
   izoh?: string | null
   muddat?: string | null
@@ -161,27 +185,44 @@ export function useTopshiriqYuborish() {
 
   return useMutation({
     mutationFn: async (yangi: YangiTopshiriq) => {
+      const kimlarga = [
+        ...new Set(
+          (yangi.qabul_qiluvchilar?.length
+            ? yangi.qabul_qiluvchilar
+            : [yangi.qabul_qiluvchi_email]
+          ).map((e) => e.trim().toLowerCase())
+        ),
+      ].filter(Boolean)
+      const guruhId = kimlarga.length > 1 ? crypto.randomUUID() : null
+
       const asosiy = {
         yuboruvchi_id: id,
-        qabul_qiluvchi_email: yangi.qabul_qiluvchi_email.trim().toLowerCase(),
         sarlavha: yangi.sarlavha.trim(),
         izoh: yangi.izoh?.trim() || null,
         muddat: yangi.muddat ?? null,
         muhimlik: yangi.muhimlik ?? 4,
       }
-      let { error } = await jadval(supabase).insert({
+      const toliq = {
         ...asosiy,
         muddat_vaqt: yangi.muddat ? (yangi.muddat_vaqt ?? null) : null,
         tekshirish: yangi.tekshirish ?? true,
-      })
+        ...(yangi.takror ? { takror: yangi.takror } : {}),
+        ...(guruhId ? { guruh_id: guruhId } : {}),
+      }
+      // Bitta so'rovda: biror odamga yozib bo'lmasa (blok), hech
+      // kimga ketmaydi — "yarmiga ketdi" degan chalkash holat bo'lmaydi
+      let { error } = await jadval(supabase).insert(
+        kimlarga.map((e) => ({ ...toliq, qabul_qiluvchi_email: e }))
+      )
       /*
-        `topshiriq_tekshiruv` migratsiyasi hali qo'llanmagan bo'lsa,
-        yangi ustunlar yo'q va baza butun qatorni rad etadi. Interfeys
-        bazadan oldin chiqsa ham yuborish ishlashi uchun — eski
-        shaklda qayta urinamiz (soat va tekshiruvsiz).
+        Yangi migratsiyalar hali qo'llanmagan bo'lsa, yangi ustunlar
+        yo'q va baza butun qatorni rad etadi. Interfeys bazadan oldin
+        chiqsa ham yuborish ishlashi uchun — eski shaklda qayta urinamiz.
       */
-      if (error && /muddat_vaqt|tekshirish/.test(error.message)) {
-        ;({ error } = await jadval(supabase).insert(asosiy))
+      if (error && /muddat_vaqt|tekshirish|takror|guruh_id/.test(error.message)) {
+        ;({ error } = await jadval(supabase).insert(
+          kimlarga.map((e) => ({ ...asosiy, qabul_qiluvchi_email: e }))
+        ))
       }
       if (error) throw new Error(error.message)
     },
@@ -268,9 +309,10 @@ export function useTopshiriqTasdiqlash() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async ({ id, baho }: { id: string; baho?: number | null }) => {
       const { error } = await rpcChaqir(supabase, 'topshiriqni_tasdiqlash', {
         p_id: id,
+        ...(baho ? { p_baho: baho } : {}),
       })
       if (error) throw new Error(error.message)
     },
