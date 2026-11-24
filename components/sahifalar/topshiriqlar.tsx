@@ -3,9 +3,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
   Check,
+  CheckCheck,
   Clock,
   Inbox,
+  RotateCcw,
   Send,
+  Share2,
   ThumbsDown,
   Trash2,
   X,
@@ -24,10 +27,13 @@ import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import {
   useKelganTopshiriqlar,
   useRuxsatOzgartirish,
-  useTavsiyaEmaillar,
   useTopshiriqBekor,
+  useTopshiriqKontaktlari,
   useTopshiriqQabul,
+  useTopshiriqQaytarish,
   useTopshiriqRad,
+  useTopshiriqTasdiqlash,
+  useTopshiriqTopshirish,
   useTopshiriqlarniOchirish,
   useTopshiriqRuxsatlari,
   useTopshiriqTafsilotlari,
@@ -36,7 +42,8 @@ import {
   useYuborilganTopshiriqlar,
   type TopshiriqTafsiloti,
 } from '@/lib/queries/topshiriqlar'
-import { kunOraligi, toliqSana } from '@/lib/sana'
+import { bugunISO, kunOraligi, toliqSana, vaqtMatni } from '@/lib/sana'
+import { DOMEN } from '@/lib/huquqiy'
 import type { MatnKaliti } from '@/lib/i18n'
 import type { TaskPriority, Topshiriq, TopshiriqHolati } from '@/types/vazifalar'
 
@@ -46,6 +53,7 @@ const EMAIL_SHAKLI = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 const HOLAT_KALITI: Record<TopshiriqHolati, MatnKaliti> = {
   kutilmoqda: 'topshiriq.holat.kutilmoqda',
   qabul: 'topshiriq.holat.qabul',
+  tekshiruvda: 'topshiriq.holat.tekshiruvda',
   rad: 'topshiriq.holat.rad',
   bajarildi: 'topshiriq.holat.bajarildi',
 }
@@ -53,8 +61,60 @@ const HOLAT_KALITI: Record<TopshiriqHolati, MatnKaliti> = {
 const HOLAT_RANGI: Record<TopshiriqHolati, string> = {
   kutilmoqda: 'var(--text-muted)',
   qabul: 'var(--status-progress-line)',
+  tekshiruvda: '#8b5cf6',
   rad: 'var(--danger)',
   bajarildi: 'var(--brand-accent)',
+}
+
+/**
+ * Ro'yxat filtrlari. "Kechikkan" holat emas, balki ochiq
+ * (javob kutilayotgan yoki ishdagi) topshiriqning muddati o'tgani —
+ * rahbar uchun eng kerakli savol aynan shu.
+ */
+const FILTRLAR = [
+  'hammasi',
+  'kutilmoqda',
+  'qabul',
+  'tekshiruvda',
+  'kechikkan',
+  'bajarildi',
+  'rad',
+] as const
+type Filtr = (typeof FILTRLAR)[number]
+
+const FILTR_KALITI: Record<Filtr, MatnKaliti> = {
+  hammasi: 'topshiriq.filtr.hammasi',
+  kutilmoqda: 'topshiriq.filtr.kutilmoqda',
+  qabul: 'topshiriq.filtr.qabul',
+  tekshiruvda: 'topshiriq.filtr.tekshiruvda',
+  kechikkan: 'topshiriq.filtr.kechikkan',
+  bajarildi: 'topshiriq.filtr.bajarildi',
+  rad: 'topshiriq.filtr.rad',
+}
+
+function kechikkanmi(t: Topshiriq, bugun: string): boolean {
+  if (!t.muddat) return false
+  if (t.holat !== 'kutilmoqda' && t.holat !== 'qabul') return false
+  if (t.muddat < bugun) return true
+  if (t.muddat > bugun || !t.muddat_vaqt) return false
+  const hozir = new Date()
+  const [soat, daqiqa] = t.muddat_vaqt.split(':').map(Number)
+  return hozir.getHours() * 60 + hozir.getMinutes() > soat * 60 + daqiqa
+}
+
+function filtrgaMos(t: Topshiriq, f: Filtr, bugun: string): boolean {
+  if (f === 'hammasi') return true
+  if (f === 'kechikkan') return kechikkanmi(t, bugun)
+  return t.holat === f
+}
+
+/**
+ * Mendan harakat kutayotganlar tepada: kelganda — javob berilmagan,
+ * yuborganda — tekshiruvdagi. Qolgani o'z tartibida (yangisi tepada).
+ */
+function navbat(t: Topshiriq, tab: TopshiriqTab): number {
+  if (tab === 'kelgan') return t.holat === 'kutilmoqda' ? 0 : 1
+  return t.holat === 'tekshiruvda' ? 0 : 1
 }
 
 /**
@@ -88,6 +148,7 @@ export function TopshiriqlarKorinishi() {
   function setTab(yangi: TopshiriqTab) {
     setTabHolat(yangi)
     setTanlangan(new Set())
+    setFiltr('hammasi')
     try {
       localStorage.setItem(TAB_KALITI, yangi)
     } catch {
@@ -141,6 +202,25 @@ export function TopshiriqlarKorinishi() {
 
   const kutilayotgan =
     kelgan.data?.filter((x) => x.holat === 'kutilmoqda').length ?? 0
+  const tekshiruvdagi =
+    yuborilgan.data?.filter((x) => x.holat === 'tekshiruvda').length ?? 0
+
+  const [filtr, setFiltr] = useState<Filtr>('hammasi')
+  const bugun = bugunISO()
+  const joriy = tab === 'kelgan' ? kelgan : yuborilgan
+  const hammasi = useMemo(
+    () =>
+      [...(joriy.data ?? [])].sort((a, b) => navbat(a, tab) - navbat(b, tab)),
+    [joriy.data, tab]
+  )
+  const sanoq = useMemo(() => {
+    const s = {} as Record<Filtr, number>
+    for (const f of FILTRLAR) {
+      s[f] = hammasi.filter((x) => filtrgaMos(x, f, bugun)).length
+    }
+    return s
+  }, [hammasi, bugun])
+  const korinadigan = hammasi.filter((x) => filtrgaMos(x, filtr, bugun))
 
   return (
     <Sahifa
@@ -176,9 +256,9 @@ export function TopshiriqlarKorinishi() {
               }`}
             >
               {t(k === 'kelgan' ? 'topshiriq.kelgan' : 'topshiriq.yuborilgan')}
-              {k === 'kelgan' && kutilayotgan > 0 && (
+              {(k === 'kelgan' ? kutilayotgan : tekshiruvdagi) > 0 && (
                 <span className="rounded-full bg-brand-primary px-2 py-0.5 text-xs font-semibold text-white">
-                  {kutilayotgan}
+                  {k === 'kelgan' ? kutilayotgan : tekshiruvdagi}
                 </span>
               )}
             </button>
@@ -247,54 +327,89 @@ export function TopshiriqlarKorinishi() {
         </p>
       )}
 
-      {tab === 'kelgan' ? (
-        kelgan.isPending ? (
-          <Yuklanmoqda qator={2} />
-        ) : kelgan.isError ? (
-          <XatoHolati qayta={() => kelgan.refetch()} />
-        ) : kelgan.data.length === 0 ? (
+      {joriy.isPending ? (
+        <Yuklanmoqda qator={2} />
+      ) : joriy.isError ? (
+        <XatoHolati qayta={() => joriy.refetch()} />
+      ) : hammasi.length === 0 ? (
+        tab === 'kelgan' ? (
           <BoshHolat
             ikonka={Inbox}
             sarlavha={t('topshiriq.boshKelgan')}
             matn={t('topshiriq.boshKelganMatn')}
           />
         ) : (
-          <ul className="space-y-3">
-            {kelgan.data.map((x) => (
-              <KelganKarta
-                key={x.id}
-                topshiriq={x}
-                tafsilot={tafsilotlar.get(x.id)}
-                tanlanganmi={tanlangan.has(x.id)}
-                tanlashRejimi={tanlangan.size > 0}
-                tanlovniAlmashtir={() => tanlovniAlmashtir(x.id)}
-              />
-            ))}
-          </ul>
+          <BoshHolat
+            ikonka={Send}
+            sarlavha={t('topshiriq.boshYuborilgan')}
+            matn={t('topshiriq.boshYuborilganMatn')}
+          />
         )
-      ) : yuborilgan.isPending ? (
-        <Yuklanmoqda qator={2} />
-      ) : yuborilgan.isError ? (
-        <XatoHolati qayta={() => yuborilgan.refetch()} />
-      ) : yuborilgan.data.length === 0 ? (
-        <BoshHolat
-          ikonka={Send}
-          sarlavha={t('topshiriq.boshYuborilgan')}
-          matn={t('topshiriq.boshYuborilganMatn')}
-        />
       ) : (
-        <ul className="space-y-3">
-          {yuborilgan.data.map((x) => (
-            <YuborilganKarta
-              key={x.id}
-              topshiriq={x}
-              tafsilot={tafsilotlar.get(x.id)}
-              tanlanganmi={tanlangan.has(x.id)}
-              tanlashRejimi={tanlangan.size > 0}
-              tanlovniAlmashtir={() => tanlovniAlmashtir(x.id)}
-            />
-          ))}
-        </ul>
+        <>
+          {/*
+            Holat filtrlari, sonlari bilan. Bo'shlari yashiriladi —
+            "Rad etilgan 0" kabi tugmalar faqat joy egallaydi.
+            Telefonda yonga suriladi, qatorga sig'masa ham buzilmaydi.
+          */}
+          <div className="-mx-1 mb-3 flex gap-1.5 overflow-x-auto px-1 pb-1">
+            {FILTRLAR.filter(
+              (f) => f === 'hammasi' || f === filtr || sanoq[f] > 0
+            ).map((f) => {
+              const faol = filtr === f
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  aria-pressed={faol}
+                  onClick={() => setFiltr(f)}
+                  className={`flex min-h-0 shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                    faol
+                      ? 'border-brand-onsoft bg-brand-soft text-brand-onsoft'
+                      : f === 'kechikkan'
+                        ? 'border-border-subtle text-danger hover:bg-danger-soft'
+                        : 'border-border-subtle text-text-muted hover:bg-surface-muted hover:text-text-strong'
+                  }`}
+                >
+                  {t(FILTR_KALITI[f])}
+                  <span className="tabular-nums opacity-70">{sanoq[f]}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          {korinadigan.length === 0 ? (
+            <p className="rounded-2xl bg-surface px-4 py-8 text-center text-sm text-text-muted shadow-card">
+              {t('topshiriq.filtrBosh')}
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {korinadigan.map((x) =>
+                tab === 'kelgan' ? (
+                  <KelganKarta
+                    key={x.id}
+                    topshiriq={x}
+                    tafsilot={tafsilotlar.get(x.id)}
+                    kechikkan={kechikkanmi(x, bugun)}
+                    tanlanganmi={tanlangan.has(x.id)}
+                    tanlashRejimi={tanlangan.size > 0}
+                    tanlovniAlmashtir={() => tanlovniAlmashtir(x.id)}
+                  />
+                ) : (
+                  <YuborilganKarta
+                    key={x.id}
+                    topshiriq={x}
+                    tafsilot={tafsilotlar.get(x.id)}
+                    kechikkan={kechikkanmi(x, bugun)}
+                    tanlanganmi={tanlangan.has(x.id)}
+                    tanlashRejimi={tanlangan.size > 0}
+                    tanlovniAlmashtir={() => tanlovniAlmashtir(x.id)}
+                  />
+                )
+              )}
+            </ul>
+          )}
+        </>
       )}
 
       {/*
@@ -332,12 +447,14 @@ function HolatBelgisi({ holat }: { holat: TopshiriqHolati }) {
 function KelganKarta({
   topshiriq,
   tafsilot,
+  kechikkan,
   tanlanganmi,
   tanlashRejimi,
   tanlovniAlmashtir,
 }: {
   topshiriq: Topshiriq
   tafsilot?: TopshiriqTafsiloti
+  kechikkan: boolean
   tanlanganmi: boolean
   tanlashRejimi: boolean
   tanlovniAlmashtir: () => void
@@ -347,12 +464,31 @@ function KelganKarta({
   const { korsat } = useToast()
   const qabul = useTopshiriqQabul()
   const rad = useTopshiriqRad()
+  const topshirish = useTopshiriqTopshirish()
   const ruxsat = useRuxsatOzgartirish()
   const [radOchiq, setRadOchiq] = useState(false)
   const [blokOchiq, setBlokOchiq] = useState(false)
+  const [topshirishOchiq, setTopshirishOchiq] = useState(false)
   const [sabab, setSabab] = useState('')
+  const [natija, setNatija] = useState('')
 
   const javobBerilmagan = topshiriq.holat === 'kutilmoqda'
+
+  async function topshir() {
+    try {
+      await topshirish.mutateAsync({ id: topshiriq.id, izoh: natija })
+      setTopshirishOchiq(false)
+      setNatija('')
+      korsat({
+        matn: topshiriq.tekshirish
+          ? t('topshiriq.topshirildi')
+          : t('topshiriq.bajarildiXabar'),
+        tone: 'muvaffaqiyat',
+      })
+    } catch {
+      korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
+    }
+  }
 
   async function qabulQil() {
     try {
@@ -411,12 +547,78 @@ function KelganKarta({
         </p>
       )}
 
-      <MuddatQatori topshiriq={topshiriq} />
+      <MuddatQatori topshiriq={topshiriq} kechikkan={kechikkan} />
 
       {topshiriq.holat === 'rad' && topshiriq.rad_sababi && (
         <p className="mt-2 rounded-xl bg-danger-soft px-3 py-2 text-sm text-danger">
           {topshiriq.rad_sababi}
         </p>
+      )}
+
+      {/* Yuboruvchi natijani qaytargan — nima yetishmayotgani */}
+      {topshiriq.holat === 'qabul' && topshiriq.qaytarish_sababi && (
+        <div className="mt-2 rounded-xl bg-status-progress px-3 py-2 text-sm text-status-progress-text">
+          <p className="font-semibold">{t('topshiriq.qaytarildiSarlavha')}</p>
+          <p className="mt-0.5 leading-relaxed">{topshiriq.qaytarish_sababi}</p>
+        </div>
+      )}
+
+      {topshiriq.holat === 'tekshiruvda' && (
+        <p className="mt-2 rounded-xl bg-surface-muted px-3 py-2 text-sm text-text-muted">
+          {t('topshiriq.tekshirilmoqda')}
+        </p>
+      )}
+
+      {topshiriq.holat === 'qabul' && !tanlashRejimi && (
+        <button
+          type="button"
+          onClick={() => setTopshirishOchiq(true)}
+          className="mt-3 flex min-h-touch items-center gap-2 rounded-xl bg-brand-primary px-4 text-sm font-semibold text-white transition hover:bg-brand-primary-hover"
+        >
+          <CheckCheck className="size-4" aria-hidden />
+          {t('topshiriq.bajardim')}
+        </button>
+      )}
+
+      {topshirishOchiq && (
+        <Oyna
+          sarlavha={t('topshiriq.bajardim')}
+          yop={() => setTopshirishOchiq(false)}
+        >
+          <p className="mb-3 text-sm leading-relaxed text-text-muted">
+            {topshiriq.tekshirish
+              ? t('topshiriq.topshirishIzohi')
+              : t('topshiriq.topshirishIzohiOddiy')}
+          </p>
+          <OsuvchiMaydon
+            qiymat={natija}
+            onChange={setNatija}
+            placeholder={t('topshiriq.natijaJoy')}
+            ariaLabel={t('topshiriq.natija')}
+            maxLength={2000}
+            autoFocus
+            engKattaBalandlik={180}
+            className="min-h-touch rounded-xl border border-border-control bg-surface px-4 py-3 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft"
+          />
+          <div className="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setTopshirishOchiq(false)}
+              className="min-h-touch rounded-xl px-4 text-sm font-medium text-text-muted transition hover:bg-surface-muted"
+            >
+              {t('umumiy.bekor')}
+            </button>
+            <button
+              type="button"
+              onClick={topshir}
+              disabled={topshirish.isPending}
+              className="flex min-h-touch items-center gap-2 rounded-xl bg-brand-primary px-5 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-50"
+            >
+              <Send className="size-4" aria-hidden />
+              {t('topshiriq.topshirish')}
+            </button>
+          </div>
+        </Oyna>
       )}
 
       {javobBerilmagan && !tanlashRejimi && (
@@ -524,12 +726,14 @@ function KelganKarta({
 function YuborilganKarta({
   topshiriq,
   tafsilot,
+  kechikkan,
   tanlanganmi,
   tanlashRejimi,
   tanlovniAlmashtir,
 }: {
   topshiriq: Topshiriq
   tafsilot?: TopshiriqTafsiloti
+  kechikkan: boolean
   tanlanganmi: boolean
   tanlashRejimi: boolean
   tanlovniAlmashtir: () => void
@@ -538,7 +742,31 @@ function YuborilganKarta({
   const uzoqBosish = useUzoqBosish(tanlovniAlmashtir)
   const { korsat } = useToast()
   const bekor = useTopshiriqBekor()
+  const tasdiqlash = useTopshiriqTasdiqlash()
+  const qaytarish = useTopshiriqQaytarish()
   const [bekorOchiq, setBekorOchiq] = useState(false)
+  const [qaytarishOchiq, setQaytarishOchiq] = useState(false)
+  const [sabab, setSabab] = useState('')
+
+  async function tasdiqla() {
+    try {
+      await tasdiqlash.mutateAsync(topshiriq.id)
+      korsat({ matn: t('topshiriq.tasdiqlandi'), tone: 'muvaffaqiyat' })
+    } catch {
+      korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
+    }
+  }
+
+  async function qaytar() {
+    try {
+      await qaytarish.mutateAsync({ id: topshiriq.id, sabab })
+      setQaytarishOchiq(false)
+      setSabab('')
+      korsat({ matn: t('topshiriq.qaytarildi'), tone: 'muvaffaqiyat' })
+    } catch {
+      korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
+    }
+  }
 
   return (
     <li
@@ -588,15 +816,91 @@ function YuborilganKarta({
         </p>
       )}
 
-      <MuddatQatori topshiriq={topshiriq} />
+      <MuddatQatori topshiriq={topshiriq} kechikkan={kechikkan} />
 
       {/*
         Ish jarayoni -- faqat yuboruvchiga va faqat qabul
         qilingandan keyin. Vazifa matni, izohi va papkasi
         ko'rinmaydi: xodimning shaxsiy ro'yxati boshliqqa
-        ochilmasligi kerak.
+        ochilmasligi kerak. Tekshiruvda esa foiz ma'nosiz —
+        o'rniga ijrochining natija izohi va qaror tugmalari.
       */}
-      <IshJarayoni tafsilot={tafsilot} />
+      {topshiriq.holat !== 'tekshiruvda' && <IshJarayoni tafsilot={tafsilot} />}
+
+      {topshiriq.holat === 'qabul' && topshiriq.qaytarish_sababi && (
+        <p className="mt-2 rounded-xl bg-surface-muted px-3 py-2 text-sm text-text-muted">
+          {t('topshiriq.sizQaytargansiz', { sabab: topshiriq.qaytarish_sababi })}
+        </p>
+      )}
+
+      {topshiriq.holat === 'tekshiruvda' && (
+        <div className="mt-3 rounded-xl border border-border-subtle px-3 py-2.5">
+          <p className="text-xs font-semibold text-text-muted">
+            {t('topshiriq.natija')}
+          </p>
+          <p className="mt-0.5 text-sm leading-relaxed text-text-strong">
+            {topshiriq.topshirish_izohi || t('topshiriq.natijaYoq')}
+          </p>
+        </div>
+      )}
+
+      {topshiriq.holat === 'tekshiruvda' && !tanlashRejimi && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={tasdiqla}
+            disabled={tasdiqlash.isPending}
+            className="flex min-h-touch items-center gap-2 rounded-xl bg-brand-primary px-4 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-50"
+          >
+            <Check className="size-4" aria-hidden />
+            {t('topshiriq.tasdiqlash')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setQaytarishOchiq(true)}
+            className="flex min-h-touch items-center gap-2 rounded-xl border border-border-subtle px-4 text-sm font-semibold text-text-strong transition hover:bg-surface-muted"
+          >
+            <RotateCcw className="size-4" aria-hidden />
+            {t('topshiriq.qaytarish')}
+          </button>
+        </div>
+      )}
+
+      {qaytarishOchiq && (
+        <Oyna
+          sarlavha={t('topshiriq.qaytarishSababi')}
+          yop={() => setQaytarishOchiq(false)}
+        >
+          <OsuvchiMaydon
+            qiymat={sabab}
+            onChange={setSabab}
+            placeholder={t('topshiriq.qaytarishSababiJoy')}
+            ariaLabel={t('topshiriq.qaytarishSababi')}
+            maxLength={1000}
+            autoFocus
+            engKattaBalandlik={180}
+            className="min-h-touch rounded-xl border border-border-control bg-surface px-4 py-3 text-base leading-relaxed text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft"
+          />
+          <div className="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setQaytarishOchiq(false)}
+              className="min-h-touch rounded-xl px-4 text-sm font-medium text-text-muted transition hover:bg-surface-muted"
+            >
+              {t('umumiy.bekor')}
+            </button>
+            <button
+              type="button"
+              onClick={qaytar}
+              disabled={qaytarish.isPending || sabab.trim() === ''}
+              className="flex min-h-touch items-center gap-2 rounded-xl bg-brand-primary px-5 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-50"
+            >
+              <RotateCcw className="size-4" aria-hidden />
+              {t('topshiriq.qaytarish')}
+            </button>
+          </div>
+        </Oyna>
+      )}
 
       {/* Javob kelmaguncha bekor qilish mumkin.
           Tanlash rejimida yashiriladi: karta butunlay tanlash
@@ -644,13 +948,18 @@ function YuborishOynasi({ yop }: { yop: () => void }) {
   const { korsat } = useToast()
   const { email: ozEmail } = useFoydalanuvchi()
   const yuborish = useTopshiriqYuborish()
-  const tavsiyalar = useTavsiyaEmaillar()
+  const kontaktlar = useTopshiriqKontaktlari()
 
   const [email, setEmail] = useState('')
   const [sarlavha, setSarlavha] = useState('')
   const [izoh, setIzoh] = useState('')
   const [muddat, setMuddat] = useState('')
+  const [vaqt, setVaqt] = useState('')
   const [muhimlik, setMuhimlik] = useState<TaskPriority>(4)
+  const [tekshirish, setTekshirish] = useState(true)
+  // Kontaktlar ro'yxati bo'lsa, email maydoni yashirin turadi —
+  // ko'p hollarda odam ro'yxatdan tanlaydi, yozmaydi
+  const [yangiOdam, setYangiOdam] = useState(false)
 
   const toza = email.trim().toLowerCase()
   const emailTogri = EMAIL_SHAKLI.test(toza)
@@ -668,10 +977,8 @@ function YuborishOynasi({ yop }: { yop: () => void }) {
   const toliq =
     emailTogri && !ozigami && !taqiqlangan && sarlavha.trim().length > 0
 
-  // Yozilayotgan matnga mos keladigan oldingi manzillar
-  const moslar = tavsiyalar
-    .filter((e) => e !== toza && (toza === '' || e.includes(toza)))
-    .slice(0, 4)
+  const emailMaydoni = yangiOdam || kontaktlar.length === 0
+  const tanlanganKontakt = kontaktlar.find((k) => k.email === toza)
 
   async function yubor() {
     if (!toliq || yuborish.isPending) return
@@ -681,7 +988,9 @@ function YuborishOynasi({ yop }: { yop: () => void }) {
         sarlavha,
         izoh,
         muddat: muddat || null,
+        muddat_vaqt: muddat && vaqt ? vaqt : null,
         muhimlik,
+        tekshirish,
       })
       korsat({ matn: t('topshiriq.yuborildi'), tone: 'muvaffaqiyat' })
       yop()
@@ -711,39 +1020,85 @@ function YuborishOynasi({ yop }: { yop: () => void }) {
           yubor()
         }}
       >
-        <label className="mb-1.5 block text-sm font-medium text-text-muted">
+        <p className="mb-1.5 text-sm font-medium text-text-muted">
           {t('topshiriq.kimga')}
-        </label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={t('topshiriq.kimgaJoy')}
-          autoFocus
-          maxLength={200}
-          className="min-h-touch w-full rounded-xl border border-border-control bg-surface px-4 text-base text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft"
-        />
+        </p>
 
-        {/* Avval yuborilgan manzillar — qayta yozish shart emas */}
-        {moslar.length > 0 && (
-          <div className="mt-2">
-            <p className="mb-1 text-xs text-text-faint">
-              {t('topshiriq.tavsiyalar')}
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {moslar.map((e) => (
+        {/*
+          Kontaktlar — kim bilan topshiriq almashgan bo'lsam. Email
+          har safar qayta yozilmaydi: bir bosishda tanlanadi.
+        */}
+        {kontaktlar.length > 0 && (
+          <div className="-mx-1 flex max-h-40 flex-wrap gap-1.5 overflow-y-auto px-1 py-0.5">
+            {kontaktlar.map((k) => {
+              const faol = k.email === toza
+              return (
                 <button
-                  key={e}
+                  key={k.email}
                   type="button"
-                  onClick={() => setEmail(e)}
-                  className="min-h-0 rounded-full border border-border-subtle px-3 py-1 text-xs text-text-muted transition hover:bg-surface-muted hover:text-text-strong"
+                  aria-pressed={faol}
+                  onClick={() => {
+                    setEmail(k.email)
+                    setYangiOdam(false)
+                  }}
+                  className={`flex min-h-0 max-w-full items-center gap-2 rounded-full border py-1 pr-3 pl-1 text-sm transition ${
+                    faol
+                      ? 'border-brand-onsoft bg-brand-soft text-brand-onsoft'
+                      : 'border-border-subtle text-text-strong hover:bg-surface-muted'
+                  }`}
                 >
-                  {e}
+                  <span
+                    aria-hidden
+                    className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                      faol ? 'bg-brand-primary text-white' : 'bg-surface-muted text-text-muted'
+                    }`}
+                  >
+                    {bosHarflar(k.ism ?? k.email)}
+                  </span>
+                  <span className="truncate">{k.ism ?? k.email}</span>
                 </button>
-              ))}
-            </div>
+              )
+            })}
+            {!emailMaydoni && (
+              <button
+                type="button"
+                onClick={() => {
+                  setYangiOdam(true)
+                  setEmail('')
+                }}
+                className="min-h-0 rounded-full border border-dashed border-border-control px-3 py-1 text-sm font-medium text-brand-onsoft transition hover:bg-brand-soft"
+              >
+                {t('topshiriq.yangiOdam')}
+              </button>
+            )}
           </div>
         )}
+
+        {/* Tanlangan kontaktning emaili — adashib ketmaslik uchun */}
+        {!emailMaydoni && tanlanganKontakt?.ism && (
+          <p className="mt-1.5 truncate px-1 text-xs text-text-faint">{toza}</p>
+        )}
+
+        {emailMaydoni && (
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={t('topshiriq.kimgaJoy')}
+            aria-label={t('topshiriq.kimga')}
+            autoFocus
+            maxLength={200}
+            className={`min-h-touch w-full rounded-xl border border-border-control bg-surface px-4 text-base text-text-strong outline-none placeholder:text-text-faint focus:border-brand-onsoft ${
+              kontaktlar.length > 0 ? 'mt-2' : ''
+            }`}
+          />
+        )}
+
+        {/*
+          Odam hali ilovada bo'lmasa — havola yuboriladi. Topshiriq
+          baribir saqlanadi va u ro'yxatdan o'tishi bilan ko'rinadi.
+        */}
+        <TaklifTugmasi />
 
         {toza !== '' && !emailTogri && (
           <p className="mt-1.5 text-sm text-danger">
@@ -791,13 +1146,29 @@ function YuborishOynasi({ yop }: { yop: () => void }) {
             >
               {t('topshiriq.muddat')}
             </label>
-            <input
-              id="topshiriq-muddat"
-              type="date"
-              value={muddat}
-              onChange={(e) => setMuddat(e.target.value)}
-              className="min-h-touch rounded-xl border border-border-control bg-surface px-3 text-base text-text-strong outline-none focus:border-brand-onsoft"
-            />
+            <div className="flex gap-2">
+              <input
+                id="topshiriq-muddat"
+                type="date"
+                value={muddat}
+                min={bugunISO()}
+                onChange={(e) => {
+                  setMuddat(e.target.value)
+                  if (!e.target.value) setVaqt('')
+                }}
+                className="min-h-touch rounded-xl border border-border-control bg-surface px-3 text-base text-text-strong outline-none focus:border-brand-onsoft"
+              />
+              {/* Soat faqat sana tanlangach — sanasiz soat ma'nosiz */}
+              {muddat && (
+                <input
+                  type="time"
+                  value={vaqt}
+                  onChange={(e) => setVaqt(e.target.value)}
+                  aria-label={t('topshiriq.soat')}
+                  className="min-h-touch rounded-xl border border-border-control bg-surface px-3 text-base text-text-strong outline-none focus:border-brand-onsoft"
+                />
+              )}
+            </div>
           </div>
           <div>
             <p className="mb-1.5 text-sm font-medium text-text-muted">
@@ -806,6 +1177,23 @@ function YuborishOynasi({ yop }: { yop: () => void }) {
             <MuhimlikTanlagich qiymat={muhimlik} onChange={setMuhimlik} ixcham />
           </div>
         </div>
+
+        <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-border-subtle px-4 py-3">
+          <input
+            type="checkbox"
+            checked={tekshirish}
+            onChange={(e) => setTekshirish(e.target.checked)}
+            className="mt-0.5 size-5 shrink-0 cursor-pointer accent-brand-primary"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-text-strong">
+              {t('topshiriq.tekshirishKerak')}
+            </span>
+            <span className="mt-0.5 block text-xs leading-relaxed text-text-muted">
+              {t('topshiriq.tekshirishKerakIzoh')}
+            </span>
+          </span>
+        </label>
 
         {taqiqlangan ? (
           <div className="mt-5 rounded-xl bg-danger-soft px-4 py-3">
@@ -1068,9 +1456,16 @@ function TanlashKatagi({
  * kungacha va necha kun. Muddat belgilanmagan bo'lsa faqat
  * yuborilgan sana ko'rinadi.
  */
-function MuddatQatori({ topshiriq }: { topshiriq: Topshiriq }) {
+function MuddatQatori({
+  topshiriq,
+  kechikkan,
+}: {
+  topshiriq: Topshiriq
+  kechikkan: boolean
+}) {
   const t = useT()
   const yuborilgan = topshiriq.created_at.slice(0, 10)
+  const soat = vaqtMatni(topshiriq.muddat_vaqt ?? null)
 
   return (
     <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-faint">
@@ -1081,12 +1476,21 @@ function MuddatQatori({ topshiriq }: { topshiriq: Topshiriq }) {
 
       {topshiriq.muddat && (
         <>
-          <span className="font-medium text-text-muted">
+          <span
+            className={`font-medium ${kechikkan ? 'text-danger' : 'text-text-muted'}`}
+          >
             {t('topshiriq.dedlayn', {
               boshi: toliqSana(yuborilgan),
-              oxiri: toliqSana(topshiriq.muddat),
+              oxiri: soat
+                ? `${toliqSana(topshiriq.muddat)}, ${soat}`
+                : toliqSana(topshiriq.muddat),
             })}
           </span>
+          {kechikkan && (
+            <span className="rounded-full bg-danger-soft px-2 py-0.5 font-semibold text-danger">
+              {t('topshiriq.filtr.kechikkan')}
+            </span>
+          )}
           <span>
             {t('topshiriq.muddatKun', {
               kun: kunOraligi(yuborilgan, topshiriq.muddat),
@@ -1095,5 +1499,55 @@ function MuddatQatori({ topshiriq }: { topshiriq: Topshiriq }) {
         </>
       )}
     </p>
+  )
+}
+
+/** "Azizbek Xoldarov" -> "AX", "ali@mail.uz" -> "A" */
+function bosHarflar(matn: string): string {
+  const qism = matn.split('@')[0].trim().split(/\s+/).filter(Boolean)
+  return qism
+    .slice(0, 2)
+    .map((s) => s[0]?.toUpperCase() ?? '')
+    .join('')
+}
+
+/**
+ * Hamkasbni ilovaga taklif qilish.
+ *
+ * Topshiriq ro'yxatdan o'tmagan emailga ham yuboriladi va odam
+ * kirishi bilan paydo bo'ladi — lekin u buni bilishi kerak. Shuning
+ * uchun bir bosishda havola ulashiladi. Telefonda tizimning "Ulashish"
+ * oynasi (Telegram ham shu yerda), u bo'lmasa — to'g'ridan-to'g'ri
+ * Telegram ulashish sahifasi.
+ */
+function TaklifTugmasi() {
+  const t = useT()
+  const matn = t('topshiriq.taklifMatni')
+
+  async function ulash() {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ text: matn, url: DOMEN })
+        return
+      } catch (e) {
+        // Odam oynani o'zi yopdi — boshqa yo'l kerak emas
+        if (e instanceof DOMException && e.name === 'AbortError') return
+      }
+    }
+    const havola = `https://t.me/share/url?url=${encodeURIComponent(
+      DOMEN
+    )}&text=${encodeURIComponent(matn)}`
+    window.open(havola, '_blank', 'noopener')
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={ulash}
+      className="mt-2 flex min-h-0 items-center gap-1.5 rounded-lg px-1 py-1 text-xs font-medium text-brand-onsoft transition hover:underline"
+    >
+      <Share2 className="size-3.5" aria-hidden />
+      {t('topshiriq.taklifQilish')}
+    </button>
   )
 }

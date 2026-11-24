@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Send } from 'lucide-react'
 import { useT } from './til-provayder'
 import { useBolimTartibi } from '@/lib/queries/bolim-tartibi'
-import { useKelganTopshiriqlar } from '@/lib/queries/topshiriqlar'
+import { useTopshiriqBelgisi } from '@/lib/queries/topshiriqlar'
 
 // Ro'yxatning o'zi `lib/bolimlar.ts` ga ko'chirildi: uni sozlamalar
 // sahifasi ham ishlatadi va komponentdan import qilish aylanma
@@ -17,9 +17,8 @@ export function PastkiMenyu() {
   const BOLIMLAR = useBolimTartibi()
   const t = useT()
 
-  const { data: kelganlar } = useKelganTopshiriqlar()
-  const kutilayotgan =
-    kelganlar?.filter((x) => x.holat === 'kutilmoqda').length ?? 0
+  // Javob kutayotgan kelganlar + tasdiq kutayotgan yuborilganlar
+  const kutilayotgan = useTopshiriqBelgisi()
 
   const topshiriqFaol = yol === '/topshiriqlar'
 

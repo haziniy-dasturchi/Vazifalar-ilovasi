@@ -129,6 +129,7 @@ export type ReportResult = {
 export const TOPSHIRIQ_HOLATLARI = [
   'kutilmoqda',
   'qabul',
+  'tekshiruvda',
   'rad',
   'bajarildi',
 ] as const
@@ -153,4 +154,12 @@ export type Topshiriq = {
   bildirildi_at: string | null
   created_at: string
   javob_at: string | null
+  /** Muddat soati, `HH:MM:SS` (faqat `muddat` bilan birga) */
+  muddat_vaqt?: string | null
+  /** true: ijrochi tugatganda yuboruvchi tasdiqlaydi */
+  tekshirish?: boolean
+  topshirish_izohi?: string | null
+  topshirilgan_at?: string | null
+  qaytarish_sababi?: string | null
+  tasdiqlangan_at?: string | null
 }

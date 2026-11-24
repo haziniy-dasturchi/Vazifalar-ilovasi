@@ -147,7 +147,11 @@ export type YangiTopshiriq = {
   sarlavha: string
   izoh?: string | null
   muddat?: string | null
+  /** `HH:MM` — faqat muddat sanasi bilan */
+  muddat_vaqt?: string | null
   muhimlik?: TaskPriority
+  /** Ijrochi tugatganda yuboruvchi tasdiqlaydimi */
+  tekshirish?: boolean
 }
 
 export function useTopshiriqYuborish() {
@@ -157,14 +161,28 @@ export function useTopshiriqYuborish() {
 
   return useMutation({
     mutationFn: async (yangi: YangiTopshiriq) => {
-      const { error } = await jadval(supabase).insert({
+      const asosiy = {
         yuboruvchi_id: id,
         qabul_qiluvchi_email: yangi.qabul_qiluvchi_email.trim().toLowerCase(),
         sarlavha: yangi.sarlavha.trim(),
         izoh: yangi.izoh?.trim() || null,
         muddat: yangi.muddat ?? null,
         muhimlik: yangi.muhimlik ?? 4,
+      }
+      let { error } = await jadval(supabase).insert({
+        ...asosiy,
+        muddat_vaqt: yangi.muddat ? (yangi.muddat_vaqt ?? null) : null,
+        tekshirish: yangi.tekshirish ?? true,
       })
+      /*
+        `topshiriq_tekshiruv` migratsiyasi hali qo'llanmagan bo'lsa,
+        yangi ustunlar yo'q va baza butun qatorni rad etadi. Interfeys
+        bazadan oldin chiqsa ham yuborish ishlashi uchun — eski
+        shaklda qayta urinamiz (soat va tekshiruvsiz).
+      */
+      if (error && /muddat_vaqt|tekshirish/.test(error.message)) {
+        ;({ error } = await jadval(supabase).insert(asosiy))
+      }
       if (error) throw new Error(error.message)
     },
     onSettled: () =>
@@ -223,25 +241,111 @@ export function useTopshiriqBekor() {
   })
 }
 
+/** Ijrochi: "Bajardim" — izoh bilan tekshiruvga topshiradi */
+export function useTopshiriqTopshirish() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, izoh }: { id: string; izoh: string }) => {
+      const { error } = await rpcChaqir(supabase, 'topshiriqni_topshirish', {
+        p_id: id,
+        p_izoh: izoh,
+      })
+      if (error) throw new Error(error.message)
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: kalit.topshiriqlarPrefiks })
+      // Ijrochining ro'yxatidagi vazifa ham bajarildi bo'ladi
+      qc.invalidateQueries({ queryKey: kalit.vazifalar })
+    },
+  })
+}
+
+/** Yuboruvchi: natijani qabul qiladi */
+export function useTopshiriqTasdiqlash() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await rpcChaqir(supabase, 'topshiriqni_tasdiqlash', {
+        p_id: id,
+      })
+      if (error) throw new Error(error.message)
+    },
+    onSettled: () =>
+      qc.invalidateQueries({ queryKey: kalit.topshiriqlarPrefiks }),
+  })
+}
+
+/** Yuboruvchi: sabab bilan qayta ishlashga qaytaradi */
+export function useTopshiriqQaytarish() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, sabab }: { id: string; sabab: string }) => {
+      const { error } = await rpcChaqir(supabase, 'topshiriqni_qaytarish', {
+        p_id: id,
+        p_sabab: sabab,
+      })
+      if (error) throw new Error(error.message)
+    },
+    onSettled: () =>
+      qc.invalidateQueries({ queryKey: kalit.topshiriqlarPrefiks }),
+  })
+}
+
+export type TopshiriqKontakti = {
+  email: string
+  /** Maxfiylik qoidasi bo'yicha (bazada) — ochiq bo'lmasa null */
+  ism: string | null
+}
+
 /**
- * Avval yuborilgan manzillar — keyingi safar tavsiya qilish uchun.
+ * Topshiriq almashilgan odamlar — email qayta yozilmasin.
  *
- * Alohida jadval kerak emas: yuborilgan topshiriqlarning o'zida
- * hamma manzil bor. Takrorlar olib tashlanadi, eng oxirgi
- * ishlatilgani birinchi turadi.
+ * Migratsiya hali qo'llanmagan bo'lsa, avvalgidek faqat men
+ * yuborgan manzillardan (ismsiz) yig'iladi.
  */
-export function useTavsiyaEmaillar(): string[] {
-  const { data } = useYuborilganTopshiriqlar()
-  if (!data) return []
+export function useTopshiriqKontaktlari(): TopshiriqKontakti[] {
+  const supabase = useSupabase()
+  const { data: yuborilgan } = useYuborilganTopshiriqlar()
+
+  const { data } = useQuery({
+    queryKey: kalit.topshiriqKontaktlari(),
+    queryFn: async (): Promise<TopshiriqKontakti[] | null> => {
+      const { data, error } = await rpcOqi(supabase, 'topshiriq_kontaktlari', {})
+      if (error) return null
+      return (Array.isArray(data) ? data : []) as TopshiriqKontakti[]
+    },
+  })
+
+  if (data) return data
+
   const korilgan = new Set<string>()
-  const natija: string[] = []
-  for (const t of data) {
+  const natija: TopshiriqKontakti[] = []
+  for (const t of yuborilgan ?? []) {
     if (!korilgan.has(t.qabul_qiluvchi_email)) {
       korilgan.add(t.qabul_qiluvchi_email)
-      natija.push(t.qabul_qiluvchi_email)
+      natija.push({ email: t.qabul_qiluvchi_email, ism: null })
     }
   }
   return natija
+}
+
+/**
+ * Navigatsiyadagi belgi: mendan javob kutayotganlar (yangi kelgan)
+ * va mendan tasdiq kutayotganlar (tekshiruvda) birga.
+ */
+export function useTopshiriqBelgisi(): number {
+  const { data: kelgan } = useKelganTopshiriqlar()
+  const { data: yuborilgan } = useYuborilganTopshiriqlar()
+  return (
+    (kelgan?.filter((x) => x.holat === 'kutilmoqda').length ?? 0) +
+    (yuborilgan?.filter((x) => x.holat === 'tekshiruvda').length ?? 0)
+  )
 }
 
 // =============================================================
