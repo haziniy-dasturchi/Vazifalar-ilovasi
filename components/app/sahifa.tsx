@@ -6,8 +6,11 @@ export function Sahifa({
   tavsif,
   belgi,
   harakat,
+  keng,
   children,
 }: {
+  /** Kartalar to'ri kabi keng sahifalar uchun */
+  keng?: boolean
   sarlavha: string
   tavsif?: string
   belgi?: React.ReactNode
@@ -15,7 +18,7 @@ export function Sahifa({
   children: React.ReactNode
 }) {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pt-6 pb-10 md:px-8 md:pt-10">
+    <div className={`mx-auto w-full ${keng ? 'max-w-5xl' : 'max-w-3xl'} px-4 pt-6 pb-10 md:px-8 md:pt-10`}>
       <header className="mb-6 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-3">

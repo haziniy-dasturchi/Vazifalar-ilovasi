@@ -168,6 +168,8 @@ export type YangiTopshiriq = {
    */
   qabul_qiluvchilar?: string[]
   takror?: TopshiriqTakrori | null
+  /** Qachondan boshlab ishlanadi (ijrochi vazifasining reja kuni) */
+  boshlanish?: string | null
   sarlavha: string
   izoh?: string | null
   muddat?: string | null
@@ -204,6 +206,7 @@ export function useTopshiriqYuborish() {
       }
       const toliq = {
         ...asosiy,
+        ...(yangi.boshlanish ? { boshlanish: yangi.boshlanish } : {}),
         muddat_vaqt: yangi.muddat ? (yangi.muddat_vaqt ?? null) : null,
         tekshirish: yangi.tekshirish ?? true,
         ...(yangi.takror ? { takror: yangi.takror } : {}),
@@ -219,7 +222,7 @@ export function useTopshiriqYuborish() {
         yo'q va baza butun qatorni rad etadi. Interfeys bazadan oldin
         chiqsa ham yuborish ishlashi uchun — eski shaklda qayta urinamiz.
       */
-      if (error && /muddat_vaqt|tekshirish|takror|guruh_id/.test(error.message)) {
+      if (error && /muddat_vaqt|tekshirish|takror|guruh_id|boshlanish/.test(error.message)) {
         ;({ error } = await jadval(supabase).insert(
           kimlarga.map((e) => ({ ...asosiy, qabul_qiluvchi_email: e }))
         ))
@@ -377,17 +380,86 @@ export function useTopshiriqKontaktlari(): TopshiriqKontakti[] {
   return natija
 }
 
+export type TopshiriqYangiligi = {
+  topshiriq_id: string
+  /** Boshqa tomon yozgan, men hali o'qimagan xabarlar */
+  yangi_xabarlar: number
+  /** Menga kelgan, lekin hali ochib ko'rmaganim */
+  ochilmagan: boolean
+}
+
 /**
- * Navigatsiyadagi belgi: mendan javob kutayotganlar (yangi kelgan)
- * va mendan tasdiq kutayotganlar (tekshiruvda) birga.
+ * O'qilmagan xabarlar va ochilmagan topshiriqlar. Menyu belgisi va
+ * kartadagi raqam shundan. Suhbat uchun tez-tez yangilanadi.
+ */
+export function useTopshiriqYangiliklari() {
+  const supabase = useSupabase()
+  return useQuery({
+    queryKey: ['topshiriqlar', 'yangiliklar'],
+    refetchInterval: 30_000,
+    queryFn: async (): Promise<TopshiriqYangiligi[]> => {
+      const { data, error } = await rpcOqi(supabase, 'topshiriq_yangiliklari', {})
+      if (error) return []
+      return (Array.isArray(data) ? data : []) as TopshiriqYangiligi[]
+    },
+  })
+}
+
+/** Topshiriq sahifasi ochilganda — hammasi "o'qilgan" bo'ladi */
+export function useTopshiriqKorildi() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await rpcChaqir(supabase, 'topshiriq_korildi', { p_id: id })
+    },
+    onSettled: () =>
+      qc.invalidateQueries({ queryKey: ['topshiriqlar', 'yangiliklar'] }),
+  })
+}
+
+export type TopshiriqTahriri = {
+  id: string
+  sarlavha: string
+  izoh: string
+  boshlanish: string | null
+  muddat: string | null
+  muddat_vaqt: string | null
+  muhimlik: TaskPriority
+}
+
+export function useTopshiriqTahrirlash() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (t: TopshiriqTahriri) => {
+      const { error } = await rpcChaqir(supabase, 'topshiriqni_tahrirlash', {
+        p_id: t.id,
+        p_sarlavha: t.sarlavha.trim(),
+        p_izoh: t.izoh,
+        p_boshlanish: t.boshlanish,
+        p_muddat: t.muddat,
+        p_muddat_vaqt: t.muddat ? t.muddat_vaqt : null,
+        p_muhimlik: t.muhimlik,
+      })
+      if (error) throw new Error(error.message)
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: kalit.topshiriqlarPrefiks }),
+  })
+}
+
+/**
+ * Menyudagi raqam: o'qilmagan xabarlar + hali ochilmagan yangi
+ * topshiriqlar + mendan tekshiruv kutayotgan natijalar.
  */
 export function useTopshiriqBelgisi(): number {
-  const { data: kelgan } = useKelganTopshiriqlar()
+  const { data: yangiliklar } = useTopshiriqYangiliklari()
   const { data: yuborilgan } = useYuborilganTopshiriqlar()
-  return (
-    (kelgan?.filter((x) => x.holat === 'kutilmoqda').length ?? 0) +
-    (yuborilgan?.filter((x) => x.holat === 'tekshiruvda').length ?? 0)
+  const xabarlar = (yangiliklar ?? []).reduce(
+    (s, y) => s + y.yangi_xabarlar + (y.ochilmagan ? 1 : 0),
+    0
   )
+  return xabarlar + (yuborilgan?.filter((x) => x.holat === 'tekshiruvda').length ?? 0)
 }
 
 // =============================================================

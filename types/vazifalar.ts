@@ -156,6 +156,8 @@ export type Topshiriq = {
   javob_at: string | null
   /** Muddat soati, `HH:MM:SS` (faqat `muddat` bilan birga) */
   muddat_vaqt?: string | null
+  /** Qachondan boshlab (ijrochi vazifasining reja kuni) */
+  boshlanish?: string | null
   /** true: ijrochi tugatganda yuboruvchi tasdiqlaydi */
   tekshirish?: boolean
   topshirish_izohi?: string | null

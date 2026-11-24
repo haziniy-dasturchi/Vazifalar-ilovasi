@@ -216,7 +216,7 @@ export function useTopshiriqIzohlari(topshiriqId: string) {
   return useQuery({
     queryKey: k.izohlar(topshiriqId),
     // Suhbat — yangi izoh ikkinchi tomonda ham tez paydo bo'lsin
-    refetchInterval: 20_000,
+    refetchInterval: 5_000,
     queryFn: async (): Promise<TopshiriqIzohi[]> => {
       const { data, error } = await xom(supabase)
         .from('topshiriq_izohlari')
