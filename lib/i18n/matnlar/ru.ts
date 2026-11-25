@@ -449,6 +449,8 @@ export const ru: Record<MatnKaliti, string> = {
   'tk.chatBosh': 'Сообщений пока нет. Напишите вопрос или комментарий здесь.',
   'tk.emailJoy': 'Введите email',
   'tk.fikrMulohazalar': 'Обсуждение',
+  'tk.fikrSoni': 'Комментарии: {son}',
+  'tk.muhokamaBoshlandi': 'Обсуждение началось',
   'tk.havolaniNusxalash': 'Скопировать ссылку',
   'tk.hodisa.bajarildi': 'отметил(а) выполненным',
   'tk.hodisa.ozgardi': 'изменил(а) статус',

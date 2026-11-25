@@ -461,6 +461,8 @@ export const uz = {
   'tk.chatBosh': 'Hali xabar yo‘q. Savol yoki fikringizni shu yerga yozing.',
   'tk.emailJoy': 'Email manzilini yozing',
   'tk.fikrMulohazalar': 'Fikr-mulohazalar',
+  'tk.fikrSoni': '{son} ta fikr',
+  'tk.muhokamaBoshlandi': 'Muhokama boshlandi',
   'tk.havolaniNusxalash': 'Havolani nusxalash',
   'tk.hodisa.bajarildi': 'bajarildi deb belgiladi',
   'tk.hodisa.ozgardi': 'holatni o‘zgartirdi',

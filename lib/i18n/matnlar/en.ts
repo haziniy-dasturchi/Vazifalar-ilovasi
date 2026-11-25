@@ -448,6 +448,8 @@ export const en: Record<MatnKaliti, string> = {
   'tk.chatBosh': 'No messages yet. Ask a question or leave a comment here.',
   'tk.emailJoy': 'Enter an email address',
   'tk.fikrMulohazalar': 'Discussion',
+  'tk.fikrSoni': '{son} comments',
+  'tk.muhokamaBoshlandi': 'Discussion started',
   'tk.havolaniNusxalash': 'Copy link',
   'tk.hodisa.bajarildi': 'marked it done',
   'tk.hodisa.ozgardi': 'changed the status',
