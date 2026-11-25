@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
   ArrowLeft,
-  ArrowRight,
   Ban,
   CalendarDays,
   Check,
@@ -41,7 +40,7 @@ import {
   MuhimlikBelgisi,
   sanaOraligi,
 } from './karta'
-import { korinishHolati } from './holat'
+import { korinishHolati, takrorMatni } from './holat'
 import { TopshiriqFormasi } from './topshiriq-formasi'
 import { Yulduzlar } from './yulduzlar'
 import { QarorOynasi, type Qaror } from './qaror-oynasi'
@@ -115,60 +114,72 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
     <div className="mx-auto flex w-full max-w-3xl flex-col px-4 pt-4 md:px-8 md:pt-8">
       <Link
         href="/topshiriqlar"
-        className="mb-3 flex w-fit items-center gap-2 rounded-xl px-2 py-2 text-base font-medium text-text-muted transition hover:bg-surface-muted hover:text-text-strong"
+        className="mb-2 flex w-fit items-center gap-2 rounded-xl px-2 py-1.5 text-sm font-medium text-text-muted transition hover:bg-surface-muted hover:text-text-strong"
       >
         <ArrowLeft className="size-5" aria-hidden />
         {t('topshiriq.bolimi')}
       </Link>
 
       {/* Ma'lumotlar */}
-      <section className="rounded-2xl bg-surface p-5 shadow-card">
+      <section className="rounded-2xl bg-surface p-4 shadow-card sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <MuhimlikBelgisi muhimlik={topshiriq.muhimlik} />
           <HolatBelgisi holat={holat} />
         </div>
-        <h1 className="mt-3 text-2xl leading-snug font-bold text-text-strong">{topshiriq.sarlavha}</h1>
+        <h1 className="mt-2.5 text-lg leading-snug font-bold text-text-strong sm:text-xl">{topshiriq.sarlavha}</h1>
         {topshiriq.izoh && (
-          <p className="mt-2 text-base leading-relaxed whitespace-pre-wrap text-text-muted">{topshiriq.izoh}</p>
+          <p className="mt-1.5 text-sm leading-relaxed whitespace-pre-wrap text-text-muted sm:text-[0.9375rem]">
+            {topshiriq.izoh}
+          </p>
         )}
 
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <span className="flex items-center gap-2">
-            <Avatar ism={meniki ? menIsm : qarshi} kalit={topshiriq.yuboruvchi_id} katta />
-            <span className="text-base font-medium text-text-strong">{meniki ? t('tj.siz') : qarshi}</span>
-          </span>
-          <ArrowRight className="size-5 text-text-faint" aria-hidden />
-          <span className="flex items-center gap-2">
-            <Avatar ism={meniki ? qarshi : menIsm} kalit={topshiriq.qabul_qiluvchi_email} katta />
-            <span className="text-base font-medium text-text-strong">{meniki ? qarshi : t('tj.siz')}</span>
-          </span>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-base">
+        {/* Kim, kimga, qachon — ixcham jadval (telefonda ham bir qarashda) */}
+        <dl className="mt-4 grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-2.5 border-t border-border-subtle pt-4 text-sm">
+          <dt className="text-text-faint">{t('tk.kimdan')}</dt>
+          <dd className="flex min-w-0 items-center gap-2">
+            <Avatar ism={meniki ? menIsm : qarshi} kalit={topshiriq.yuboruvchi_id} />
+            <span className="truncate font-medium text-text-strong">{meniki ? t('tj.siz') : qarshi}</span>
+          </dd>
+          <dt className="text-text-faint">{t('tk.kimga')}</dt>
+          <dd className="flex min-w-0 items-center gap-2">
+            <Avatar ism={meniki ? qarshi : menIsm} kalit={topshiriq.qabul_qiluvchi_email} />
+            <span className="truncate font-medium text-text-strong">{meniki ? qarshi : t('tj.siz')}</span>
+          </dd>
           {sana && (
-            <span className={`flex items-center gap-2 ${kech ? 'font-semibold text-danger' : 'text-text-muted'}`}>
-              <CalendarDays className="size-5" aria-hidden />
-              {sana}
-            </span>
+            <>
+              <dt className="text-text-faint">{t('tk.muddatQisqa')}</dt>
+              <dd className={`flex items-center gap-1.5 ${kech ? 'font-semibold text-danger' : 'text-text-strong'}`}>
+                <CalendarDays className="size-4 shrink-0" aria-hidden />
+                {sana}
+              </dd>
+            </>
           )}
           {topshiriq.takror && (
-            <span className="flex items-center gap-2 text-text-muted">
-              <Repeat className="size-5" aria-hidden />
-              {t(`tj.takror.${topshiriq.takror}` as 'tj.takror.kunlik')}
-              {meniki && !yopiq && (
-                <button
-                  type="button"
-                  disabled={!onlayn}
-                  onClick={() => amal(() => takrorToxtat.mutateAsync(topshiriq.id), t('tj.takrorToxtadi'))}
-                  className="min-h-0 rounded-lg border border-border-subtle px-2 py-0.5 text-sm font-medium transition hover:bg-surface-muted disabled:opacity-40"
-                >
-                  {t('tj.takrorniToxtatish')}
-                </button>
-              )}
-            </span>
+            <>
+              <dt className="text-text-faint">{t('tk.takrorlanadi')}</dt>
+              <dd className="flex flex-wrap items-center gap-2 text-text-strong">
+                <Repeat className="size-4 shrink-0" aria-hidden />
+                {takrorMatni(topshiriq.takror, t)}
+                {meniki && !yopiq && (
+                  <button
+                    type="button"
+                    disabled={!onlayn}
+                    onClick={() => amal(() => takrorToxtat.mutateAsync(topshiriq.id), t('tj.takrorToxtadi'))}
+                    className="min-h-0 rounded-lg border border-border-subtle px-2 py-0.5 text-xs font-medium transition hover:bg-surface-muted disabled:opacity-40"
+                  >
+                    {t('tj.takrorniToxtatish')}
+                  </button>
+                )}
+              </dd>
+            </>
           )}
-          {topshiriq.baho != null && <Yulduzlar qiymat={topshiriq.baho} />}
-        </div>
+          {topshiriq.baho != null && (
+            <>
+              <dt className="text-text-faint">{t('tj.baho')}</dt>
+              <dd><Yulduzlar qiymat={topshiriq.baho} /></dd>
+            </>
+          )}
+        </dl>
 
         {meniki && tafsilot?.foiz != null && !yopiq && topshiriq.holat !== 'tekshiruvda' && (
           <div className="mt-4">
@@ -183,7 +194,7 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
         )}
 
         {topshiriq.holat === 'qabul' && topshiriq.qaytarish_sababi && (
-          <p className="mt-4 rounded-xl px-4 py-3 text-base" style={{ color: '#c2410c', backgroundColor: 'rgba(234,88,12,0.1)' }}>
+          <p className="mt-4 rounded-xl px-3 py-2 text-sm" style={{ color: '#c2410c', backgroundColor: 'rgba(234,88,12,0.1)' }}>
             <b>{t('tk.radSababi')}:</b> {topshiriq.qaytarish_sababi}
           </p>
         )}
@@ -191,15 +202,15 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
         {/* Amallar */}
         <div className="mt-5 flex flex-wrap gap-2">
           {meniki && topshiriq.holat === 'tekshiruvda' && (
-            <div className="w-full rounded-2xl bg-surface-muted p-4">
-              <p className="text-base font-semibold text-text-strong">{t('tk.tekshiringSarlavha')}</p>
+            <div className="w-full rounded-2xl bg-surface-muted p-3.5">
+              <p className="text-[0.9375rem] font-semibold text-text-strong">{t('tk.tekshiringSarlavha')}</p>
               <p className="mt-1 text-sm text-text-muted">{t('tk.qarorIzoh')}</p>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   disabled={!onlayn}
                   onClick={() => setQaror('qabul')}
-                  className="flex min-h-touch items-center justify-center gap-1.5 rounded-xl bg-brand-accent px-2 text-base font-semibold whitespace-nowrap text-white transition hover:bg-brand-accent-hover disabled:opacity-50"
+                  className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-brand-accent px-2 text-sm font-semibold whitespace-nowrap text-white transition hover:bg-brand-accent-hover disabled:opacity-50"
                 >
                   <Check className="size-5" aria-hidden />
                   {t('tk.qabulQilish')}
@@ -208,7 +219,7 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
                   type="button"
                   disabled={!onlayn}
                   onClick={() => setQaror('rad')}
-                  className="flex min-h-touch items-center justify-center gap-1.5 rounded-xl border-2 border-danger px-2 text-base font-semibold whitespace-nowrap text-danger transition hover:bg-danger-soft disabled:opacity-50"
+                  className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl border-2 border-danger px-2 text-sm font-semibold whitespace-nowrap text-danger transition hover:bg-danger-soft disabled:opacity-50"
                 >
                   <X className="size-5" aria-hidden />
                   {t('tk.radEtish')}
@@ -221,7 +232,7 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
               type="button"
               disabled={!onlayn}
               onClick={() => setTahrirOchiq(true)}
-              className="flex min-h-touch items-center gap-2 rounded-xl border border-border-control px-4 text-base font-medium text-text-strong transition hover:bg-surface-muted disabled:opacity-40"
+              className="flex min-h-10 items-center gap-2 rounded-xl border border-border-control px-4 text-sm font-medium text-text-strong transition hover:bg-surface-muted disabled:opacity-40"
             >
               <Pencil className="size-4" aria-hidden />
               {t('tk.tahrirlash')}
@@ -235,7 +246,7 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
                 onClick={() =>
                   amal(() => topshirish.mutateAsync({ id: topshiriq.id, izoh: '' }), t('tk.tekshiruvgaYuborildi'))
                 }
-                className="flex min-h-touch items-center gap-2 rounded-xl bg-brand-primary px-5 text-base font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-50"
+                className="flex min-h-10 items-center gap-2 rounded-xl bg-brand-primary px-4 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-50"
               >
                 <CheckCheck className="size-5" aria-hidden />
                 {t('tk.bajarildiBelgilash')}
@@ -244,13 +255,13 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
             </div>
           )}
           {!meniki && topshiriq.holat === 'tekshiruvda' && (
-            <p className="text-base text-text-muted">{t('tk.tekshirilmoqda')}</p>
+            <p className="text-sm text-text-muted">{t('tk.tekshirilmoqda')}</p>
           )}
         </div>
       </section>
 
       {/* Chat */}
-      <h2 className="mt-7 mb-3 px-1 text-lg font-semibold text-text-strong">{t('tk.fikrMulohazalar')}</h2>
+      <h2 className="mt-6 mb-2.5 px-1 text-base font-semibold text-text-strong">{t('tk.fikrMulohazalar')}</h2>
       <div className="flex-1 rounded-2xl bg-surface-sunken/60 p-3">
         <ChatXabarlari xabarlar={xabarlar} tarix={tarix} qarshiIsm={qarshi} />
       </div>

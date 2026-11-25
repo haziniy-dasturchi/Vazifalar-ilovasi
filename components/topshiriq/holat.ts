@@ -61,3 +61,17 @@ export function avatarRangi(kalit: string): string {
   for (const c of kalit) h = (h * 31 + c.charCodeAt(0)) | 0
   return AVATAR_RANGLARI[Math.abs(h) % AVATAR_RANGLARI.length]
 }
+
+/** "Har hafta", "Har 3 kunda" */
+export function takrorMatni(
+  takror: string,
+  t: (k: MatnKaliti, q?: Record<string, string | number>) => string
+): string {
+  if (takror === 'kunlik') return t('tj.takror.kunlik')
+  if (takror === 'haftalik') return t('tj.takror.haftalik')
+  if (takror === 'oylik') return t('tj.takror.oylik')
+  const [, son, birlik] = takror.split(':')
+  const kalit: MatnKaliti =
+    birlik === 'hafta' ? 'tk.har.hafta' : birlik === 'oy' ? 'tk.har.oy' : 'tk.har.kun'
+  return t(kalit, { son: Number(son) })
+}

@@ -170,6 +170,8 @@ export type YangiTopshiriq = {
   takror?: TopshiriqTakrori | null
   /** Qachondan boshlab ishlanadi (ijrochi vazifasining reja kuni) */
   boshlanish?: string | null
+  /** `HH:MM` — nechada boshlanadi */
+  boshlanish_vaqt?: string | null
   sarlavha: string
   izoh?: string | null
   muddat?: string | null
@@ -207,6 +209,9 @@ export function useTopshiriqYuborish() {
       const toliq = {
         ...asosiy,
         ...(yangi.boshlanish ? { boshlanish: yangi.boshlanish } : {}),
+        ...(yangi.boshlanish && yangi.boshlanish_vaqt
+          ? { boshlanish_vaqt: yangi.boshlanish_vaqt }
+          : {}),
         muddat_vaqt: yangi.muddat ? (yangi.muddat_vaqt ?? null) : null,
         tekshirish: yangi.tekshirish ?? true,
         ...(yangi.takror ? { takror: yangi.takror } : {}),
@@ -423,9 +428,11 @@ export type TopshiriqTahriri = {
   sarlavha: string
   izoh: string
   boshlanish: string | null
+  boshlanish_vaqt: string | null
   muddat: string | null
   muddat_vaqt: string | null
   muhimlik: TaskPriority
+  takror: TopshiriqTakrori | null
 }
 
 export function useTopshiriqTahrirlash() {
@@ -438,9 +445,11 @@ export function useTopshiriqTahrirlash() {
         p_sarlavha: t.sarlavha.trim(),
         p_izoh: t.izoh,
         p_boshlanish: t.boshlanish,
+        p_boshlanish_vaqt: t.boshlanish ? t.boshlanish_vaqt : null,
         p_muddat: t.muddat,
         p_muddat_vaqt: t.muddat ? t.muddat_vaqt : null,
         p_muhimlik: t.muhimlik,
+        p_takror: t.takror,
       })
       if (error) throw new Error(error.message)
     },

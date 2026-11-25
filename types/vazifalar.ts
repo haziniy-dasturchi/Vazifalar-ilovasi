@@ -158,6 +158,8 @@ export type Topshiriq = {
   muddat_vaqt?: string | null
   /** Qachondan boshlab (ijrochi vazifasining reja kuni) */
   boshlanish?: string | null
+  /** Nechada boshlanadi, `HH:MM:SS` (ijrochi vazifasining vaqti) */
+  boshlanish_vaqt?: string | null
   /** true: ijrochi tugatganda yuboruvchi tasdiqlaydi */
   tekshirish?: boolean
   topshirish_izohi?: string | null
@@ -175,7 +177,10 @@ export type Topshiriq = {
 }
 
 export const TOPSHIRIQ_TAKRORLARI = ['kunlik', 'haftalik', 'oylik'] as const
-export type TopshiriqTakrori = (typeof TOPSHIRIQ_TAKRORLARI)[number]
+/** Tayyor uchtasi yoki "har N kun/hafta/oy" (masalan `har:3:kun`) */
+export type TopshiriqTakrori =
+  | (typeof TOPSHIRIQ_TAKRORLARI)[number]
+  | `har:${number}:${'kun' | 'hafta' | 'oy'}`
 
 export type TopshiriqIzohi = {
   id: string

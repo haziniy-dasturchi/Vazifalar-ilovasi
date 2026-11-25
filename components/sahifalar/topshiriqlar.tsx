@@ -183,16 +183,16 @@ export function TopshiriqlarKorinishi() {
         <button
           type="button"
           onClick={() => setYangiOchiq(true)}
-          className="flex min-h-touch items-center gap-2 rounded-xl bg-brand-primary px-5 text-base font-semibold text-white shadow-card transition hover:bg-brand-primary-hover"
+          className="flex min-h-11 items-center gap-2 rounded-xl bg-brand-primary px-4 text-sm font-semibold text-white shadow-card transition hover:bg-brand-primary-hover sm:text-base"
         >
-          <Send className="size-5" aria-hidden />
+          <Send className="size-4" aria-hidden />
           <span className="hidden sm:inline">{t('topshiriq.yangi')}</span>
           <span className="sm:hidden">{t('tk.yuborishQisqa')}</span>
         </button>
       }
     >
       {/* Bo'limlar: avval men bergan ishlar */}
-      <div role="tablist" className="mb-5 grid grid-cols-2 gap-1 rounded-2xl bg-surface-sunken p-1.5">
+      <div role="tablist" className="mb-4 grid grid-cols-2 gap-1 rounded-xl bg-surface-sunken p-1">
         {(['yuborilgan', 'kelgan'] as const).map((k) => {
           const faol = tab === k
           return (
@@ -202,14 +202,14 @@ export function TopshiriqlarKorinishi() {
               role="tab"
               aria-selected={faol}
               onClick={() => setTab(k)}
-              className={`flex min-h-touch items-center justify-center gap-2 rounded-xl px-3 text-base font-semibold transition ${
+              className={`flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold transition sm:text-base ${
                 faol ? 'bg-surface text-text-strong shadow-card' : 'text-text-muted hover:text-text-strong'
               }`}
             >
-              {k === 'yuborilgan' ? <Send className="size-5" aria-hidden /> : <Inbox className="size-5" aria-hidden />}
+              {k === 'yuborilgan' ? <Send className="size-4" aria-hidden /> : <Inbox className="size-4" aria-hidden />}
               {t(k === 'yuborilgan' ? 'topshiriq.yuborilgan' : 'topshiriq.kelgan')}
               {belgilar[k] > 0 && (
-                <span className="min-w-6 rounded-full bg-danger px-1.5 py-0.5 text-center text-sm leading-none font-bold text-white">
+                <span className="min-w-5 rounded-full bg-danger px-1.5 py-0.5 text-center text-xs leading-none font-bold text-white">
                   {belgilar[k] > 99 ? '99+' : belgilar[k]}
                 </span>
               )}
@@ -219,7 +219,7 @@ export function TopshiriqlarKorinishi() {
       </div>
 
       {!onlayn && (
-        <p className="mb-4 flex items-center gap-2 rounded-xl bg-status-progress px-4 py-3 text-base text-status-progress-text">
+        <p className="mb-4 flex items-center gap-2 rounded-xl bg-status-progress px-3 py-2 text-sm text-status-progress-text">
           <WifiOff className="size-5 shrink-0" aria-hidden />
           {t('tj.offline')}
         </p>
@@ -269,7 +269,7 @@ export function TopshiriqlarKorinishi() {
                     role="tab"
                     aria-selected={korinish === k}
                     onClick={() => setKorinish(k)}
-                    className={`flex min-h-0 items-center gap-2 rounded-lg px-4 py-2 text-base font-medium transition ${
+                    className={`flex min-h-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
                       korinish === k ? 'bg-surface text-text-strong shadow-card' : 'text-text-muted hover:text-text-strong'
                     }`}
                   >
@@ -282,7 +282,7 @@ export function TopshiriqlarKorinishi() {
                 <button
                   type="button"
                   onClick={() => setShaxs(null)}
-                  className="flex min-h-0 max-w-full items-center gap-2 rounded-full bg-brand-soft px-4 py-2 text-base font-semibold text-brand-onsoft"
+                  className="flex min-h-0 max-w-full items-center gap-2 rounded-full bg-brand-soft px-3 py-1.5 text-sm font-semibold text-brand-onsoft"
                 >
                   <span className="truncate">{ismlar.get(shaxs) ?? shaxs}</span>
                   <X className="size-4 shrink-0" aria-hidden />
@@ -313,7 +313,7 @@ export function TopshiriqlarKorinishi() {
                   {t('topshiriq.filtrBosh')}
                 </p>
               ) : (
-                <ul className="grid gap-4 md:grid-cols-2">
+                <ul className="grid gap-3 md:grid-cols-2">
                   {korinadigan.map((x) => {
                     const tf = tafsilotlar.get(x.id)
                     const y = yangilik.get(x.id)
@@ -344,7 +344,7 @@ export function TopshiriqlarKorinishi() {
         <button
           type="button"
           onClick={() => setTaklifOchiq(true)}
-          className="flex min-h-touch items-center gap-2 rounded-xl px-4 text-base font-semibold text-brand-onsoft transition hover:bg-brand-soft"
+          className="flex min-h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-brand-onsoft transition hover:bg-brand-soft"
         >
           <UserPlus className="size-5" aria-hidden />
           {t('tk.taklifQilish')}

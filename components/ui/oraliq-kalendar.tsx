@@ -15,22 +15,25 @@ const KUN_KALITLARI: MatnKaliti[] = [
 ]
 
 /**
- * Sana oralig'ini bitta kalendarda tanlash (LC UP'dagi kabi):
- * birinchi bosish — boshlanish, ikkinchisi — tugash. Oraliq
- * ajratib ko'rsatiladi, bugun halqa bilan belgilanadi.
+ * Sana oralig'ini bitta kalendarda tanlash (LC UP'dagi kabi).
  *
- * Bitta kun ham bo'lishi mumkin (boshlanish = tugash). Ikkinchi
- * bosish birinchidan oldingi kunga tushsa — tanlov o'sha kundan
- * qaytadan boshlanadi (odam adashganini tuzatishga majbur emas).
+ * 1-bosish — boshlanish. Shundan keyin sichqoncha qaysi kun ustiga
+ * borsa, oraliq o'sha kungacha rangli ko'rinib turadi (oldindan
+ * ko'rish). 2-bosish — tugash: tanlov tugaydi va `tugadi` chaqiriladi
+ * (oyna o'zi yopiladi). Bitta kun kerak bo'lsa — o'sha kunni ikki
+ * marta bosiladi. Boshlanishdan oldingi kun bosilsa — tanlov o'sha
+ * kundan qaytadan boshlanadi.
  */
 export function OraliqKalendar({
   boshi,
   oxiri,
   ozgartir,
+  tugadi,
 }: {
   boshi: string | null
   oxiri: string | null
   ozgartir: (boshi: string | null, oxiri: string | null) => void
+  tugadi?: () => void
 }) {
   const t = useT()
   const bugun = bugunISO()
@@ -38,30 +41,35 @@ export function OraliqKalendar({
     const d = isoDan(boshi ?? bugun)
     return new Date(d.getFullYear(), d.getMonth(), 1)
   })
+  // Tanlov jarayoni: birinchi kun bosilgan, ikkinchisi kutilmoqda
+  const [birinchi, setBirinchi] = useState<string | null>(null)
+  const [ustida, setUstida] = useState<string | null>(null)
 
   const kunlar = useMemo(() => {
     const yil = korinadigan.getFullYear()
     const oy = korinadigan.getMonth()
-    // Dushanbadan boshlanadigan hafta
-    const birinchi = (new Date(yil, oy, 1).getDay() + 6) % 7
-    const boshlanish = new Date(yil, oy, 1 - birinchi)
+    const bosh = (new Date(yil, oy, 1).getDay() + 6) % 7
     return Array.from({ length: 42 }, (_, i) => {
-      const d = new Date(boshlanish.getFullYear(), boshlanish.getMonth(), boshlanish.getDate() + i)
+      const d = new Date(yil, oy, 1 - bosh + i)
       return { iso: isoGa(d), kun: d.getDate(), buOy: d.getMonth() === oy }
     })
   }, [korinadigan])
 
+  // Ko'rsatiladigan oraliq: tanlov paytida — oldindan ko'rish
+  const [a, b] = birinchi
+    ? [birinchi, ustida && ustida > birinchi ? ustida : birinchi]
+    : [boshi, oxiri]
+
   function bos(iso: string) {
-    // Yangi tanlov: hech narsa yo'q, yoki oraliq allaqachon to'liq
-    if (!boshi || (boshi && oxiri && boshi !== oxiri)) {
-      ozgartir(iso, iso)
+    if (!birinchi || iso < birinchi) {
+      setBirinchi(iso)
+      setUstida(iso)
       return
     }
-    if (iso < boshi) {
-      ozgartir(iso, iso)
-      return
-    }
-    ozgartir(boshi, iso)
+    setBirinchi(null)
+    setUstida(null)
+    ozgartir(birinchi, iso)
+    tugadi?.()
   }
 
   function oyniSur(qadam: number) {
@@ -69,7 +77,7 @@ export function OraliqKalendar({
   }
 
   return (
-    <div className="w-full max-w-sm rounded-2xl border border-border-subtle bg-surface p-3 select-none">
+    <div className="w-full select-none">
       <div className="mb-2 flex items-center justify-between">
         <button
           type="button"
@@ -79,7 +87,7 @@ export function OraliqKalendar({
         >
           <ChevronLeft className="size-5" aria-hidden />
         </button>
-        <span className="text-base font-semibold text-text-strong">
+        <span className="text-[0.9375rem] font-semibold text-text-strong">
           {t(OY_KALITLARI[korinadigan.getMonth()])} {korinadigan.getFullYear()}
         </span>
         <button
@@ -100,24 +108,24 @@ export function OraliqKalendar({
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-y-1">
+      <div className="grid grid-cols-7 gap-y-1" onMouseLeave={() => birinchi && setUstida(birinchi)}>
         {kunlar.map(({ iso, kun, buOy }) => {
-          const chet = iso === boshi || iso === oxiri
-          const ichida = boshi && oxiri && iso > boshi && iso < oxiri
+          const chet = iso === a || iso === b
+          const ichida = a && b && iso > a && iso < b
+          const oraliq = a && b && a !== b
           const otgan = iso < bugun
           return (
             <div
               key={iso}
-              className={`relative flex h-10 items-center justify-center ${
-                ichida ? 'bg-brand-soft' : ''
-              } ${iso === boshi && oxiri && oxiri !== boshi ? 'rounded-l-full bg-brand-soft' : ''} ${
-                iso === oxiri && boshi && oxiri !== boshi ? 'rounded-r-full bg-brand-soft' : ''
-              }`}
+              className={`relative flex h-10 items-center justify-center ${ichida ? 'bg-brand-soft' : ''} ${
+                oraliq && iso === a ? 'rounded-l-full bg-brand-soft' : ''
+              } ${oraliq && iso === b ? 'rounded-r-full bg-brand-soft' : ''}`}
             >
               <button
                 type="button"
                 disabled={otgan}
                 onClick={() => bos(iso)}
+                onMouseEnter={() => birinchi && setUstida(iso)}
                 aria-pressed={Boolean(chet)}
                 aria-label={iso}
                 className={`relative z-10 flex size-10 min-h-0 items-center justify-center rounded-full text-sm transition ${
@@ -137,15 +145,9 @@ export function OraliqKalendar({
         })}
       </div>
 
-      {(boshi || oxiri) && (
-        <button
-          type="button"
-          onClick={() => ozgartir(null, null)}
-          className="mt-2 min-h-0 rounded-lg px-2 py-1 text-sm font-medium text-danger transition hover:bg-danger-soft"
-        >
-          {t('tk.sanaTozalash')}
-        </button>
-      )}
+      <p className="mt-3 text-center text-sm text-text-muted">
+        {birinchi ? t('tk.tugashKuniniBosing') : t('tk.boshlanishKuniniBosing')}
+      </p>
     </div>
   )
 }

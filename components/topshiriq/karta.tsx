@@ -39,7 +39,7 @@ export function HolatBelgisi({ holat }: { holat: KorinishHolati }) {
   const u = HOLAT_USLUBI[holat]
   return (
     <span
-      className="inline-flex shrink-0 items-center rounded-full px-3 py-1 text-sm font-semibold"
+      className="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-semibold sm:text-sm"
       style={{ color: u.rang, backgroundColor: u.fon }}
     >
       {t(u.kalit)}
@@ -51,7 +51,7 @@ export function MuhimlikBelgisi({ muhimlik }: { muhimlik: number }) {
   const rang = MUHIMLIK_RANGI[muhimlik] ?? '#9ca3af'
   return (
     <span
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold sm:text-sm"
       style={{ color: rang, backgroundColor: `${rang}1f` }}
     >
       <span className="size-2 rounded-full" style={{ backgroundColor: rang }} aria-hidden />
@@ -65,7 +65,7 @@ export function Avatar({ ism, kalit, katta }: { ism: string; kalit: string; katt
     <span
       aria-hidden
       className={`flex shrink-0 items-center justify-center rounded-full font-bold text-white ${
-        katta ? 'size-10 text-sm' : 'size-8 text-xs'
+        katta ? 'size-8 text-xs' : 'size-7 text-[11px]'
       }`}
       style={{ backgroundColor: avatarRangi(kalit) }}
     >
@@ -74,13 +74,19 @@ export function Avatar({ ism, kalit, katta }: { ism: string; kalit: string; katt
   )
 }
 
-/** "25-noyabr — 28-noyabr, 11:00" */
+/** "25-noyabr, 09:00 — 28-noyabr, 11:00" yoki bir kunda "25-noyabr, 09:00–11:00" */
 export function sanaOraligi(t: Topshiriq): string | null {
   if (!t.muddat) return null
-  const soat = vaqtMatni(t.muddat_vaqt ?? null)
-  const oxiri = soat ? `${toliqSana(t.muddat)}, ${soat}` : toliqSana(t.muddat)
-  if (t.boshlanish && t.boshlanish !== t.muddat) return `${toliqSana(t.boshlanish)} — ${oxiri}`
-  return oxiri
+  const boshSoat = vaqtMatni(t.boshlanish_vaqt ?? null)
+  const oxirSoat = vaqtMatni(t.muddat_vaqt ?? null)
+  const birKun = !t.boshlanish || t.boshlanish === t.muddat
+  if (birKun) {
+    const soat = boshSoat && oxirSoat ? `${boshSoat}–${oxirSoat}` : (oxirSoat ?? boshSoat)
+    return soat ? `${toliqSana(t.muddat)}, ${soat}` : toliqSana(t.muddat)
+  }
+  const bosh = boshSoat ? `${toliqSana(t.boshlanish as string)}, ${boshSoat}` : toliqSana(t.boshlanish as string)
+  const oxiri = oxirSoat ? `${toliqSana(t.muddat)}, ${oxirSoat}` : toliqSana(t.muddat)
+  return `${bosh} — ${oxiri}`
 }
 
 /**
@@ -126,7 +132,7 @@ export function TopshiriqKartasi({
 
   return (
     <li
-      className="relative flex flex-col rounded-2xl border-l-4 bg-surface p-4 shadow-card transition hover:shadow-lg"
+      className="relative flex flex-col rounded-2xl border-l-4 bg-surface p-3.5 shadow-card transition hover:shadow-lg sm:p-4"
       style={{ borderLeftColor: rang }}
     >
       {/* Butun karta — havola; ichki tugmalar uning ustida (z-10) */}
@@ -141,10 +147,10 @@ export function TopshiriqKartasi({
         <HolatBelgisi holat={holat} />
       </div>
 
-      <h3 className="mt-3 flex items-start gap-2 text-lg leading-snug font-semibold text-text-strong">
+      <h3 className="mt-2.5 flex items-start gap-2 text-[0.9375rem] leading-snug font-semibold text-text-strong sm:text-base">
         {ochilmagan && (
           <span
-            className="mt-2 size-2.5 shrink-0 rounded-full bg-brand-accent"
+            className="mt-1.5 size-2 shrink-0 rounded-full bg-brand-accent"
             aria-label={t('tk.yangi')}
           />
         )}
@@ -152,18 +158,18 @@ export function TopshiriqKartasi({
       </h3>
 
       {topshiriq.izoh && (
-        <p className="mt-1 line-clamp-2 text-base leading-relaxed text-text-muted">
+        <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-text-muted">
           {topshiriq.izoh}
         </p>
       )}
 
-      <div className="mt-3 flex items-center gap-2.5">
+      <div className="mt-2.5 flex items-center gap-2">
         <Avatar ism={kim} kalit={menYuborganman ? topshiriq.qabul_qiluvchi_email : topshiriq.yuboruvchi_id} />
         <span className="min-w-0">
-          <span className="block text-xs text-text-faint">
+          <span className="block text-[11px] leading-tight text-text-faint">
             {menYuborganman ? t('tk.ijrochi') : t('tk.topshiriqBerdi')}
           </span>
-          <span className="block truncate text-base font-medium text-text-strong">{kim}</span>
+          <span className="block truncate text-sm font-medium text-text-strong">{kim}</span>
         </span>
       </div>
 
@@ -174,13 +180,13 @@ export function TopshiriqKartasi({
       )}
 
       {topshiriq.holat === 'qabul' && topshiriq.qaytarish_sababi && (
-        <p className="mt-3 rounded-xl px-3 py-2 text-sm" style={{ color: '#c2410c', backgroundColor: 'rgba(234,88,12,0.1)' }}>
+        <p className="mt-2.5 rounded-xl px-3 py-1.5 text-xs sm:text-sm" style={{ color: '#c2410c', backgroundColor: 'rgba(234,88,12,0.1)' }}>
           {t('tk.radSababi')}: {topshiriq.qaytarish_sababi}
         </p>
       )}
 
       <div className="mt-auto pt-3">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border-subtle pt-3 text-sm">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-border-subtle pt-2.5 text-xs sm:text-sm">
           {sana && (
             <span className={`flex items-center gap-1.5 ${kechikkan ? 'font-semibold text-danger' : 'text-text-muted'}`}>
               <CalendarDays className="size-4" aria-hidden />
@@ -191,7 +197,7 @@ export function TopshiriqKartasi({
 
           <span className="ml-auto flex items-center gap-1">
             <span
-              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 font-semibold ${
+              className={`flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold ${
                 yangiXabar > 0 ? 'bg-danger text-white' : 'text-text-faint'
               }`}
               aria-label={t('tk.yangiXabarlar', { son: yangiXabar })}
@@ -206,7 +212,7 @@ export function TopshiriqKartasi({
                 disabled={!onlayn}
                 aria-label={t('tk.tahrirlash')}
                 title={t('tk.tahrirlash')}
-                className="relative z-10 flex size-9 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted disabled:opacity-40"
+                className="relative z-10 flex size-8 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted disabled:opacity-40"
               >
                 <Pencil className="size-4" aria-hidden />
               </button>
@@ -217,7 +223,7 @@ export function TopshiriqKartasi({
               disabled={!onlayn}
               aria-label={t('umumiy.ochirish')}
               title={t('umumiy.ochirish')}
-              className="relative z-10 flex size-9 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-danger-soft hover:text-danger disabled:opacity-40"
+              className="relative z-10 flex size-8 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-danger-soft hover:text-danger disabled:opacity-40"
             >
               <Trash2 className="size-4" aria-hidden />
             </button>
@@ -226,23 +232,23 @@ export function TopshiriqKartasi({
 
         {/* Ijrochi tugatgan — faqat shu paytda yuboruvchi qaror qiladi */}
         {menYuborganman && topshiriq.holat === 'tekshiruvda' && (
-          <div className="relative z-10 mt-3 grid grid-cols-2 gap-2">
+          <div className="relative z-10 mt-2.5 grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setQaror('qabul')}
               disabled={!onlayn}
-              className="flex min-h-touch items-center justify-center gap-1.5 rounded-xl bg-brand-accent px-2 text-base whitespace-nowrap font-semibold text-white transition hover:bg-brand-accent-hover disabled:opacity-50"
+              className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-brand-accent px-2 text-sm whitespace-nowrap font-semibold text-white transition hover:bg-brand-accent-hover disabled:opacity-50"
             >
-              <Check className="size-5" aria-hidden />
+              <Check className="size-4" aria-hidden />
               {t('tk.qabulQilish')}
             </button>
             <button
               type="button"
               onClick={() => setQaror('rad')}
               disabled={!onlayn}
-              className="flex min-h-touch items-center justify-center gap-1.5 rounded-xl border-2 border-danger px-2 text-base whitespace-nowrap font-semibold text-danger transition hover:bg-danger-soft disabled:opacity-50"
+              className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl border-2 border-danger px-2 text-sm whitespace-nowrap font-semibold text-danger transition hover:bg-danger-soft disabled:opacity-50"
             >
-              <X className="size-5" aria-hidden />
+              <X className="size-4" aria-hidden />
               {t('tk.radEtish')}
             </button>
           </div>

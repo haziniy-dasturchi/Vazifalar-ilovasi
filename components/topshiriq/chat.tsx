@@ -101,7 +101,7 @@ export function ChatXabarlari({
   return (
     <div className="space-y-2">
       {yozuvlar.length === 0 && (
-        <p className="py-10 text-center text-base text-text-faint">{t('tk.chatBosh')}</p>
+        <p className="py-8 text-center text-sm text-text-faint">{t('tk.chatBosh')}</p>
       )}
       {yozuvlar.map((y) => {
         const kun = mahalliyKun(y.vaqt)
@@ -111,14 +111,14 @@ export function ChatXabarlari({
           <div key={y.tur === 'hodisa' ? `h${y.h.id}` : `x${y.x.id}`}>
             {ajratgich && (
               <div className="my-3 flex justify-center">
-                <span className="rounded-full bg-surface-sunken px-3 py-1 text-sm font-medium text-text-muted">
+                <span className="rounded-full bg-surface-sunken px-3 py-0.5 text-xs font-medium text-text-muted">
                   {toliqSana(kun)}
                 </span>
               </div>
             )}
             {y.tur === 'hodisa' ? (
               <div className="flex justify-center px-6">
-                <span className="text-center text-sm text-text-faint">
+                <span className="text-center text-xs text-text-faint">
                   <b className="font-semibold text-text-muted">{kim(y.h.kim_id)}</b>{' '}
                   {t(HODISA[y.h.hodisa] ?? 'tk.hodisa.ozgardi')}
                   {y.h.izoh ? `: “${y.h.izoh}”` : ''} · {soatMatni(y.h.created_at)}
@@ -166,7 +166,7 @@ function XabarPufagi({ x, meniki, ism }: { x: TopshiriqIzohi; meniki: boolean; i
             : 'rounded-bl-md bg-surface text-text-strong'
         }`}
       >
-        {!meniki && <p className="mb-0.5 text-sm font-semibold text-brand-onsoft">{ism}</p>}
+        {!meniki && <p className="mb-0.5 text-xs font-semibold text-brand-onsoft">{ism}</p>}
 
         {x.fayl_yoli && rasm && havola && (
           <a href={havola} target="_blank" rel="noopener noreferrer" className="mb-1 block">
@@ -203,7 +203,7 @@ function XabarPufagi({ x, meniki, ism }: { x: TopshiriqIzohi; meniki: boolean; i
           </a>
         )}
 
-        {x.matn && <p className="text-base leading-relaxed whitespace-pre-wrap">{x.matn}</p>}
+        {x.matn && <p className="text-[0.9375rem] leading-relaxed whitespace-pre-wrap">{x.matn}</p>}
 
         <div className={`mt-0.5 flex items-center justify-end gap-2 text-xs ${meniki ? 'text-white/70' : 'text-text-faint'}`}>
           {meniki && (

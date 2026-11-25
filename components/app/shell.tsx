@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Plus } from 'lucide-react'
 import { FoydalanuvchiProvider } from './foydalanuvchi'
 import { YonPanel } from './yon-panel'
@@ -79,6 +80,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
  */
 function QoshishTugmasi({ onClick }: { onClick: () => void }) {
   const t = useT()
+  const yol = usePathname()
+  // Topshiriqlarda bu tugma keraksiz va xalaqit beradi: u yerda o'z
+  // "Yuborish" tugmasi bor, chatda esa yuborish tugmasi ustiga tushardi
+  if (yol.startsWith('/topshiriq')) return null
   return (
     <button
       type="button"

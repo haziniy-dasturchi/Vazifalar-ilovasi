@@ -57,7 +57,11 @@ export function HolatKartalari({
 }) {
   const t = useT()
   return (
-    <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    /*
+      Bitta qator: telefonda yonga suriladi (oldin 3 qatorga tushib,
+      butun ekranni egallardi), kompyuterda 5 tasi teng bo'linadi.
+    */
+    <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-5 md:overflow-visible md:px-0">
       {KARTA_FILTRLARI.map((f) => {
         const u = HOLAT_USLUBI[f]
         const Ikonka = IKONKA[f]
@@ -68,22 +72,22 @@ export function HolatKartalari({
             type="button"
             aria-pressed={tanlangan}
             onClick={() => tanla(f)}
-            className={`flex min-h-0 items-center gap-3 rounded-2xl border-2 bg-surface px-3 py-3 text-left shadow-card transition hover:-translate-y-0.5 ${
+            className={`flex min-h-0 shrink-0 items-center gap-2 rounded-xl border-2 bg-surface px-2.5 py-2 text-left shadow-card transition ${
               tanlangan ? '' : 'border-transparent'
             }`}
             style={tanlangan ? { borderColor: u.rang } : undefined}
           >
             <span
-              className="flex size-11 shrink-0 items-center justify-center rounded-full"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full"
               style={{ backgroundColor: u.fon, color: u.rang }}
             >
-              <Ikonka className="size-6" aria-hidden />
+              <Ikonka className="size-4" aria-hidden />
             </span>
-            <span className="min-w-0">
-              <span className="block text-2xl leading-none font-bold tabular-nums text-text-strong">
+            <span className="min-w-0 pr-1">
+              <span className="block text-lg leading-none font-bold tabular-nums text-text-strong">
                 {sanoq[f]}
               </span>
-              <span className="mt-1 block truncate text-sm font-medium text-text-muted">
+              <span className="mt-0.5 block text-xs whitespace-nowrap text-text-muted">
                 {t(u.kalit)}
               </span>
             </span>
