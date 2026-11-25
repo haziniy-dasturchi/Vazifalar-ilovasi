@@ -129,7 +129,7 @@ export function XodimlarHisoboti({
   }
 
   return (
-    <ul className="grid gap-3 md:grid-cols-2">
+    <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
       {hisobot.map((x) => {
         const ism = ismlar.get(x.email) ?? x.email
         return (
@@ -137,26 +137,26 @@ export function XodimlarHisoboti({
             <button
               type="button"
               onClick={() => tanla(x.email)}
-              className="w-full rounded-2xl bg-surface p-4 text-left shadow-card transition hover:-translate-y-0.5"
+              className="w-full min-w-0 rounded-2xl bg-surface p-3 text-left shadow-card transition hover:-translate-y-0.5 sm:p-4"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 items-center gap-2.5">
                 <Avatar ism={ism} kalit={x.email} katta />
-                <span className="min-w-0 flex-1 truncate text-lg font-semibold text-text-strong">{ism}</span>
+                <span className="min-w-0 flex-1 truncate text-[0.9375rem] font-semibold text-text-strong">{ism}</span>
                 {x.ortachaBaho != null && (
-                  <span className="flex shrink-0 items-center gap-1 text-base font-semibold text-text-strong">
-                    <Star className="size-5 fill-amber-400 text-amber-400" aria-hidden />
+                  <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-text-strong">
+                    <Star className="size-4 fill-amber-400 text-amber-400" aria-hidden />
                     {x.ortachaBaho}
                   </span>
                 )}
-                <ChevronRight className="size-5 shrink-0 text-text-faint" aria-hidden />
+                <ChevronRight className="size-4 shrink-0 text-text-faint" aria-hidden />
               </div>
-              <div className="mt-3 grid grid-cols-4 gap-2 text-center">
+              <div className="mt-2.5 grid grid-cols-4 gap-1.5 text-center">
                 <Korsatkich son={x.jami} nom={t('tj.jami')} />
                 <Korsatkich son={x.ochiq} nom={t('tj.ochiq')} />
                 <Korsatkich son={x.kechikkan} nom={t('tk.holat.kechikkan')} xavf={x.kechikkan > 0} />
                 <Korsatkich son={x.bajarilgan} nom={t('tk.holat.bajarildi')} />
               </div>
-              <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-muted">
+              <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-muted sm:text-sm">
                 {x.muddatida != null && <span>{t('tj.muddatida', { foiz: x.muddatida })}</span>}
                 {x.ortachaSoat != null && (
                   <span>{t('tj.ortachaVaqt', { vaqt: davomiylik(x.ortachaSoat, t) })}</span>
@@ -172,11 +172,11 @@ export function XodimlarHisoboti({
 
 function Korsatkich({ son, nom, xavf }: { son: number; nom: string; xavf?: boolean }) {
   return (
-    <span className="rounded-xl bg-surface-muted px-1 py-2">
-      <span className={`block text-xl leading-none font-bold tabular-nums ${xavf ? 'text-danger' : 'text-text-strong'}`}>
+    <span className="min-w-0 rounded-xl bg-surface-muted px-1 py-1.5">
+      <span className={`block text-lg leading-none font-bold tabular-nums ${xavf ? 'text-danger' : 'text-text-strong'}`}>
         {son}
       </span>
-      <span className="mt-1 block truncate text-xs text-text-muted">{nom}</span>
+      <span className="mt-1 block truncate text-[11px] text-text-muted sm:text-xs">{nom}</span>
     </span>
   )
 }

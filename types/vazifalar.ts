@@ -196,8 +196,8 @@ export type TopshiriqIzohi = {
   reaksiyalar?: IzohReaksiyasi[]
 }
 
-/** Izohga reaksiya: zo'r, qarsak, xafa, kelishuv */
-export type ReaksiyaTuri = 'zor' | 'qarsak' | 'xafa' | 'kelishuv'
+/** Izohga reaksiya: zo'r, qarsak, jilmayish, qah-qah, xafa, kelishuv */
+export type ReaksiyaTuri = 'zor' | 'qarsak' | 'jilmayish' | 'qahqah' | 'xafa' | 'kelishuv'
 export type IzohReaksiyasi = { foydalanuvchi_id: string; reaksiya: ReaksiyaTuri }
 
 export type TopshiriqHodisasi = {

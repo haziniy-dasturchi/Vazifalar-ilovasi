@@ -451,6 +451,8 @@ export const ru: Record<MatnKaliti, string> = {
   'tk.fikrMulohazalar': 'Обсуждение',
   'tk.reaksiya.zor': 'Отлично',
   'tk.reaksiya.qarsak': 'Аплодисменты',
+  'tk.reaksiya.jilmayish': 'Улыбка',
+  'tk.reaksiya.qahqah': 'Смех',
   'tk.reaksiya.xafa': 'Грустно',
   'tk.reaksiya.kelishuv': 'Договорились',
   'tk.reaksiyaQoshish': 'Поставить реакцию',

@@ -51,10 +51,12 @@ export const PILL =
 /** O'zimning xabarim foni: brend yashilining och tusi (Telegram'dagidek) */
 const MENIKI_FON = 'color-mix(in srgb, var(--brand-accent) 20%, var(--surface))'
 
-/** To'rtta reaksiya — tartibi tanlov oynasida ham, xabar ostida ham shu */
+/** Oltita reaksiya — tartibi tanlov oynasida ham, xabar ostida ham shu */
 const REAKSIYALAR: { tur: ReaksiyaTuri; emoji: string; kalit: MatnKaliti }[] = [
   { tur: 'zor', emoji: '👍', kalit: 'tk.reaksiya.zor' },
   { tur: 'qarsak', emoji: '👏', kalit: 'tk.reaksiya.qarsak' },
+  { tur: 'jilmayish', emoji: '😁', kalit: 'tk.reaksiya.jilmayish' },
+  { tur: 'qahqah', emoji: '😂', kalit: 'tk.reaksiya.qahqah' },
   { tur: 'xafa', emoji: '😢', kalit: 'tk.reaksiya.xafa' },
   { tur: 'kelishuv', emoji: '🤝', kalit: 'tk.reaksiya.kelishuv' },
 ]

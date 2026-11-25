@@ -463,6 +463,8 @@ export const uz = {
   'tk.fikrMulohazalar': 'Fikr-mulohazalar',
   'tk.reaksiya.zor': 'Zo‘r',
   'tk.reaksiya.qarsak': 'Qarsak',
+  'tk.reaksiya.jilmayish': 'Jilmayish',
+  'tk.reaksiya.qahqah': 'Qah-qah',
   'tk.reaksiya.xafa': 'Xafa',
   'tk.reaksiya.kelishuv': 'Kelishdik',
   'tk.reaksiyaQoshish': 'Reaksiya bildirish',
