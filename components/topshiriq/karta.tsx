@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import {
   CalendarDays,
+  ChevronRight,
   Check,
   MessageCircle,
   Pencil,
@@ -92,7 +93,10 @@ export function sanaOraligi(t: Topshiriq): string | null {
 /**
  * Topshiriq kartasi (UstozCRM naqshida): tepada muhimlik va holat,
  * o'rtada nima qilish kerakligi va kim bilan, pastda muddat va
- * chatdagi yangi xabarlar soni. Karta bosilsa — topshiriq sahifasi.
+ * chatdagi yangi xabarlar soni. Telegram'dagi post kabi: kartaning
+ * o'zi emas, faqat pastki (chiziq ostidagi) qismi bosilganda suhbat
+ * sahifasi ochiladi — matnni o'qish yoki belgilash paytida tasodifan
+ * boshqa sahifaga o'tib ketmasin.
  */
 export function TopshiriqKartasi({
   topshiriq,
@@ -132,16 +136,9 @@ export function TopshiriqKartasi({
 
   return (
     <li
-      className="relative flex flex-col rounded-2xl border-l-4 bg-surface p-3.5 shadow-card transition hover:shadow-lg sm:p-4"
+      className="relative flex flex-col rounded-2xl border-l-4 bg-surface p-3.5 pb-2 shadow-card sm:p-4 sm:pb-2.5"
       style={{ borderLeftColor: rang }}
     >
-      {/* Butun karta — havola; ichki tugmalar uning ustida (z-10) */}
-      <Link
-        href={topshiriqYoli(topshiriq.id)}
-        aria-label={topshiriq.sarlavha}
-        className="absolute inset-0 z-0 rounded-2xl"
-      />
-
       <div className="flex flex-wrap items-center justify-between gap-2">
         <MuhimlikBelgisi muhimlik={topshiriq.muhimlik} />
         <HolatBelgisi holat={holat} />
@@ -186,53 +183,9 @@ export function TopshiriqKartasi({
       )}
 
       <div className="mt-auto pt-3">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-border-subtle pt-2.5 text-xs sm:text-sm">
-          {sana && (
-            <span className={`flex items-center gap-1.5 ${kechikkan ? 'font-semibold text-danger' : 'text-text-muted'}`}>
-              <CalendarDays className="size-4" aria-hidden />
-              {sana}
-            </span>
-          )}
-          {topshiriq.takror && <Repeat className="size-4 text-text-faint" aria-label={t('tk.takrorlanadi')} />}
-
-          <span className="ml-auto flex items-center gap-1">
-            <span
-              className={`flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold ${
-                yangiXabar > 0 ? 'bg-danger text-white' : 'text-text-faint'
-              }`}
-              aria-label={t('tk.yangiXabarlar', { son: yangiXabar })}
-            >
-              <MessageCircle className="size-4" aria-hidden />
-              {yangiXabar > 0 && yangiXabar}
-            </span>
-            {menYuborganman && !yopiq && (
-              <button
-                type="button"
-                onClick={tahrirla}
-                disabled={!onlayn}
-                aria-label={t('tk.tahrirlash')}
-                title={t('tk.tahrirlash')}
-                className="relative z-10 flex size-8 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted disabled:opacity-40"
-              >
-                <Pencil className="size-4" aria-hidden />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => setOchirishOchiq(true)}
-              disabled={!onlayn}
-              aria-label={t('umumiy.ochirish')}
-              title={t('umumiy.ochirish')}
-              className="relative z-10 flex size-8 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-danger-soft hover:text-danger disabled:opacity-40"
-            >
-              <Trash2 className="size-4" aria-hidden />
-            </button>
-          </span>
-        </div>
-
         {/* Ijrochi tugatgan — faqat shu paytda yuboruvchi qaror qiladi */}
         {menYuborganman && topshiriq.holat === 'tekshiruvda' && (
-          <div className="relative z-10 mt-2.5 grid grid-cols-2 gap-2">
+          <div className="mb-2.5 grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setQaror('qabul')}
@@ -253,6 +206,59 @@ export function TopshiriqKartasi({
             </button>
           </div>
         )}
+
+        {/* Chiziq ostidagi qism — suhbatga kirish (Telegram'dagi "Fikrlar" qatori) */}
+        <div className="border-t border-border-subtle pt-1.5">
+          <div className="relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl px-2 py-1 text-xs transition hover:bg-surface-muted sm:text-sm">
+            <Link
+              href={topshiriqYoli(topshiriq.id)}
+              aria-label={`${topshiriq.sarlavha} — ${t('tk.fikrMulohazalar')}`}
+              className="absolute inset-0 z-0 rounded-xl"
+            />
+            {sana && (
+              <span className={`flex items-center gap-1.5 ${kechikkan ? 'font-semibold text-danger' : 'text-text-muted'}`}>
+                <CalendarDays className="size-4" aria-hidden />
+                {sana}
+              </span>
+            )}
+            {topshiriq.takror && <Repeat className="size-4 text-text-faint" aria-label={t('tk.takrorlanadi')} />}
+  
+            <span className="ml-auto flex items-center gap-1">
+              <span
+                className={`flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold ${
+                  yangiXabar > 0 ? 'bg-danger text-white' : 'text-text-faint'
+                }`}
+                aria-label={t('tk.yangiXabarlar', { son: yangiXabar })}
+              >
+                <MessageCircle className="size-4" aria-hidden />
+                {yangiXabar > 0 && yangiXabar}
+              </span>
+              {menYuborganman && !yopiq && (
+                <button
+                  type="button"
+                  onClick={tahrirla}
+                  disabled={!onlayn}
+                  aria-label={t('tk.tahrirlash')}
+                  title={t('tk.tahrirlash')}
+                  className="relative z-10 flex size-8 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted disabled:opacity-40"
+                >
+                  <Pencil className="size-4" aria-hidden />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setOchirishOchiq(true)}
+                disabled={!onlayn}
+                aria-label={t('umumiy.ochirish')}
+                title={t('umumiy.ochirish')}
+                className="relative z-10 flex size-8 min-h-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-danger-soft hover:text-danger disabled:opacity-40"
+              >
+                <Trash2 className="size-4" aria-hidden />
+              </button>
+              <ChevronRight className="size-4 text-text-faint" aria-hidden />
+            </span>
+          </div>
+        </div>
       </div>
 
       {qaror && (

@@ -7,6 +7,7 @@ import {
   Mic,
   Paperclip,
   Send,
+  SmilePlus,
   Square,
   Trash2,
   X,
@@ -21,11 +22,12 @@ import {
   faylHavolasi,
   useIzohOchirish,
   useIzohQoshish,
+  useReaksiya,
 } from '@/lib/queries/topshiriq-jamoa'
 import { useOnlaynmi } from '@/lib/queries/topshiriqlar'
 import { toliqSana } from '@/lib/sana'
 import type { MatnKaliti } from '@/lib/i18n'
-import type { TopshiriqHodisasi, TopshiriqIzohi } from '@/types/vazifalar'
+import type { ReaksiyaTuri, TopshiriqHodisasi, TopshiriqIzohi } from '@/types/vazifalar'
 import { avatarRangi } from './holat'
 import { Avatar } from './karta'
 
@@ -48,6 +50,14 @@ export const PILL =
 
 /** O'zimning xabarim foni: brend yashilining och tusi (Telegram'dagidek) */
 const MENIKI_FON = 'color-mix(in srgb, var(--brand-accent) 20%, var(--surface))'
+
+/** To'rtta reaksiya — tartibi tanlov oynasida ham, xabar ostida ham shu */
+const REAKSIYALAR: { tur: ReaksiyaTuri; emoji: string; kalit: MatnKaliti }[] = [
+  { tur: 'zor', emoji: '👍', kalit: 'tk.reaksiya.zor' },
+  { tur: 'qarsak', emoji: '👏', kalit: 'tk.reaksiya.qarsak' },
+  { tur: 'xafa', emoji: '😢', kalit: 'tk.reaksiya.xafa' },
+  { tur: 'kelishuv', emoji: '🤝', kalit: 'tk.reaksiya.kelishuv' },
+]
 
 const HODISA: Record<string, MatnKaliti> = {
   yuborildi: 'tk.hodisa.yuborildi',
@@ -218,6 +228,33 @@ function XabarPufagi({
   const video = turi.startsWith('video/')
   const ovoz = turi.startsWith('audio/')
   const { data: havola } = useHavola(x.fayl_yoli)
+  const { id: menId } = useFoydalanuvchi()
+  const reaksiya = useReaksiya(x.topshiriq_id)
+  const [tanlov, setTanlov] = useState(false)
+  const pufak = useRef<HTMLDivElement>(null)
+
+  const meningReaksiyam = x.reaksiyalar?.find((r) => r.foydalanuvchi_id === menId)?.reaksiya ?? null
+  const sanoq = REAKSIYALAR.map((r) => ({
+    ...r,
+    son: (x.reaksiyalar ?? []).filter((y) => y.reaksiya === r.tur).length,
+  })).filter((r) => r.son > 0)
+
+  function bos(tur: ReaksiyaTuri) {
+    setTanlov(false)
+    if (!onlayn) return
+    // O'sha reaksiyani qayta bosish — olib tashlash (Telegram kabi)
+    reaksiya.mutate({ izohId: x.id, reaksiya: meningReaksiyam === tur ? null : tur })
+  }
+
+  // Tanlov oynasi tashqariga bosilganda yopiladi
+  useEffect(() => {
+    if (!tanlov) return
+    const yop = (e: PointerEvent) => {
+      if (!pufak.current?.contains(e.target as Node)) setTanlov(false)
+    }
+    document.addEventListener('pointerdown', yop)
+    return () => document.removeEventListener('pointerdown', yop)
+  }, [tanlov])
 
   // "Dum" faqat guruhdagi oxirgi pufakda — avatar tomonga qaragan burchak
   const burchak = oxirgi ? (meniki ? 'rounded-br-md' : 'rounded-bl-md') : ''
@@ -228,11 +265,48 @@ function XabarPufagi({
         <span className="w-8 shrink-0">{oxirgi && <Avatar ism={ism} kalit={kalit} katta />}</span>
       )}
       <div
-        className={`group min-w-0 max-w-full rounded-2xl px-3 py-1.5 text-text-strong shadow-sm sm:max-w-[80%] ${burchak} ${
+        ref={pufak}
+        // Xabarni bosish (yoki uzoq bosish) — reaksiya tanlovi; ichidagi
+        // havola, tugma va pleyerlar o'z ishini qiladi
+        onClick={(e) => {
+          if ((e.target as HTMLElement).closest('a,button,audio,video')) return
+          setTanlov((v) => !v)
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault()
+          setTanlov(true)
+        }}
+        className={`group relative min-w-0 max-w-full cursor-pointer rounded-2xl px-3 py-1.5 text-text-strong shadow-sm select-text sm:max-w-[80%] ${burchak} ${
           meniki ? '' : 'bg-surface'
         }`}
         style={meniki ? { backgroundColor: MENIKI_FON } : undefined}
       >
+        {tanlov && (
+          <div
+            role="menu"
+            aria-label={t('tk.reaksiyaQoshish')}
+            className={`absolute bottom-full z-20 mb-1.5 flex gap-0.5 rounded-full bg-surface p-1 shadow-float ${
+              meniki ? 'right-0' : 'left-0'
+            }`}
+          >
+            {REAKSIYALAR.map((r) => (
+              <button
+                key={r.tur}
+                type="button"
+                role="menuitem"
+                onClick={() => bos(r.tur)}
+                aria-label={t(r.kalit)}
+                title={t(r.kalit)}
+                className={`flex size-10 min-h-0 items-center justify-center rounded-full text-[1.375rem] transition hover:scale-125 hover:bg-surface-muted ${
+                  meningReaksiyam === r.tur ? 'bg-brand-soft' : ''
+                }`}
+              >
+                {r.emoji}
+              </button>
+            ))}
+          </div>
+        )}
+
         {!meniki && birinchi && (
           <p className="text-sm font-semibold" style={{ color: avatarRangi(kalit) }}>
             {ism}
@@ -278,6 +352,15 @@ function XabarPufagi({
             </p>
           )}
           <span className="flex shrink-0 items-center gap-1.5 pb-0.5 text-[11px] text-text-faint">
+            <button
+              type="button"
+              onClick={() => setTanlov((v) => !v)}
+              aria-label={t('tk.reaksiyaQoshish')}
+              title={t('tk.reaksiyaQoshish')}
+              className="hidden min-h-0 rounded p-0.5 opacity-0 transition group-hover:opacity-100 focus:opacity-100 md:block"
+            >
+              <SmilePlus className="size-3.5" aria-hidden />
+            </button>
             {meniki && (
               <button
                 type="button"
@@ -292,6 +375,31 @@ function XabarPufagi({
             {soatMatni(x.created_at)}
           </span>
         </div>
+
+        {/* Reaksiyalar — Telegram'dagidek xabar ostida, soni bilan */}
+        {sanoq.length > 0 && (
+          <div className="mt-1 mb-0.5 flex flex-wrap gap-1">
+            {sanoq.map((r) => {
+              const tanlangan = meningReaksiyam === r.tur
+              return (
+                <button
+                  key={r.tur}
+                  type="button"
+                  onClick={() => bos(r.tur)}
+                  disabled={!onlayn}
+                  aria-pressed={tanlangan}
+                  aria-label={`${t(r.kalit)}: ${r.son}`}
+                  className={`flex min-h-0 items-center gap-1 rounded-full py-0.5 pr-2 pl-1.5 text-sm font-semibold transition ${
+                    tanlangan ? 'bg-brand-primary text-white' : 'bg-brand-soft text-brand-onsoft hover:brightness-95'
+                  }`}
+                >
+                  <span className="text-base leading-none">{r.emoji}</span>
+                  {r.son}
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

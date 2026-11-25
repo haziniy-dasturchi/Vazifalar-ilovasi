@@ -68,6 +68,8 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
   const [tahrirOchiq, setTahrirOchiq] = useState(false)
   const [qaror, setQaror] = useState<Qaror | null>(null)
   const [blokOchiq, setBlokOchiq] = useState(false)
+  // "Bajarildi" tasodifan bosilib ketmasin — avval so'raymiz
+  const [bajardimOchiq, setBajardimOchiq] = useState(false)
 
   const topshiriq = [...(yuborilgan.data ?? []), ...(kelgan.data ?? [])].find((x) => x.id === id)
   const tafsilot = (Array.isArray(tafsilotlar) ? tafsilotlar : []).find((x) => x.topshiriq_id === id)
@@ -263,9 +265,7 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
                 <button
                   type="button"
                   disabled={!onlayn || topshirish.isPending}
-                  onClick={() =>
-                    amal(() => topshirish.mutateAsync({ id: topshiriq.id, izoh: '' }), t('tk.tekshiruvgaYuborildi'))
-                  }
+                  onClick={() => setBajardimOchiq(true)}
                   className="flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 text-sm font-semibold text-white transition hover:bg-brand-primary-hover disabled:opacity-50"
                 >
                   <CheckCheck className="size-5" aria-hidden />
@@ -328,6 +328,23 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
       {tahrirOchiq && <TopshiriqFormasi tahrir={topshiriq} yop={() => setTahrirOchiq(false)} />}
       {qaror && (
         <QarorOynasi topshiriqId={topshiriq.id} qaror={qaror} yop={() => setQaror(null)} />
+      )}
+      {bajardimOchiq && (
+        <Tasdiq
+          sarlavha={t('tk.bajardimSarlavha')}
+          matn={t('tk.bajardimMatn')}
+          tugmaMatni={t('tk.bajardimTugma')}
+          xavfli={false}
+          tasdiqla={async () => {
+            const ok = await amal(
+              () => topshirish.mutateAsync({ id: topshiriq.id, izoh: '' }),
+              t('tk.tekshiruvgaYuborildi')
+            )
+            if (ok) setBajardimOchiq(false)
+          }}
+          yop={() => setBajardimOchiq(false)}
+          bajarilmoqda={topshirish.isPending}
+        />
       )}
       {blokOchiq && (
         <Tasdiq

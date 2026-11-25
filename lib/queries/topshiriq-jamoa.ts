@@ -7,6 +7,7 @@ import type {
   Jamoa,
   JamoaAzosi,
   TopshiriqHodisasi,
+  ReaksiyaTuri,
   TopshiriqIzohi,
 } from '@/types/vazifalar'
 
@@ -42,6 +43,7 @@ type Natija<T = unknown> = PromiseLike<{
 type Sorov = {
   select: (q: string) => Sorov
   insert: (q: Record<string, unknown>) => Sorov
+  upsert: (q: Record<string, unknown>, o?: { onConflict?: string }) => Sorov
   delete: () => Sorov
   eq: (u: string, q: string) => Sorov
   order: (u: string, s: { ascending: boolean }) => Sorov
@@ -218,11 +220,17 @@ export function useTopshiriqIzohlari(topshiriqId: string) {
     // Suhbat — yangi izoh ikkinchi tomonda ham tez paydo bo'lsin
     refetchInterval: 5_000,
     queryFn: async (): Promise<TopshiriqIzohi[]> => {
-      const { data, error } = await xom(supabase)
-        .from('topshiriq_izohlari')
-        .select('*')
-        .eq('topshiriq_id', topshiriqId)
-        .order('created_at', { ascending: true })
+      const sorov = (ustunlar: string) =>
+        xom(supabase)
+          .from('topshiriq_izohlari')
+          .select(ustunlar)
+          .eq('topshiriq_id', topshiriqId)
+          .order('created_at', { ascending: true })
+      // Reaksiyalar bilan birga. Reaksiya jadvali hali yo'q bazada
+      // (eski nusxa) so'rov xato beradi — unda reaksiyasiz o'qiymiz,
+      // suhbatning o'zi yo'qolib qolmasin.
+      let { data, error } = await sorov('*, reaksiyalar:topshiriq_reaksiyalari(foydalanuvchi_id, reaksiya)')
+      if (error) ({ data, error } = await sorov('*'))
       if (error) return []
       return (data ?? []) as TopshiriqIzohi[]
     },
@@ -335,5 +343,49 @@ export function useTakrorniToxtatish() {
       rpc(supabase, 'takrorni_toxtatish', { p_id: id }),
     onSettled: () =>
       qc.invalidateQueries({ queryKey: ['topshiriqlar'] }),
+  })
+}
+
+/**
+ * Reaksiya qo'yish / almashtirish / olib tashlash (Telegram kabi):
+ * o'sha reaksiyani qayta bosish — olib tashlaydi. Ekranda darhol
+ * o'zgaradi, server javobini kutmaydi.
+ */
+export function useReaksiya(topshiriqId: string) {
+  const supabase = useSupabase()
+  const { id: menId } = useFoydalanuvchi()
+  const qc = useQueryClient()
+  const kalit = k.izohlar(topshiriqId)
+
+  return useMutation({
+    mutationFn: async ({ izohId, reaksiya }: { izohId: string; reaksiya: ReaksiyaTuri | null }) => {
+      const jadval = xom(supabase).from('topshiriq_reaksiyalari')
+      const { error } = reaksiya
+        ? await jadval.upsert(
+            { izoh_id: izohId, foydalanuvchi_id: menId, reaksiya },
+            { onConflict: 'izoh_id,foydalanuvchi_id' }
+          )
+        : await jadval.delete().eq('izoh_id', izohId).eq('foydalanuvchi_id', menId)
+      if (error) throw new Error(error.message)
+    },
+    onMutate: async ({ izohId, reaksiya }) => {
+      await qc.cancelQueries({ queryKey: kalit })
+      const oldingi = qc.getQueryData<TopshiriqIzohi[]>(kalit)
+      qc.setQueryData<TopshiriqIzohi[]>(kalit, (eski) =>
+        eski?.map((x) => {
+          if (x.id !== izohId) return x
+          const boshqalar = (x.reaksiyalar ?? []).filter((r) => r.foydalanuvchi_id !== menId)
+          return {
+            ...x,
+            reaksiyalar: reaksiya ? [...boshqalar, { foydalanuvchi_id: menId, reaksiya }] : boshqalar,
+          }
+        })
+      )
+      return { oldingi }
+    },
+    onError: (_x, _v, ctx) => {
+      if (ctx?.oldingi) qc.setQueryData(kalit, ctx.oldingi)
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: kalit }),
   })
 }

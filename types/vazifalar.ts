@@ -192,7 +192,13 @@ export type TopshiriqIzohi = {
   fayl_hajmi: number | null
   fayl_turi: string | null
   created_at: string
+  /** Reaksiyalar (migratsiya qo'llanmagan bazada bo'lmaydi) */
+  reaksiyalar?: IzohReaksiyasi[]
 }
+
+/** Izohga reaksiya: zo'r, qarsak, xafa, kelishuv */
+export type ReaksiyaTuri = 'zor' | 'qarsak' | 'xafa' | 'kelishuv'
+export type IzohReaksiyasi = { foydalanuvchi_id: string; reaksiya: ReaksiyaTuri }
 
 export type TopshiriqHodisasi = {
   id: number
