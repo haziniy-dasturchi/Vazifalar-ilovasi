@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { rruleEskiga } from '@/lib/takrorlanish'
 import { kalit } from './keys'
 import type { Folder, Section, Task, Theme } from '@/types/vazifalar'
+import type { Json } from '@/types/database'
 
 /**
  * Offline yozishning yuragi.
@@ -154,6 +155,8 @@ export type ProfilOzgarishi = {
   timezone?: string
   sidebar_order?: string[]
   lang?: string
+  /** Tanishuv holati — shakli `lib/tanishuv.ts` da */
+  onboarding?: Json
 }
 
 export type HolatHarakati = 'boshlash' | 'rejaga' | 'bajarish' | 'qaytarish'

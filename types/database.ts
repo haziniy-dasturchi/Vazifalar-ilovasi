@@ -135,6 +135,7 @@ export type Database = {
           full_name: string | null
           id: string
           lang: string
+          onboarding: Json
           pomodoro_cycles_before_long: number
           pomodoro_focus_min: number
           pomodoro_long_break_min: number
@@ -153,6 +154,7 @@ export type Database = {
           full_name?: string | null
           id: string
           lang?: string
+          onboarding?: Json
           pomodoro_cycles_before_long?: number
           pomodoro_focus_min?: number
           pomodoro_long_break_min?: number
@@ -171,6 +173,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           lang?: string
+          onboarding?: Json
           pomodoro_cycles_before_long?: number
           pomodoro_focus_min?: number
           pomodoro_long_break_min?: number

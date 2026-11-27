@@ -266,17 +266,29 @@ export function usePapkaniOldindanYuklash() {
 // Kesh yordamchilari — optimistik yangilash uchun
 // =============================================================
 
+/**
+ * `vazifalar` prefiksi ostidagi kesh ro'yxat ekanini tekshiradi.
+ *
+ * Nega kerak: prefiks ostiga ro'yxat bo'lmagan qiymat tushib qolsa
+ * (masalan, xulosaviy obyekt), `.map()` xato berib, BUTUN mutatsiya
+ * yiqilardi — foydalanuvchi "o'zgarish saqlanmadi" ni ko'rardi,
+ * garchi server hech narsa demagan bo'lsa ham.
+ */
+function royxatmi(qiymat: unknown): qiymat is Task[] {
+  return Array.isArray(qiymat)
+}
+
 /** Keshdagi barcha vazifa ro'yxatlarida bitta vazifani yangilash */
 function keshdaYangila(qc: QueryClient, id: string, ozgarish: Partial<Task>) {
   qc.setQueriesData<Task[]>({ queryKey: kalit.vazifalar }, (eski) =>
-    eski?.map((v) => (v.id === id ? { ...v, ...ozgarish } : v))
+    royxatmi(eski) ? eski.map((v) => (v.id === id ? { ...v, ...ozgarish } : v)) : eski
   )
 }
 
 /** Keshdagi barcha ro'yxatlardan vazifani (va uning subtasklarini) olib tashlash */
 function keshdanOlib(qc: QueryClient, id: string) {
   qc.setQueriesData<Task[]>({ queryKey: kalit.vazifalar }, (eski) =>
-    eski?.filter((v) => v.id !== id && v.parent_id !== id)
+    royxatmi(eski) ? eski.filter((v) => v.id !== id && v.parent_id !== id) : eski
   )
 }
 
@@ -344,7 +356,7 @@ function royxatdaKochir(
   tegishlimi: boolean
 ) {
   qc.setQueryData<Task[]>(queryKey as unknown as readonly unknown[], (eski) => {
-    if (!eski) return eski
+    if (!royxatmi(eski)) return eski
     const bor = eski.some((v) => v.id === vazifa.id)
     if (tegishlimi) {
       return bor
@@ -358,7 +370,7 @@ function royxatdaKochir(
 /** Keshdagi istalgan ro'yxatdan vazifaning TO'LIQ (oxirgi ma'lum) nusxasini topadi */
 function joriyVazifa(qc: QueryClient, id: string): Task | undefined {
   for (const [, data] of qc.getQueriesData<Task[]>({ queryKey: kalit.vazifalar })) {
-    const topilgan = data?.find((v) => v.id === id)
+    const topilgan = royxatmi(data) ? data.find((v) => v.id === id) : undefined
     if (topilgan) return topilgan
   }
   return undefined
@@ -606,7 +618,7 @@ export function useVazifaHolati() {
 
       if (harakat === 'bajarish' && subtasklarBilan && !keyingiSana) {
         qc.setQueriesData<Task[]>({ queryKey: kalit.vazifalar }, (eski) =>
-          eski?.map((v) =>
+          !royxatmi(eski) ? eski : eski.map((v) =>
             v.parent_id === id && v.status !== 'done'
               ? { ...v, status: 'done', progress: 100, completed_at: hozir }
               : v

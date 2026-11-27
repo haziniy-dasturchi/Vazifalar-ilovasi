@@ -22,6 +22,9 @@ import {
   Sun,
 } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
+import { useT } from '@/components/app/til-provayder'
+import { useTanishuv } from '@/components/tanishuv/tanishuv-provayder'
+import { panelFaol } from '@/lib/tanishuv'
 
 /**
  * To'liq yo'riqnoma.
@@ -448,6 +451,8 @@ export function YoriqnomaMazmuni() {
 
   return (
     <>
+      <TanishuvKartasi />
+
       <p className="mb-6 rounded-2xl bg-brand-soft px-5 py-4 text-sm leading-relaxed text-text-strong">
         Samara’da ish shu tartibda yuradi:{' '}
         <strong>vazifa yozasiz → sana va muhimligini belgilaysiz → uni
@@ -545,5 +550,57 @@ export function YoriqnomaKorinishi() {
     >
       <YoriqnomaMazmuni />
     </Sahifa>
+  )
+}
+
+/**
+ * Tanishuvni qayta boshlash yoki to'xtagan joyidan davom ettirish.
+ * Eski foydalanuvchilarga kutib olish chiqmaydi — ular shu yerdan
+ * istagan payt ko'rib chiqa oladi.
+ */
+function TanishuvKartasi() {
+  const t = useT()
+  const tanishuv = useTanishuv()
+  if (!tanishuv) return null
+  const { holat, saqla, qaytaBoshlash } = tanishuv
+  const davomEtsaBoladi = Boolean(holat?.papkaId && !holat.tugadi && holat.yopilgan)
+
+  return (
+    <div className="mb-6 flex flex-col gap-4 rounded-2xl border-2 border-amber-300/60 bg-amber-400/10 p-5 sm:flex-row sm:items-center">
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-amber-400 text-2xl" aria-hidden>
+        🎓
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold text-text-strong">{t('tanishuv.yoriqnoma.s')}</p>
+        <p className="mt-0.5 text-sm leading-relaxed text-text-muted">{t('tanishuv.yoriqnoma.m')}</p>
+      </div>
+      <div className="flex shrink-0 flex-wrap gap-2">
+        {davomEtsaBoladi && (
+          <button
+            type="button"
+            onClick={() => saqla({ yopilgan: false })}
+            className="cursor-pointer rounded-xl bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-primary-hover"
+          >
+            {t('tanishuv.yoriqnoma.davom')}
+          </button>
+        )}
+        {!panelFaol(holat) && (
+          <button
+            type="button"
+            onClick={() => {
+              qaytaBoshlash()
+              window.scrollTo({ top: 0 })
+            }}
+            className={`cursor-pointer rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+              davomEtsaBoladi
+                ? 'bg-surface text-text-strong hover:bg-surface-muted'
+                : 'bg-brand-primary text-white hover:bg-brand-primary-hover'
+            }`}
+          >
+            {t('tanishuv.yoriqnoma.boshla')}
+          </button>
+        )}
+      </div>
+    </div>
   )
 }

@@ -11,6 +11,7 @@ import { TilProvayder, useT } from './til-provayder'
 import { PwaOrnatish } from './pwa-ornatish'
 import { BildirishnomaEslatmasi } from './bildirishnoma-eslatmasi'
 import { VazifaOynasi } from '@/components/vazifa/vazifa-oynasi'
+import { TanishuvProvayder } from '@/components/tanishuv/tanishuv-provayder'
 import { useFoydalanuvchiSorovi, useProfil } from '@/lib/queries/profil'
 import { useAsosiyRoyxatlarniOldindanYuklash } from '@/lib/queries/vazifalar'
 import { MAVZU_KALITI, mavzuniOrnat } from '@/lib/mavzu'
@@ -58,6 +59,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <FoydalanuvchiProvider qiymat={foydalanuvchi}>
       <TilProvayder profilTili={profil?.lang}>
+        <TanishuvProvayder>
         <div className="flex min-h-dvh">
           {/* YonPanel `useSearchParams` ishlatadi (appdagi papka manzili) */}
           <Suspense fallback={null}>
@@ -80,6 +82,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <BildirishnomaEslatmasi />
 
         {qoshishOchiq && <VazifaOynasi yop={() => setQoshishOchiq(false)} />}
+        </TanishuvProvayder>
       </TilProvayder>
     </FoydalanuvchiProvider>
   )

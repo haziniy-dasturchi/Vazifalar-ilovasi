@@ -346,3 +346,83 @@
     }
   }
 }
+
+/* -------------------------------------------------------------
+   Tanishuv animatsiyalari (components/tanishuv)
+   Hammasi takrorlanadi — odam ekranga qarab turgan paytda namoyish
+   qayta-qayta ko'rsatiladi. "Harakatni kamaytirish" yoqilganda
+   yuqoridagi umumiy qoida ularni to'xtatadi.
+   ------------------------------------------------------------- */
+@keyframes tanishuv-qator {
+  0%, 8% { opacity: 0; transform: translateY(10px) scale(0.97); }
+  16%, 86% { opacity: 1; transform: translateY(0) scale(1); }
+  96%, 100% { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes tanishuv-yozish {
+  0%, 18% { width: 0; }
+  40%, 86% { width: 100%; }
+  100% { width: 100%; }
+}
+@keyframes tanishuv-tugma {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgb(16 185 129 / 0.5); }
+  50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgb(16 185 129 / 0); }
+}
+@keyframes tanishuv-doira {
+  0%, 30% { background: transparent; transform: scale(1); }
+  36% { transform: scale(0.8); }
+  42%, 90% { background: var(--brand-primary); border-color: var(--brand-primary); transform: scale(1); }
+  100% { background: transparent; }
+}
+@keyframes tanishuv-belgi {
+  0%, 38% { opacity: 0; transform: scale(0.3); }
+  46%, 90% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; }
+}
+@keyframes tanishuv-chiziq {
+  0%, 44% { width: 0; }
+  56%, 90% { width: 100%; }
+  100% { width: 0; }
+}
+@keyframes tanishuv-ball {
+  0%, 46% { opacity: 0; transform: translateY(6px); }
+  56% { opacity: 1; transform: translateY(-6px); }
+  80% { opacity: 1; transform: translateY(-18px); }
+  92%, 100% { opacity: 0; transform: translateY(-26px); }
+}
+@keyframes tanishuv-uchqun {
+  0%, 44% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  52% { opacity: 1; }
+  78%, 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1); }
+}
+@keyframes tanishuv-qongiroq {
+  0%, 40%, 100% { transform: rotate(0); }
+  44% { transform: rotate(16deg); }
+  50% { transform: rotate(-14deg); }
+  56% { transform: rotate(10deg); }
+  62% { transform: rotate(-6deg); }
+  68% { transform: rotate(0); }
+}
+@keyframes tanishuv-xabar {
+  0%, 30% { opacity: 0; transform: translateY(-24px) scale(0.96); }
+  40%, 88% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-12px); }
+}
+@keyframes tanishuv-soat {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
+}
+@keyframes tanishuv-pop {
+  0% { opacity: 0; transform: translateY(16px) scale(0.92); }
+  60% { opacity: 1; transform: translateY(-2px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tanishuv-konfetti {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)); }
+}
+@keyframes tanishuv-puls {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(245 158 11 / 0.45); }
+  50% { box-shadow: 0 0 0 8px rgb(245 158 11 / 0); }
+}
+.tanishuv-pop { animation: tanishuv-pop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.tanishuv-puls { animation: tanishuv-puls 2s ease-in-out infinite; }
