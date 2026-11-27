@@ -1,7 +1,7 @@
 'use client'
 
 import type { QueryClient } from '@tanstack/react-query'
-import { createClient } from '@/lib/supabase/client'
+import { createClient, faolSessiya } from '@/lib/supabase/client'
 import { rruleEskiga } from '@/lib/takrorlanish'
 import { kalit } from './keys'
 import type { Folder, Section, Task, Theme } from '@/types/vazifalar'
@@ -43,8 +43,10 @@ export const MUTATSIYA = {
 
 /** Sessiyadagi foydalanuvchi id — tarmoqsiz, saqlangan sessiyadan */
 async function foydalanuvchiId(): Promise<string> {
-  const { data } = await createClient().auth.getSession()
-  const id = data.session?.user?.id
+  // getSession emas: xotirada sessiya yo'qolgan bo'lsa (token yangilanishi
+  // yiqilgan), faolSessiya uni telefondagi refresh token bilan tiklaydi
+  const sessiya = await faolSessiya()
+  const id = sessiya?.user?.id
   if (!id) throw new Error('Sessiya topilmadi')
   return id
 }

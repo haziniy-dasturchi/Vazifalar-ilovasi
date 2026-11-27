@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSupabase } from '@/lib/supabase/use-supabase'
+import { faolSessiya } from '@/lib/supabase/client'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { kalit } from './keys'
 import { onlineManager } from '@tanstack/react-query'
@@ -189,6 +190,9 @@ export function useTopshiriqYuborish() {
 
   return useMutation({
     mutationFn: async (yangi: YangiTopshiriq) => {
+      // Sessiya xotirada yo'qolgan bo'lsa so'rov anonim ketib, RLS uni
+      // "bu odamga yubora olmaysiz" deb rad etardi — avval tiklaymiz
+      if (!(await faolSessiya())) throw new Error('sessiya')
       const kimlarga = [
         ...new Set(
           (yangi.qabul_qiluvchilar?.length

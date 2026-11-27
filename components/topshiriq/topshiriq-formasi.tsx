@@ -96,9 +96,15 @@ export function TopshiriqFormasi({
     } catch (xato) {
       const xabar = xato instanceof Error ? xato.message : ''
       korsat({
-        matn: xabar.includes('row-level security')
-          ? t('topshiriq.taqiqlangan')
-          : t('topshiriq.yuborilmadi'),
+        // "Bu odamga yubora olmaysiz" faqat topshiriqlar jadvali rad
+        // etganda; sessiya yo'qolgan bo'lsa boshqa sabab — odamni
+        // adashtirmaslik uchun aniq aytamiz
+        matn:
+          xabar === 'sessiya'
+            ? t('umumiy.sessiyaYoq')
+            : xabar.includes('row-level security') && xabar.includes('topshiriqlar')
+              ? t('topshiriq.taqiqlangan')
+              : `${t('topshiriq.yuborilmadi')}${xabar ? ` (${xabar})` : ''}`,
         tone: 'xato',
       })
     }

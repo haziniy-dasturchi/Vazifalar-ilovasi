@@ -92,6 +92,7 @@ export const uz = {
   'umumiy.xatoMatn': 'Ma’lumotni yuklab bo‘lmadi. Internetni tekshirib ko‘ring.',
   'umumiy.bajarilmadi': 'Bajarib bo‘lmadi. Qayta urinib ko‘ring.',
   'umumiy.saqlanmadi': 'Saqlab bo‘lmadi. Qayta urinib ko‘ring.',
+  'umumiy.sessiyaYoq': 'Aloqa uzilib qoldi. Internetni tekshirib, qayta urinib ko‘ring.',
 
   // ---------- Navigatsiya ----------
   'nav.jarayonda': 'Jarayonda',
@@ -771,7 +772,7 @@ export const uz = {
   'tanishuv.maslahat.topshiriq.s': 'Boshqalarga topshiriq bering',
   'tanishuv.maslahat.topshiriq.m': 'Hamkasb yoki oila a’zosiga ish yuboring va bajarilishini shu yerda kuzating.',
   'tanishuv.yoriqnoma.s': 'Ilovani o‘ynab o‘rganing',
-  'tanishuv.yoriqnoma.m': '7 ta kichik darsni o‘zingiz bajarib ko‘rasiz — 3 daqiqa vaqt oladi.',
+  'tanishuv.yoriqnoma.m': '{n} ta kichik darsni o‘zingiz bajarib ko‘rasiz — ilova sezadi va maqtaydi.',
   'tanishuv.yoriqnoma.davom': 'Davom ettirish',
   'tanishuv.yoriqnoma.boshla': 'Tanishuvni boshlash',
   'tanishuv.bob1': '1-bob · Asoslar',

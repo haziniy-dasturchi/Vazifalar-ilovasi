@@ -92,7 +92,9 @@ export function OfflineBelgisi() {
   }
 
   return (
-    <div className="sticky top-0 z-50">
+    // Appda holat paneli (soat, batareya) WebView ustida turadi —
+    // yozuv uning ostiga kirib, o'qib bo'lmay qolardi
+    <div className="sticky top-0 z-50 bg-surface pt-[env(safe-area-inset-top)]">
       {!onlayn && (
         <Chiziq ikonka={CloudOff}>
           {ilovaNativemi()
@@ -162,7 +164,11 @@ function Chiziq({
       }`}
     >
       <Ikonka className={`size-3.5 shrink-0 ${aylanmoqda ? 'animate-spin' : ''}`} aria-hidden />
-      <span className="truncate">{children}</span>
+      {/* Xato to'liq o'qilishi va "Batafsil" tugmasi telefonda ham
+          ko'rinishi uchun qatorga sig'masa ko'chadi */}
+      <span className={xato ? 'flex flex-wrap items-center justify-center gap-y-1 text-center' : 'truncate'}>
+        {children}
+      </span>
     </div>
   )
 }

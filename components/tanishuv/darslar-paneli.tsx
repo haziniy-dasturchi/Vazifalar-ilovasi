@@ -185,11 +185,27 @@ export function DarslarPaneli({
           tavsif={t('tanishuv.panel.tavsif')}
           yop={() => setOchiq(false)}
         >
-          <div className="mb-4 h-2.5 overflow-hidden rounded-full bg-surface-sunken">
-            <div
-              className="h-full rounded-full bg-amber-400 transition-all duration-500"
-              style={{ width: `${(soni / DARSLAR.length) * 100}%` }}
-            />
+          {/*
+            Progress chizig'i ro'yxat aylantirilganda ham tepada qotib
+            turadi: "yana nechta qoldi" doim ko'z oldida bo'lsa, odam
+            boshlagan ishini oxiriga yetkazishga ko'proq intiladi
+            (Zeigarnik effekti). Pastga surilib yo'qolsa, bu ta'sir yo'qoladi.
+          */}
+          <div className="sticky top-0 z-10 -mx-6 -mt-3 mb-3 bg-surface px-6 pt-3 pb-3 shadow-[0_8px_8px_-8px_rgb(0_0_0/0.12)]">
+            <div className="mb-1.5 flex items-center justify-between text-xs font-semibold">
+              <span className="text-amber-600">
+                {t('tanishuv.panel.qadam', { n: Math.min(soni + 1, DARSLAR.length), jami: DARSLAR.length })}
+              </span>
+              <span className="text-text-faint">
+                {soni}/{DARSLAR.length}
+              </span>
+            </div>
+            <div className="h-2.5 overflow-hidden rounded-full bg-surface-sunken">
+              <div
+                className="h-full rounded-full bg-amber-400 transition-all duration-500"
+                style={{ width: `${(soni / DARSLAR.length) * 100}%` }}
+              />
+            </div>
           </div>
           <ol className="space-y-2">
             {DARSLAR.map((d, i) => {
@@ -242,7 +258,11 @@ export function DarslarPaneli({
                       <button
                         type="button"
                         onClick={() => harakat(d)}
-                        disabled={papkaYarat.isPending}
+                        // Faqat papka yaratish kutilayotganda o'chadi. Oldin
+                        // HAMMA tugma o'chardi: internetsiz papka yaratish
+                        // navbatda "kutib" turadi va boshqa darslarga
+                        // o'tib bo'lmay qolardi
+                        disabled={d === 'papka' && papkaYarat.isPending}
                         className="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-xl bg-brand-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary-hover active:scale-95 disabled:opacity-60"
                       >
                         {d === 'papka'

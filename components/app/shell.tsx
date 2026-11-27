@@ -17,6 +17,7 @@ import { useAsosiyRoyxatlarniOldindanYuklash } from '@/lib/queries/vazifalar'
 import { MAVZU_KALITI, mavzuniOrnat } from '@/lib/mavzu'
 import type { Theme } from '@/types/vazifalar'
 import { ilovaNativemi } from '@/lib/platform'
+import { faolSessiya } from '@/lib/supabase/client'
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const [qoshishOchiq, setQoshishOchiq] = useState(false)
@@ -47,6 +48,25 @@ export function Shell({ children }: { children: React.ReactNode }) {
     }
     mavzuniOrnat(saqlangan)
   }, [profil?.theme])
+
+  /*
+    Ilova qayta ochilganda yoki internet qaytganda sessiyani tekshiramiz.
+    Token fonda yangilanmay qolgan bo'lsa (telefon uxlab qolgan, aloqa
+    uzilgan), mijoz sessiyasiz qolib, barcha so'rovlar anonim ketardi.
+  */
+  useEffect(() => {
+    const tekshir = () => {
+      if (document.visibilityState === 'visible' && navigator.onLine) {
+        void faolSessiya().catch(() => {})
+      }
+    }
+    document.addEventListener('visibilitychange', tekshir)
+    window.addEventListener('online', tekshir)
+    return () => {
+      document.removeEventListener('visibilitychange', tekshir)
+      window.removeEventListener('online', tekshir)
+    }
+  }, [])
 
   // Boshqa bo'limlarni fonda oldindan yuklab qo'yish — shunda ularga
   // o'tilganda ma'lumot allaqachon keshda tayyor turadi.

@@ -84,6 +84,7 @@ export const ru: Record<MatnKaliti, string> = {
   'umumiy.xatoMatn': 'Не удалось загрузить данные. Проверьте подключение.',
   'umumiy.bajarilmadi': 'Не получилось. Попробуйте ещё раз.',
   'umumiy.saqlanmadi': 'Не удалось сохранить. Попробуйте ещё раз.',
+  'umumiy.sessiyaYoq': 'Соединение прервалось. Проверьте интернет и попробуйте ещё раз.',
 
   // ---------- Навигация ----------
   'nav.jarayonda': 'В работе',
@@ -755,7 +756,7 @@ export const ru: Record<MatnKaliti, string> = {
   'tanishuv.maslahat.topshiriq.s': 'Давайте поручения другим',
   'tanishuv.maslahat.topshiriq.m': 'Отправьте задачу коллеге или близким и следите за выполнением здесь.',
   'tanishuv.yoriqnoma.s': 'Изучите приложение играя',
-  'tanishuv.yoriqnoma.m': '7 коротких уроков, которые вы выполните сами — займёт 3 минуты.',
+  'tanishuv.yoriqnoma.m': '{n} коротких уроков, которые вы выполните сами — приложение заметит и похвалит.',
   'tanishuv.yoriqnoma.davom': 'Продолжить',
   'tanishuv.yoriqnoma.boshla': 'Начать знакомство',
   'tanishuv.bob1': 'Глава 1 · Основы',

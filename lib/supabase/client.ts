@@ -3,6 +3,7 @@
 import { createBrowserClient } from '@supabase/ssr'
 import {
   createClient as createSupabaseClient,
+  type Session,
   type User,
 } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
@@ -61,6 +62,68 @@ export async function saqlanganSessiyaFoydalanuvchisi(): Promise<User | null> {
     return s.refresh_token && s.user ? s.user : null
   } catch {
     return null
+  }
+}
+
+/**
+ * Yozishdan oldin: amaldagi sessiya, kerak bo'lsa qayta tiklangan.
+ *
+ * Muammo (telefonda kuzatilgan): token muddati tugagan paytda internet
+ * beqaror bo'lsa, avtomatik yangilash yiqiladi va mijoz XOTIRADA
+ * sessiyasiz qoladi — garchi refresh token telefonda butun bo'lsa ham.
+ * Interfeys foydalanuvchini saqlangan ma'lumotdan ko'rsataveradi, lekin
+ * so'rovlar anonim ketadi: yozish RLS'dan o'tmaydi ("Bu odamga
+ * topshiriq yubora olmaysiz"), o'qish bo'sh ro'yxat qaytaradi, chiqish
+ * esa "sessiya yo'q" deb yiqiladi. Shu yerda sessiya qayta tiklanadi.
+ */
+export async function faolSessiya(): Promise<Session | null> {
+  const sb = createClient()
+  const { data } = await sb.auth.getSession()
+  if (data.session) return data.session
+
+  let refreshToken: string | undefined
+  if (ilovaNativemi()) {
+    try {
+      const xom = await nativeSaqlagich.getItem(sessiyaKaliti())
+      refreshToken = xom ? (JSON.parse(xom) as { refresh_token?: string }).refresh_token : undefined
+    } catch {
+      refreshToken = undefined
+    }
+  }
+  const { data: yangi } = refreshToken
+    ? await sb.auth.refreshSession({ refresh_token: refreshToken })
+    : await sb.auth.refreshSession()
+  return yangi.session ?? null
+}
+
+/**
+ * Sessiyani shu qurilmada majburan o'chiradi — serverga murojaat qilmay.
+ *
+ * Nega kerak: `signOut()` avval serverga "chiqdim" deydi. Internet sust
+ * bo'lsa yoki token yangilanmay qolsa, u xato qaytaradi va sessiyani
+ * qurilmada O'CHIRMAY qoldiradi — odam umuman chiqa olmasdi ("Chiqib
+ * bo'lmadi"). Chiqish esa odamning qurilmasidagi qaror: server bilan
+ * kelishuvsiz ham bajarilishi shart. Refresh token serverda o'z
+ * muddatida eskiradi.
+ */
+export async function sessiyaniQurilmadaTozala(): Promise<void> {
+  const kalit = sessiyaKaliti()
+  if (ilovaNativemi()) {
+    await nativeSaqlagich.removeItem(kalit)
+    await nativeSaqlagich.removeItem(`${kalit}-code-verifier`)
+    return
+  }
+  // Veb: sessiya kukida (katta bo'lsa `.0`, `.1` bo'laklarga bo'linadi)
+  for (const qism of document.cookie.split(';')) {
+    const nom = qism.split('=')[0]?.trim()
+    if (nom && nom.startsWith(kalit)) {
+      document.cookie = `${nom}=; Max-Age=0; path=/`
+    }
+  }
+  try {
+    window.localStorage.removeItem(kalit)
+  } catch {
+    // Saqlagichga kirib bo'lmasa — kuki baribir o'chdi
   }
 }
 

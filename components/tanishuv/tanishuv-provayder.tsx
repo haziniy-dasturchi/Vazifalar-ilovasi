@@ -156,10 +156,15 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
   // Mashq papkasini yaratish
   // ---------------------------------------------------------------
   const [yaratilmoqda, setYaratilmoqda] = useState(false)
+  // Bir vaqtda faqat bitta yaratish: aks holda ikki papka paydo bo'lardi
+  const yaratishQulfi = useRef(false)
 
   const mashqPapkasiniYarat = useCallback(
-    async (maqsad: Maqsad | undefined) => {
-      setYaratilmoqda(true)
+    async (maqsad: Maqsad | undefined, yonaltir = true) => {
+      if (yaratishQulfi.current) return
+      yaratishQulfi.current = true
+      // Fonda qayta urinishda ekran to'silmaydi
+      if (yonaltir) setYaratilmoqda(true)
       const matnlar = mashqMatnlari(til)
       try {
         /*
@@ -244,16 +249,39 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
           qc.invalidateQueries({ queryKey: kalit.papkalar }),
           qc.invalidateQueries({ queryKey: kalit.vazifalar }),
         ])
-        router.push(papkaYoli(papka.id))
+        if (yonaltir) router.push(papkaYoli(papka.id))
       } catch {
         // Internet yo'q yoki server xatosi — tanishuv papkasiz qoladi.
         // Odam uni Yo'riqnoma sahifasidan qayta boshlay oladi.
       } finally {
+        yaratishQulfi.current = false
         setYaratilmoqda(false)
       }
     },
     [foydalanuvchi.id, qc, router, saqla, supabase, til]
   )
+
+  /*
+    Kutib olish internetsiz tugatilgan bo'lsa, mashq papkasi yaratilmay
+    qolgan (u serverda yaratiladi) — darslar paneli ham chiqmasdi.
+    Aloqa paydo bo'lishi bilan papka fonda yaratiladi va panel o'zi
+    ochiladi. Bir sessiyada bir marta urinadi.
+  */
+  const qaytaUrindi = useRef(false)
+  useEffect(() => {
+    const kerak =
+      holat?.kutibOlindi && holat.maqsad && !holat.papkaId && !holat.yopilgan && !holat.eski
+    if (!kerak) return
+    const urin = () => {
+      // Asosiy yaratish hozir ketayotgan bo'lsa — urinishni sarflamaymiz
+      if (qaytaUrindi.current || yaratishQulfi.current || !navigator.onLine) return
+      qaytaUrindi.current = true
+      void mashqPapkasiniYarat(holat.maqsad, false)
+    }
+    urin()
+    window.addEventListener('online', urin)
+    return () => window.removeEventListener('online', urin)
+  }, [holat, mashqPapkasiniYarat])
 
   const kutibOlishniTugat = useCallback(
     (natija: KutibOlishNatijasi | null) => {

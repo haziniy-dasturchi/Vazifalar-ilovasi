@@ -12,11 +12,9 @@ import {
   Download,
   FolderKanban,
   FolderOpen,
-  Gauge,
   Keyboard,
   Moon,
   Play,
-  Repeat2,
   Send,
   Settings,
   Sun,
@@ -24,7 +22,7 @@ import {
 import { Sahifa } from '@/components/app/sahifa'
 import { useT } from '@/components/app/til-provayder'
 import { useTanishuv } from '@/components/tanishuv/tanishuv-provayder'
-import { panelFaol, tabrikKorilgan } from '@/lib/tanishuv'
+import { DARSLAR, panelFaol, tabrikKorilgan } from '@/lib/tanishuv'
 
 /**
  * To'liq yo'riqnoma.
@@ -90,321 +88,167 @@ type Bolim = {
   tafsilot: { sarlavha: string; matn: string }[]
 }
 
+/*
+  Matn qoidasi: har bo'lim — bir qatorlik "nima bu" va 1–4 ta qisqa
+  band. Faqat odam bilishi KERAK bo'lgan narsa; qolganini ilovaning
+  o'zi (tanishuv darslari, maslahatlar) ko'rsatib beradi.
+*/
 const BOLIMLAR: Bolim[] = [
   {
     kalit: 'jarayonda',
     ikonka: Play,
     sarlavha: 'Jarayonda',
-    qisqa: 'Hozir ustida ishlayotgan ishingiz. Ilova shu sahifadan ochiladi.',
+    qisqa: 'Hozir qilayotgan ishingiz.',
     rasm: '/yoriqnoma/jarayonda.png',
-    rasmIzoh:
-      'Boshlangan ishlar sariq chiziq bilan ajralib turadi.',
+    rasmIzoh: 'Boshlangan ishlar sariq chiziq bilan ajralib turadi.',
     tafsilot: [
-      {
-        sarlavha: 'Nima uchun kerak',
-        matn: 'Bir vaqtda o‘nta ishni o‘ylash o‘rniga bittasiga jamlanish uchun. Boshlangan vazifa shu yerda alohida turadi — “nima qilishim kerak?” degan savol bir bosishda hal bo‘ladi.',
-      },
-      {
-        sarlavha: 'Qanday ishlatiladi',
-        matn: 'Hech narsa boshlanmagan bo‘lsa, shu sahifaning o‘zida bugungi ishlar ro‘yxati chiqadi. Istaganingizning yonidagi ▶ tugmasini bosing — u “jarayonda” holatiga o‘tadi.',
-      },
-      {
-        sarlavha: 'Maslahat',
-        matn: 'Bir vaqtda bittadan ortiq ishni boshlash mumkin, lekin tavsiya etilmaydi: diqqat bo‘linganda ikkala ish ham sekinlashadi.',
-      },
+      { sarlavha: 'Qanday', matn: 'Vazifadagi ▶ ni bosing — u shu yerga o‘tadi. Tugatgach doirachani bosing.' },
+      { sarlavha: 'Maslahat', matn: 'Bir vaqtda bitta ish — tezroq tugaydi.' },
     ],
   },
   {
     kalit: 'bugun',
     ikonka: Sun,
     sarlavha: 'Bugun',
-    qisqa: 'Bugunga rejalangan va kechikkan ishlar.',
+    qisqa: 'Bugungi va kechikkan ishlar.',
     rasm: '/yoriqnoma/bugun.png',
-    rasmIzoh:
-      'Kechikkanlar tepada, bugungilar o‘rtada, bajarilganlar pastda.',
+    rasmIzoh: 'Kechikkanlar tepada, bugungilar o‘rtada, bajarilganlar pastda.',
     tafsilot: [
-      {
-        sarlavha: 'Uch guruh',
-        matn: 'Kechikkan (qizil) — muddati o‘tgan ishlar, ular eng tepada turadi. Bugun — bugunga belgilangan ishlar. Bajarildi — bugun tugatganlaringiz.',
-      },
-      {
-        sarlavha: 'Kechikkanlar nega tepada',
-        matn: 'Ular ko‘proq e’tibor talab qiladi. Agar ish endi kerak bo‘lmasa, uni o‘chiring yoki sanasini surib qo‘ying — ro‘yxat toza qolsin.',
-      },
+      { sarlavha: 'Tartib', matn: 'Kechikkan (qizil) — tepada, bugungi — o‘rtada, bajarilgan — pastda.' },
+      { sarlavha: 'Maslahat', matn: 'Keraksiz ishni o‘chiring yoki sanasini suring — ro‘yxat toza tursin.' },
     ],
   },
   {
     kalit: 'kelgusi',
     ikonka: CalendarDays,
     sarlavha: 'Kelgusi',
-    qisqa: 'Oldinda turgan ishlar, sana bo‘yicha guruhlangan.',
+    qisqa: 'Oldindagi ishlar, kunma-kun.',
     tafsilot: [
-      {
-        sarlavha: 'Nima uchun kerak',
-        matn: 'Haftani oldindan ko‘rish uchun: qaysi kun bo‘sh, qaysi kun to‘lib ketgan. Shu bilan ishni tekis taqsimlaysiz.',
-      },
+      { sarlavha: 'Nima uchun', matn: 'Qaysi kun bo‘sh, qaysi kun band — bir qarashda ko‘rasiz.' },
     ],
   },
   {
     kalit: 'korish',
     ikonka: CircleCheck,
     sarlavha: 'Ko‘rish',
-    qisqa: 'Umumiy manzara: sonlar, bo‘limlar va papkalar ro‘yxati.',
+    qisqa: 'Hammasi bir sahifada.',
     tafsilot: [
-      {
-        sarlavha: 'Yuqoridagi to‘rtta son',
-        matn: 'Jarayonda, bajarildi, qoldi va kechikkan. Har biriga bosib o‘sha ro‘yxatga o‘tasiz.',
-      },
-      {
-        sarlavha: 'Pastda',
-        matn: 'Kechki reja, hisobot, yo‘riqnoma va sozlamalarga o‘tish, so‘ng loyihalar va papkalar ro‘yxati.',
-      },
+      { sarlavha: 'Ichida', matn: 'Asosiy sonlar, papkalar, loyihalar, kechki reja, hisobot va sozlamalar.' },
     ],
   },
   {
     kalit: 'vazifa',
     ikonka: CircleCheck,
-    sarlavha: 'Vazifa qanday tuziladi',
-    qisqa: 'Sana, vaqt, takrorlanish, muhimlik, bajarilish foizi va ichki ishlar.',
+    sarlavha: 'Vazifa',
+    qisqa: 'Sana, vaqt, takror, muhimlik, foiz va ichki ishlar.',
     rasm: '/yoriqnoma/vazifa.png',
-    rasmIzoh:
-      'Vazifa oynasi: nom, izoh, sana, muhimlik va foiz.',
+    rasmIzoh: 'Vazifa oynasi: nom, izoh, sana, muhimlik va foiz.',
     tafsilot: [
-      {
-        sarlavha: 'Sana va vaqt',
-        matn: '“Sana tanlash” tugmasini bosing. Tayyor variantlar — Bugun, Ertaga, Keyingi hafta, Dam olish — yoki kalendardan istalgan kunni tanlang. Vaqt qo‘ysangiz, o‘sha paytda telefoningizga eslatma keladi.',
-      },
-      {
-        sarlavha: 'Takrorlanish',
-        matn: 'Har kuni, ish kunlari, har hafta, har oy — yoki o‘zingiz kunlarni belgilaysiz. Masalan har seshanba, chorshanba va payshanba. Vazifa bajarilgach o‘zi keyingi sanaga ko‘chadi.',
-      },
-      {
-        sarlavha: 'Muhimlik (P1–P4)',
-        matn: 'P1 — eng muhim, P4 — oddiy (sukut bo‘yicha). Ro‘yxatda muhimroq ishlar tepada turadi.',
-      },
-      {
-        sarlavha: 'Bajarilish foizi',
-        matn: 'Bir kunda tugamaydigan ish uchun: bugun 50% deb belgilab qo‘ying, ertaga o‘sha joydan davom ettirasiz. 100% qo‘yilsa vazifa bajarildi hisoblanadi.',
-      },
-      {
-        sarlavha: 'Ichki ishlar (subtask)',
-        matn: 'Katta vazifani kichik qadamlarga bo‘ling. Ularning nechtasi bajarilgani ota-vazifa yonida ko‘rinadi.',
-      },
+      { sarlavha: 'Sana va vaqt', matn: '«Sana tanlash» → Bugun, Ertaga yoki kalendar. Vaqt qo‘ysangiz — eslatma keladi.' },
+      { sarlavha: 'Takror', matn: 'Har kuni, har hafta, har oy yoki o‘zingiz tanlagan kunlar. Bajarilgach o‘zi keyingi sanaga o‘tadi.' },
+      { sarlavha: 'Muhimlik', matn: 'P1 — eng muhim, P4 — oddiy. Muhimlari tepada turadi.' },
+      { sarlavha: 'Foiz va ichki ishlar', matn: 'Uzoq ishni foiz bilan davom ettiring (100% — bajarildi) yoki kichik qadamlarga bo‘ling.' },
     ],
   },
   {
     kalit: 'kalit-sozlar',
     ikonka: Keyboard,
-    sarlavha: 'Tez yozish (kalit so‘zlar)',
-    qisqa:
-      'Nom yozayotganda sana, vaqt, takror va muhimlikni so‘z bilan ayting — ilova o‘zi tushunadi.',
+    sarlavha: 'Tez yozish',
+    qisqa: 'Nomga «ertaga 9», «har kuni», «p1» deb yozing — ilova o‘zi tushunadi.',
     rasm: '/yoriqnoma/kalit-sozlar.png',
-    rasmIzoh:
-      'Taniqlangan so‘z rang bilan belgilanadi va saqlanganda nomdan olib tashlanadi.',
+    rasmIzoh: 'Tanilgan so‘z rang bilan belgilanadi.',
     tafsilot: [
-      {
-        sarlavha: 'Qanday ishlatiladi',
-        matn:
-          'Vazifa nomini yozayotganda shunchaki qo‘shib qo‘ying: “Hisobot ertaga 9”, “To‘lov har 15”, “Dars har se”, “Shoshilinch ish p1”. Taniqlangan qism rang bilan belgilanadi, sana va muhimlik maydonlari esa darhol to‘ladi.',
-      },
-      {
-        sarlavha: 'Qanday so‘zlar tushuniladi',
-        matn:
-          'Sana: bugun, ertaga, indinga, 25-noyabr, 25.11. Takror: har kuni, har hafta, har oy, ish kunlari, har 15 (oyning 15-sanasi), har se (har seshanba), har 2 kunda. Vaqt: 12:00, 9:30, soat 12. Muhimlik: p1, p2, p3, p4.',
-      },
-      {
-        sarlavha: 'Noto‘g‘ri tanisa',
-        matn:
-          'Belgilangan qismni bir marta bosing — u oddiy matnga aylanadi. Yoki kursor uning oxirida turganda Backspace bosing.',
-      },
-      {
-        sarlavha: 'Xotirjam bo‘ling',
-        matn:
-          'Yolg‘iz son hech qachon sana yoki vaqt deb tanilmaydi. “Ahror akaga 7 ta kitob” yoki “4 mln pul berish” o‘zgarmay qoladi.',
-      },
+      { sarlavha: 'Misollar', matn: '«Hisobot ertaga 9», «To‘lov har 15», «Dars har se», «Muhim ish p1».' },
+      { sarlavha: 'Xato tanisa', matn: 'Rangli so‘zni bir bosing — oddiy matnga aylanadi.' },
     ],
   },
   {
     kalit: 'izoh',
     ikonka: AlignLeft,
     sarlavha: 'Izoh',
-    qisqa: 'Vazifa nomi ostidagi qo‘shimcha tafsilotlar uchun joy.',
+    qisqa: 'Nom ostidagi qo‘shimcha ma’lumot.',
     rasm: '/yoriqnoma/izoh.png',
-    rasmIzoh: 'Izoh ro‘yxatda nom ostida bitta qatorda ko‘rinadi.',
+    rasmIzoh: 'Izoh ro‘yxatda nom ostida ko‘rinadi.',
     tafsilot: [
-      {
-        sarlavha: 'Nima uchun kerak',
-        matn:
-          'Vazifa nomi qisqa bo‘lgani ma’qul — ro‘yxatda bir ko‘rishda o‘qilsin. Manzil, telefon raqami, havola yoki qadamlar ro‘yxati kabi tafsilotlar izohga yoziladi.',
-      },
-      {
-        sarlavha: 'Qanday yoziladi',
-        matn:
-          'Vazifa oynasida nom ostidagi “Izoh” maydoniga yozing. Enter vazifani saqlaydi, yangi qator kerak bo‘lsa Shift+Enter bosing.',
-      },
-      {
-        sarlavha: 'Havolalar',
-        matn:
-          'Izohga yozilgan havola bosiladigan bo‘ladi — ro‘yxatdan turib ochish mumkin.',
-      },
+      { sarlavha: 'Nima yoziladi', matn: 'Manzil, telefon, havola yoki qadamlar. Havolani ro‘yxatdan turib ochsa bo‘ladi.' },
     ],
   },
   {
     kalit: 'papkalar',
     ikonka: FolderOpen,
-    sarlavha: 'Papkalar va bo‘limlar',
-    qisqa: 'Ishlaringizni turi bo‘yicha ajratish.',
+    sarlavha: 'Papkalar',
+    qisqa: 'Ishlarni turiga qarab ajrating.',
     rasm: '/yoriqnoma/papkalar.png',
-    rasmIzoh:
-      'Yon paneldagi papkalar ro‘yxati.',
+    rasmIzoh: 'Yon paneldagi papkalar ro‘yxati.',
     tafsilot: [
-      {
-        sarlavha: 'Papka',
-        matn: 'Katta guruh: Ish, O‘qish, Uy. Har biriga o‘z rangi va belgisini berasiz. “Kiruvchi” papkasi hammada bor — shoshilinch yozib qo‘yiladigan joy, keyin uni kerakli papkaga ko‘chirasiz.',
-      },
-      {
-        sarlavha: 'Bo‘lim',
-        matn: 'Papka ichidagi kichikroq guruh. Masalan “Ish” papkasida “Uchrashuvlar” va “Hisobotlar” bo‘limlari.',
-      },
+      { sarlavha: 'Papka', matn: 'Ish, O‘qish, Uy… «Kiruvchi» — tez yozib qo‘yish joyi.' },
+      { sarlavha: 'Bo‘lim', matn: 'Papka ichidagi kichik guruh: «Uchrashuvlar», «Hisobotlar».' },
     ],
   },
   {
     kalit: 'loyihalar',
     ikonka: FolderKanban,
     sarlavha: 'Loyihalar',
-    qisqa: 'Oddiy papkadan farq qiladi: har bir bo‘lim — alohida loyiha.',
+    qisqa: 'Har bir bo‘lim — alohida loyiha, bajarilish foizi bilan.',
     rasm: '/yoriqnoma/loyihalar.png',
-    rasmIzoh:
-      'Loyihalar holat bo‘yicha uch guruhga bo‘linadi.',
+    rasmIzoh: 'Loyihalar holat bo‘yicha uch guruhga bo‘linadi.',
     tafsilot: [
-      {
-        sarlavha: 'Farqi nimada',
-        matn: 'Oddiy papkada bo‘lim shunchaki guruh. Loyihalar papkasida esa har bir bo‘lim — mustaqil loyiha: o‘z bajarilish foizi, progress chizig‘i va “yana nechta qoldi” hisobi bilan.',
-      },
-      {
-        sarlavha: 'Qachon ishlatiladi',
-        matn: 'Boshi va oxiri bor, bir necha qadamdan iborat ishlar uchun: “Saytni ishga tushirish”, “Imtihonga tayyorgarlik”. Kundalik mayda ishlar uchun oddiy papka qulayroq.',
-      },
+      { sarlavha: 'Qachon', matn: 'Boshi va oxiri bor katta ishlar uchun: «Sayt», «Imtihonga tayyorgarlik».' },
     ],
   },
   {
     kalit: 'kechki',
     ikonka: Moon,
     sarlavha: 'Kechki reja',
-    qisqa: 'Ertangi kunni bugun kechqurun belgilab qo‘yish.',
+    qisqa: 'Ertangi kunni kechqurun rejalang.',
     tafsilot: [
-      {
-        sarlavha: 'Nima uchun kerak',
-        matn: 'Ertalab “nimadan boshlasam?” deb vaqt yo‘qotmaslik uchun. Kechqurun 5 daqiqa ajratsangiz, ertangi kun tayyor rejadan boshlanadi.',
-      },
-      {
-        sarlavha: 'Qanday ishlatiladi',
-        matn: 'Ishni yozasiz, kerak bo‘lsa vaqt, papka va muhimligini tanlaysiz — u avtomatik ertangi songa qo‘yiladi.',
-      },
+      { sarlavha: 'Qanday', matn: 'Kechqurun ishlarni yozing — ular ertangi kunga tushadi. Ertalab tayyor rejadan boshlaysiz.' },
     ],
   },
   {
     kalit: 'hisobot',
     ikonka: BarChart3,
     sarlavha: 'Hisobot',
-    qisqa: 'Istalgan davr uchun natijangiz.',
+    qisqa: 'Qancha ish qildingiz — kun, hafta, oy.',
     rasm: '/yoriqnoma/hisobot.png',
-    rasmIzoh:
-      'Davr tanlanadi, kartalar bosilsa ro‘yxat ochiladi.',
+    rasmIzoh: 'Davrni tanlang, kartani bossangiz ro‘yxat ochiladi.',
     tafsilot: [
-      {
-        sarlavha: 'Nima ko‘rsatadi',
-        matn: 'Tanlangan davrda nechta ish bajarilgani va qolgani, papkalar bo‘yicha taqsimot, qaysi yo‘nalish orqada qolayotgani.',
-      },
-      {
-        sarlavha: 'Qanday foydali',
-        matn: 'Haftada bir marta qarab chiqing: qaysi papkada ishlar to‘planib qolyapti? Demak u yerga ko‘proq vaqt kerak yoki rejani kamaytirish kerak.',
-      },
+      { sarlavha: 'Maslahat', matn: 'Haftada bir qarang: qaysi papkada ish to‘planib qolyapti?' },
     ],
   },
   {
     kalit: 'topshiriqlar',
     ikonka: Send,
     sarlavha: 'Topshiriqlar',
-    qisqa: 'Boshqa Samara foydalanuvchisiga ish topshirish va javobini kuzatish.',
+    qisqa: 'Boshqa odamga ish yuboring va bajarilishini kuzating.',
     rasm: '/yoriqnoma/topshiriqlar.png',
-    rasmIzoh:
-      'Kelgan topshiriq: kim yuborgani, muddati va tugmalar.',
+    rasmIzoh: 'Topshiriq kartasi: kimdan, muddat va holat.',
     tafsilot: [
-      {
-        sarlavha: 'Qanday yuboriladi',
-        matn: '“Topshiriqlar” bo‘limida “Topshiriq yuborish” tugmasini bosing. Qabul qiluvchining email manzilini, ishni, kerak bo‘lsa izoh, muddat va muhimligini yozasiz. Avval yuborgan manzillaringiz tavsiya bo‘lib chiqadi — qayta yozish shart emas.',
-      },
-      {
-        sarlavha: 'Qabul qiluvchi nima ko‘radi',
-        matn: 'Unga bildirishnoma keladi va topshiriq “Menga kelgan” ro‘yxatida paydo bo‘ladi. Ikki tugma bor: qabul qilish yoki rad etish. Qabul qilsa, ish uning Kiruvchi papkasiga oddiy vazifa bo‘lib tushadi. Rad etsa, sababini yozib qoldiradi.',
-      },
-      {
-        sarlavha: 'Holatini kuzatish',
-        matn: '“Men yuborgan” ro‘yxatida har bir topshiriqning holati turadi: javob kutilmoqda, qabul qilingan, rad etilgan (sababi bilan) yoki bajarilgan. Qabul qiluvchi vazifani tugatsa, holat o‘zi “bajarilgan”ga o‘tadi.',
-      },
-      {
-        sarlavha: 'Kimga yuborish mumkin',
-        matn: 'Faqat Samara foydalanuvchilariga. Begona manzilga xat yuborilmaydi. Agar u odam hali ro‘yxatdan o‘tmagan bo‘lsa, ro‘yxatdan o‘tgan kuni topshiriq uning ilovasida ko‘rinadi.',
-      },
-      {
-        sarlavha: 'Maxfiylik',
-        matn: 'Qabul qiluvchi faqat o‘sha topshiriqni va sizning ismingiz bilan emailingizni ko‘radi. Boshqa vazifalaringiz, papkalaringiz va hisobotingiz unga ko‘rinmaydi. Javob berilmagan topshiriqni bekor qilishingiz mumkin.',
-      },
+      { sarlavha: 'Yuborish', matn: '«Yuborish» → kimga, nima, muddat. Faqat Samara foydalanuvchisiga.' },
+      { sarlavha: 'Qabul qiluvchi', matn: 'Topshiriq uning Kiruvchi papkasiga tushadi. Tugatgach natijani yozib topshiradi.' },
+      { sarlavha: 'Fikrlar', matn: 'Topshiriq ichidagi suhbat: savol, fayl, reaksiya.' },
+      { sarlavha: 'Tekshiruv', matn: 'Natijani qabul qilasiz yoki qayta ishlashga qaytarasiz.' },
     ],
   },
   {
     kalit: 'offline',
     ikonka: CloudOff,
-    sarlavha: 'Internetsiz ishlash',
-    qisqa: 'Aloqa yo‘q bo‘lsa ham ishlayverasiz — yozganingiz yo‘qolmaydi.',
+    sarlavha: 'Internetsiz',
+    qisqa: 'Aloqa bo‘lmasa ham ishlayverasiz.',
     rasm: '/yoriqnoma/offline.png',
-    rasmIzoh:
-      'Internet yo‘qolganda yuqorida qora chiziq va kutayotgan o‘zgarishlar soni chiqadi.',
+    rasmIzoh: 'Internet yo‘qolganda yuqorida kulrang chiziq chiqadi.',
     tafsilot: [
-      {
-        sarlavha: 'Nima ishlaydi',
-        matn:
-          'Vazifa qo‘shish, tahrirlash, o‘chirish, bajarildi deb belgilash va foizni o‘zgartirish — hammasi internetsiz ishlaydi. Takrorlanuvchi vazifa ham keyingi sanaga o‘zi suriladi.',
-      },
-      {
-        sarlavha: 'Qachon saqlanadi',
-        matn:
-          'O‘zgarishlar qurilmada navbatga tushadi. Internet qaytishi bilan o‘zi, tartib bilan yuboriladi. Ilovani yopib qo‘ysangiz ham yo‘qolmaydi.',
-      },
-      {
-        sarlavha: 'Nima ishlamaydi',
-        matn:
-          'Birinchi marta kirish (Google talab qiladi), boshqa qurilmadagi o‘zgarishlarni ko‘rish va bildirishnomalar — bular internet bilan ishlaydi.',
-      },
+      { sarlavha: 'Ishlaydi', matn: 'Vazifa qo‘shish, tahrirlash, bajarish. Internet qaytgach o‘zi saqlanadi.' },
+      { sarlavha: 'Ishlamaydi', matn: 'Kirish, topshiriq yuborish va boshqa qurilmadagi yangiliklar.' },
     ],
   },
   {
     kalit: 'sozlamalar',
     ikonka: Settings,
     sarlavha: 'Sozlamalar',
-    qisqa: 'Profil, til, ko‘rinish, yon panel tartibi va bildirishnomalar.',
+    qisqa: 'Profil, til, mavzu, menyu tartibi, bildirishnoma.',
     tafsilot: [
-      {
-        sarlavha: 'Profil',
-        matn: 'Rasm yuklash va ismni o‘zgartirish. Email Google hisobiga bog‘langan — uni bu yerdan o‘zgartirib bo‘lmaydi.',
-      },
-      {
-        sarlavha: 'Umumiy',
-        matn: 'Til (o‘zbek, ingliz, rus) va vaqt mintaqasi. Eslatmalar aynan shu mintaqa bo‘yicha yuboriladi — safarga chiqsangiz o‘zgartiring.',
-      },
-      {
-        sarlavha: 'Ko‘rinish',
-        matn: 'Yorug‘, qorong‘i yoki qurilma sozlamasiga moslashadigan rejim.',
-      },
-      {
-        sarlavha: 'Yon panel',
-        matn: 'Bo‘limlar tartibini o‘zgartirasiz. Eng yuqoridagi bo‘lim — ilova ochilganda birinchi ko‘rinadigan sahifa.',
-      },
-      {
-        sarlavha: 'Bildirishnoma',
-        matn: 'Vaqtli vazifalar haqida eslatma. Brauzer bir marta ruxsat so‘raydi; ruxsatsiz eslatma kelmaydi.',
-      },
+      { sarlavha: 'Muhim', matn: 'Vaqt mintaqasi to‘g‘ri bo‘lsin — eslatmalar shu bo‘yicha keladi.' },
     ],
   },
 ]
@@ -412,28 +256,13 @@ const BOLIMLAR: Bolim[] = [
 const QOSHIMCHA = [
   {
     ikonka: BellRing,
-    sarlavha: 'Eslatmalar ishlashi uchun',
-    matn: 'Vazifaga VAQT qo‘yilgan bo‘lishi va bildirishnomaga ruxsat berilgan bo‘lishi kerak. Ikkalasi bo‘lsa, ilova yopiq bo‘lsa ham eslatma keladi.',
+    sarlavha: 'Eslatma kelishi uchun',
+    matn: 'Vazifaga vaqt qo‘ying va bildirishnomaga ruxsat bering.',
   },
   {
     ikonka: Download,
     sarlavha: 'Telefonga o‘rnatish',
-    matn: 'Android’da “O‘rnatish” tugmasi chiqadi. iPhone’da Safari’da oching: Ulashish → “Bosh ekranga qo‘shish”. O‘rnatilgandan keyin ilova tezroq ochiladi.',
-  },
-  {
-    ikonka: CloudOff,
-    sarlavha: 'Internetsiz ishlash',
-    matn: 'Aloqa yo‘qolsa ham vazifa qo‘shish va o‘zgartirish ishlayveradi. Yozganlaringiz qurilmada saqlanadi va internet tiklanishi bilan o‘zi yuboriladi.',
-  },
-  {
-    ikonka: Repeat2,
-    sarlavha: 'Takrorlanuvchi ish bajarilgach',
-    matn: 'U yo‘qolmaydi — o‘zi keyingi sanaga ko‘chadi. Vaqti va ichki ishlari ham saqlanadi.',
-  },
-  {
-    ikonka: Gauge,
-    sarlavha: 'Foizdan qachon foydalanish kerak',
-    matn: 'Bir o‘tirishda tugamaydigan ishlar uchun. Mayda ishni foizga bo‘lish ortiqcha — uni shunchaki bajarilgan deb belgilang.',
+    matn: 'Android: «O‘rnatish» tugmasi. iPhone: Safari → Ulashish → «Bosh ekranga qo‘shish».',
   },
 ]
 
@@ -445,20 +274,16 @@ const QOSHIMCHA = [
  * ular asta-sekin bir-biridan farq qila boshlardi.
  */
 export function YoriqnomaMazmuni() {
-  // Birinchi bo'lim ochiq turadi — odam nimani bosish kerakligini
-  // darhol tushunsin
-  const [ochiq, setOchiq] = useState<string | null>('jarayonda')
+  // Hammasi yopiq: ro'yxat qisqa ko'rinsin, odam keraklisini o'zi ochsin
+  const [ochiq, setOchiq] = useState<string | null>(null)
 
   return (
     <>
       <TanishuvKartasi />
 
       <p className="mb-6 rounded-2xl bg-brand-soft px-5 py-4 text-sm leading-relaxed text-text-strong">
-        Samara’da ish shu tartibda yuradi:{' '}
-        <strong>vazifa yozasiz → sana va muhimligini belgilaysiz → uni
-        boshlaysiz → bajarilgan deb belgilaysiz.</strong>{' '}
-        Qolgan hammasi shu oddiy zanjirni qulayroq qilish uchun. Quyidagi
-        bo‘limlardan istaganini bosib, batafsil o‘qishingiz mumkin.
+        <strong>Yozing → sana qo‘ying → boshlang → bajaring.</strong>{' '}
+        Batafsil bilish uchun bo‘limni bosing.
       </p>
 
       <ul className="space-y-2">
@@ -572,7 +397,7 @@ function TanishuvKartasi() {
       </span>
       <div className="min-w-0 flex-1">
         <p className="font-semibold text-text-strong">{t('tanishuv.yoriqnoma.s')}</p>
-        <p className="mt-0.5 text-sm leading-relaxed text-text-muted">{t('tanishuv.yoriqnoma.m')}</p>
+        <p className="mt-0.5 text-sm leading-relaxed text-text-muted">{t('tanishuv.yoriqnoma.m', { n: DARSLAR.length })}</p>
       </div>
       <div className="flex shrink-0 flex-wrap gap-2">
         {davomEtsaBoladi && (

@@ -84,6 +84,7 @@ export const en: Record<MatnKaliti, string> = {
   'umumiy.xatoMatn': 'Could not load the data. Check your connection.',
   'umumiy.bajarilmadi': 'That did not work. Please try again.',
   'umumiy.saqlanmadi': 'Could not save. Please try again.',
+  'umumiy.sessiyaYoq': 'Connection was lost. Check your internet and try again.',
 
   // ---------- Navigation ----------
   'nav.jarayonda': 'In progress',
@@ -754,7 +755,7 @@ export const en: Record<MatnKaliti, string> = {
   'tanishuv.maslahat.topshiriq.s': 'Give tasks to others',
   'tanishuv.maslahat.topshiriq.m': 'Send a task to a colleague or family member and track it here.',
   'tanishuv.yoriqnoma.s': 'Learn the app by playing',
-  'tanishuv.yoriqnoma.m': '7 tiny lessons you do yourself — takes about 3 minutes.',
+  'tanishuv.yoriqnoma.m': '{n} tiny lessons you do yourself — the app notices and cheers you on.',
   'tanishuv.yoriqnoma.davom': 'Continue',
   'tanishuv.yoriqnoma.boshla': 'Start the tour',
   'tanishuv.bob1': 'Chapter 1 · Basics',
