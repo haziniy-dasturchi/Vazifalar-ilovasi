@@ -102,7 +102,11 @@ export function TopshiriqFormasi({
         matn:
           xabar === 'sessiya'
             ? t('umumiy.sessiyaYoq')
-            : xabar.includes('row-level security') && xabar.includes('topshiriqlar')
+            : xabar === 'ozimga'
+              ? t('topshiriq.ozigaBolmaydi')
+              : xabar.startsWith('taqiqlangan:')
+                ? t('topshiriq.taqiqlanganKim', { kim: xabar.slice('taqiqlangan:'.length) })
+                : xabar.includes('row-level security') && xabar.includes('topshiriqlar')
               ? t('topshiriq.taqiqlangan')
               : `${t('topshiriq.yuborilmadi')}${xabar ? ` (${xabar})` : ''}`,
         tone: 'xato',

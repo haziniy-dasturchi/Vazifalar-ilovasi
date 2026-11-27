@@ -13,6 +13,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useFoydalanuvchi } from '@/components/app/foydalanuvchi'
 import { useTil } from '@/components/app/til-provayder'
+import { useToast } from '@/components/ui/toast'
 import { useProfil, useProfilYangilash } from '@/lib/queries/profil'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { kalit } from '@/lib/queries/keys'
@@ -67,13 +68,14 @@ export function useTanishuv() {
 
 export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
   const foydalanuvchi = useFoydalanuvchi()
-  const { til } = useTil()
+  const { til, t } = useTil()
   const supabase = useSupabase()
   const qc = useQueryClient()
   const router = useRouter()
   const yol = usePathname()
   const profil = useProfil()
   const profilYangila = useProfilYangilash()
+  const { korsat } = useToast()
 
   const [lokal, setLokal] = useState<TanishuvHolati | null>(() =>
     lokalHolat(foydalanuvchi.id)
@@ -250,15 +252,23 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
           qc.invalidateQueries({ queryKey: kalit.vazifalar }),
         ])
         if (yonaltir) router.push(papkaYoli(papka.id))
-      } catch {
-        // Internet yo'q yoki server xatosi — tanishuv papkasiz qoladi.
-        // Odam uni Yo'riqnoma sahifasidan qayta boshlay oladi.
+      } catch (xato) {
+        // Internet yo'q bo'lsa jim: aloqa qaytgach o'zi qayta uriniladi.
+        // Boshqa xato — odam bilsin (oldin jimgina yutilardi va darslar
+        // paneli sababsiz chiqmay qolardi)
+        if (navigator.onLine) {
+          const sabab = (xato as { message?: string } | null)?.message
+          korsat({
+            matn: `${t('tanishuv.papkaXato')}${sabab ? ` (${sabab})` : ''}`,
+            tone: 'xato',
+          })
+        }
       } finally {
         yaratishQulfi.current = false
         setYaratilmoqda(false)
       }
     },
-    [foydalanuvchi.id, qc, router, saqla, supabase, til]
+    [foydalanuvchi.id, korsat, qc, router, saqla, supabase, t, til]
   )
 
   /*

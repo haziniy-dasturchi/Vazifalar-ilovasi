@@ -189,10 +189,21 @@ export function useTopshiriqYuborish() {
   const qc = useQueryClient()
 
   return useMutation({
+    // Xato yozuvining "Batafsil" qismida qaysi amal ekanligi ko'rinsin
+    mutationKey: ['mutatsiya', 'topshiriq', 'yuborish'],
     mutationFn: async (yangi: YangiTopshiriq) => {
       // Sessiya xotirada yo'qolgan bo'lsa so'rov anonim ketib, RLS uni
       // "bu odamga yubora olmaysiz" deb rad etardi — avval tiklaymiz
-      if (!(await faolSessiya())) throw new Error('sessiya')
+      const sessiya = await faolSessiya()
+      if (!sessiya) throw new Error('sessiya')
+      /*
+        Yuboruvchi — interfeysdagi foydalanuvchi emas, JORIY SESSIYA.
+        Interfeys ma'lumoti keshda uzoq saqlanadi; akkaunt almashtirilib,
+        kesh tozalanmagan bo'lsa, unda oldingi odamning id'si qolardi va
+        baza "yuboruvchi_id = auth.uid()" shartini rad etardi.
+      */
+      const menId = sessiya.user.id
+      const menEmail = (sessiya.user.email ?? '').toLowerCase()
       const kimlarga = [
         ...new Set(
           (yangi.qabul_qiluvchilar?.length
@@ -201,10 +212,11 @@ export function useTopshiriqYuborish() {
           ).map((e) => e.trim().toLowerCase())
         ),
       ].filter(Boolean)
+      if (menEmail && kimlarga.includes(menEmail)) throw new Error('ozimga')
       const guruhId = kimlarga.length > 1 ? crypto.randomUUID() : null
 
       const asosiy = {
-        yuboruvchi_id: id,
+        yuboruvchi_id: menId,
         sarlavha: yangi.sarlavha.trim(),
         izoh: yangi.izoh?.trim() || null,
         muddat: yangi.muddat ?? null,
@@ -235,6 +247,23 @@ export function useTopshiriqYuborish() {
         ;({ error } = await jadval(supabase).insert(
           kimlarga.map((e) => ({ ...asosiy, qabul_qiluvchi_email: e }))
         ))
+      }
+      if (error && /row-level security/.test(error.message)) {
+        /*
+          Baza rad etdi — kimga yozib bo'lmasligini aniqlaymiz (faqat
+          o'qish). Bir nechta odamga yuborilganda bittasi (masalan,
+          sizni bloklagan) butun yuborishni to'xtatadi; odam qaysi
+          manzilni olib tashlashni bilishi kerak.
+        */
+        const taqiqlangan: string[] = []
+        for (const e of kimlarga) {
+          const { data } = await rpcOqi(supabase, 'topshiriq_yozsa_boladimi', {
+            p_yuboruvchi_id: menId,
+            p_email: e,
+          })
+          if (data === false) taqiqlangan.push(e)
+        }
+        if (taqiqlangan.length > 0) throw new Error(`taqiqlangan:${taqiqlangan.join(', ')}`)
       }
       if (error) throw new Error(error.message)
     },

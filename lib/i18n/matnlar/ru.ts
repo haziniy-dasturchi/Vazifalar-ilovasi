@@ -427,6 +427,7 @@ export const ru: Record<MatnKaliti, string> = {
   'sozlamalar.tab.yoriqnoma': 'Инструкция',
 
   'topshiriq.taqiqlangan': 'Сейчас вы не можете отправлять поручения этому человеку',
+  'topshiriq.taqiqlanganKim': 'Сейчас нельзя отправить поручение: {kim}. Уберите этот адрес из списка.',
   'topshiriq.taqiqlanganIzoh':
     'Он вас заблокировал либо накопилось слишком много поручений без ответа. Свяжитесь по почте или телефону и попросите разрешить — пока он не разрешит, на этот адрес писать нельзя.',
 
@@ -759,6 +760,7 @@ export const ru: Record<MatnKaliti, string> = {
   'tanishuv.yoriqnoma.m': '{n} коротких уроков, которые вы выполните сами — приложение заметит и похвалит.',
   'tanishuv.yoriqnoma.davom': 'Продолжить',
   'tanishuv.yoriqnoma.boshla': 'Начать знакомство',
+  'tanishuv.papkaXato': 'Учебная папка не создана',
   'tanishuv.bob1': 'Глава 1 · Основы',
   'tanishuv.bob2': 'Глава 2 · Сильные возможности',
   'tanishuv.bob1Tugadi': 'Основы освоены! 💪',

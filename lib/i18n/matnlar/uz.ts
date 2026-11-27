@@ -443,6 +443,7 @@ export const uz = {
   'sozlamalar.tab.yoriqnoma': 'Yo‘riqnoma',
 
   'topshiriq.taqiqlangan': 'Bu odamga hozir topshiriq yubora olmaysiz',
+  'topshiriq.taqiqlanganKim': 'Bu manzilga hozir topshiriq yubora olmaysiz: {kim}. Uni ro‘yxatdan olib tashlang.',
   'topshiriq.taqiqlanganIzoh':
     'U sizni bloklagan yoki javobsiz topshiriqlaringiz ko‘payib ketgan. Pochta yoki telefon orqali bog‘lanib, ruxsat berishini so‘rashingiz mumkin — u ruxsat bermaguncha bu manzilga yozib bo‘lmaydi.',
 
@@ -775,6 +776,7 @@ export const uz = {
   'tanishuv.yoriqnoma.m': '{n} ta kichik darsni o‘zingiz bajarib ko‘rasiz — ilova sezadi va maqtaydi.',
   'tanishuv.yoriqnoma.davom': 'Davom ettirish',
   'tanishuv.yoriqnoma.boshla': 'Tanishuvni boshlash',
+  'tanishuv.papkaXato': 'Mashq papkasi yaratilmadi',
   'tanishuv.bob1': '1-bob · Asoslar',
   'tanishuv.bob2': '2-bob · Kuchli imkoniyatlar',
   'tanishuv.bob1Tugadi': 'Asoslar o‘rganildi! 💪',

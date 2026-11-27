@@ -426,6 +426,7 @@ export const en: Record<MatnKaliti, string> = {
   'sozlamalar.tab.yoriqnoma': 'Guide',
 
   'topshiriq.taqiqlangan': 'You cannot send assignments to this person right now',
+  'topshiriq.taqiqlanganKim': 'You can’t send an assignment to {kim} right now. Remove it from the list.',
   'topshiriq.taqiqlanganIzoh':
     'They have blocked you, or too many of your assignments are still unanswered. Contact them by email or phone and ask them to allow you — until they do, this address cannot be used.',
 
@@ -758,6 +759,7 @@ export const en: Record<MatnKaliti, string> = {
   'tanishuv.yoriqnoma.m': '{n} tiny lessons you do yourself — the app notices and cheers you on.',
   'tanishuv.yoriqnoma.davom': 'Continue',
   'tanishuv.yoriqnoma.boshla': 'Start the tour',
+  'tanishuv.papkaXato': 'Practice folder was not created',
   'tanishuv.bob1': 'Chapter 1 · Basics',
   'tanishuv.bob2': 'Chapter 2 · Power features',
   'tanishuv.bob1Tugadi': 'Basics done! 💪',

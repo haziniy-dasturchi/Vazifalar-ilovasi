@@ -17,13 +17,50 @@ import { useAsosiyRoyxatlarniOldindanYuklash } from '@/lib/queries/vazifalar'
 import { MAVZU_KALITI, mavzuniOrnat } from '@/lib/mavzu'
 import type { Theme } from '@/types/vazifalar'
 import { ilovaNativemi } from '@/lib/platform'
-import { faolSessiya } from '@/lib/supabase/client'
+import { createClient, faolSessiya } from '@/lib/supabase/client'
+import { useQueryClient } from '@tanstack/react-query'
+import { del } from 'idb-keyval'
+import { kalit } from '@/lib/queries/keys'
+import type { Foydalanuvchi } from './foydalanuvchi'
+
+/** providers.tsx dagi persister kaliti bilan bir xil */
+const SAQLANGAN_KESH = 'samara-query-cache'
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const [qoshishOchiq, setQoshishOchiq] = useState(false)
   const { data: foydalanuvchi, isError: sessiyaYoq } = useFoydalanuvchiSorovi()
   const { data: profil } = useProfil()
   const router = useRouter()
+  const qc = useQueryClient()
+
+  /*
+    Keshdagi foydalanuvchi joriy sessiyaga mosmi.
+
+    Foydalanuvchi so'rovi (`kalit.profil`) keshda muddatsiz turadi va
+    IndexedDB'ga yoziladi. Akkaunt o'chirilib, shu email bilan qayta
+    ochilsa (yoki boshqa akkauntga o'tilib, kesh tozalanmay qolsa),
+    unda ESKI id qolardi: topshiriq "yuboruvchi_id = auth.uid()"
+    shartidan o'tmasdi, mashq papkasi yaratilmasdi — chunki ilova
+    boshqa odam nomidan yozishga urinardi. Sessiya bilan solishtirib,
+    mos kelmasa boshqa odamning keshini butunlay tozalaymiz.
+  */
+  useEffect(() => {
+    const { data } = createClient().auth.onAuthStateChange((_hodisa, sessiya) => {
+      const keshdagi = qc.getQueryData<Foydalanuvchi>(kalit.profil)
+      if (sessiya?.user && keshdagi && keshdagi.id !== sessiya.user.id) {
+        // Faqat xotiradagi keshni tozalash yetmaydi: ishlab turgan
+        // komponentlar eski natijani ushlab turadi, IndexedDB'dagi nusxa
+        // esa keyingi ochilishda qaytib keladi. Saqlanganini ham o'chirib,
+        // bir marta qayta yuklaymiz — keyin id'lar mos, takrorlanmaydi.
+        qc.getMutationCache().clear()
+        qc.clear()
+        void del(SAQLANGAN_KESH)
+          .catch(() => {})
+          .finally(() => window.location.reload())
+      }
+    })
+    return () => data.subscription.unsubscribe()
+  }, [qc])
 
   // Appda middleware yo'q: sessiya haqiqatan yo'q bo'lsa (chiqilgan
   // yoki refresh token bekor qilingan) bo'sh ekran o'rniga kirishga
