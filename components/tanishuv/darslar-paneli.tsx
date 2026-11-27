@@ -80,6 +80,22 @@ export function DarslarPaneli({
   const [mashqOchiq, setMashqOchiq] = useState(false)
   const joriyRef = useRef<HTMLLIElement>(null)
 
+  /*
+    Darslar olib boradigan sahifalar oldindan yuklab qo'yiladi.
+
+    Menyudagi `<Link>` lar buni o'zi qiladi, `router.push` esa yo'q:
+    "Ko'rsat" bosilgandan KEYIN sahifa kodi va ma'lumoti endi yuklana
+    boshlardi — telefonda va o'rnatilgan ilovada bu sezilarli kutish
+    edi ("Kechki reja"ga o'tish qiynalardi). Endi bosish bilan darhol.
+  */
+  const loyihalarId = papkalar?.find((p) => p.is_projects)?.id
+  useEffect(() => {
+    const yollar = ['/kechki-reja', '/hisobot', '/sozlamalar', '/topshiriqlar', '/bugun', '/korish']
+    if (holat.papkaId) yollar.push(papkaYoli(holat.papkaId))
+    if (loyihalarId) yollar.push(papkaYoli(loyihalarId))
+    for (const yol of yollar) router.prefetch(yol)
+  }, [router, holat.papkaId, loyihalarId])
+
   // Ro'yxat ochilganda navbatdagi dars ko'rinadigan joyga suriladi
   useEffect(() => {
     if (!ochiq) return
