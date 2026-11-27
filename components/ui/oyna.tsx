@@ -20,9 +20,16 @@ export function Oyna({
   yop,
   children,
   kenglik = 'oddiy',
+  sarlavhaOsti,
 }: {
   sarlavha: string
   tavsif?: string
+  /**
+   * Sarlavha ostida, AYLANMAYDIGAN qismda turadigan narsa (masalan
+   * progress chizig'i). Ro'yxat aylantirilganda ham sarlavha bilan
+   * birga joyida qoladi.
+   */
+  sarlavhaOsti?: React.ReactNode
   yop: () => void
   children: React.ReactNode
   kenglik?: 'oddiy' | 'keng'
@@ -117,6 +124,8 @@ export function Oyna({
             <X className="size-5" aria-hidden />
           </button>
         </div>
+
+        {sarlavhaOsti && <div className="px-6 pt-3">{sarlavhaOsti}</div>}
 
         <div className="flex-1 overflow-y-auto px-6 pt-3 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
           {children}
