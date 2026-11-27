@@ -15,6 +15,17 @@ comment on column public.profiles.onboarding is
 
 -- Ilovani allaqachon ishlatayotganlarga kutib olish chiqmasin —
 -- ular uni Yo'riqnoma sahifasidan istalgan payt qayta boshlay oladi.
-update public.profiles
+--
+-- "Ishlatayotgan" = tanishuv chiqishidan OLDIN kamida bitta vazifa
+-- yozgan. Hamma profilni belgilash xato bo'lardi: ro'yxatdan o'tib,
+-- hali hech narsa yozmagan odam aynan tanishuvga muhtoj, sinov
+-- akkauntlari esa kutib olishni umuman ko'rmay qolardi.
+update public.profiles p
   set onboarding = '{"v":1,"eski":true}'::jsonb
-  where onboarding = '{}'::jsonb;
+  where p.onboarding = '{}'::jsonb
+    and exists (
+      select 1
+        from public.tasks t
+       where t.user_id = p.id
+         and t.created_at < timestamptz '2026-11-27 00:00:00+05'
+    );

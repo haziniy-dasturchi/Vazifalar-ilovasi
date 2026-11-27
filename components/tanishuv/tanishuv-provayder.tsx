@@ -19,6 +19,8 @@ import { kalit } from '@/lib/queries/keys'
 import { papkaYoli } from '@/lib/yollar'
 import {
   DARSLAR,
+  MASHQ_PAPKA_BELGISI,
+  MASHQ_PAPKA_NOMLARI,
   TANISHUV_VERSIYASI,
   VAZIFALI_DARSLAR,
   birlashtir,
@@ -136,40 +138,82 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
       setYaratilmoqda(true)
       const matnlar = mashqMatnlari(til)
       try {
-        const { data: papka, error: papkaXato } = await supabase
+        /*
+          Avval bor mashq papkasini qidiramiz. U boshqa qurilmada
+          (yoki qayta boshlashdan oldin) yaratilgan bo'lishi mumkin —
+          holat hisobga hali yozilmagan bo'lsa ham. Topilsa, o'shani
+          ishlatamiz: aks holda har qurilmada yana bitta "Tanishuv"
+          papkasi paydo bo'lardi.
+        */
+        const { data: borPapkalar } = await supabase
           .from('folders')
-          .insert({
-            user_id: foydalanuvchi.id,
-            name: matnlar.papka,
-            color: '#f59e0b',
-            icon: 'goya',
-            sort_order: 0,
-          })
-          .select()
-          .single()
-        if (papkaXato) throw papkaXato
+          .select('id')
+          .eq('icon', MASHQ_PAPKA_BELGISI)
+          .in('name', MASHQ_PAPKA_NOMLARI)
+          .eq('is_archived', false)
+          .order('created_at', { ascending: true })
+          .limit(1)
 
-        const qatorlar = VAZIFALI_DARSLAR.map((dars, i) => ({
-          user_id: foydalanuvchi.id,
-          folder_id: papka.id,
-          title: matnlar.vazifalar[dars as keyof typeof matnlar.vazifalar].nom,
-          description: matnlar.vazifalar[dars as keyof typeof matnlar.vazifalar].izoh,
-          priority: 4,
-          progress: 0,
-          status: 'planned',
-          sort_order: i,
-        }))
-        const { data: vazifalar, error: vazifaXato } = await supabase
+        let papkaId = borPapkalar?.[0]?.id as string | undefined
+        if (!papkaId) {
+          const { data: papka, error: papkaXato } = await supabase
+            .from('folders')
+            .insert({
+              user_id: foydalanuvchi.id,
+              name: matnlar.papka,
+              color: '#f59e0b',
+              icon: MASHQ_PAPKA_BELGISI,
+              sort_order: 0,
+            })
+            .select('id')
+            .single()
+          if (papkaXato) throw papkaXato
+          papkaId = papka.id
+        }
+
+        // Bor papkadagi dars vazifalari (sort_order = dars tartibi)
+        const { data: borVazifalar } = await supabase
           .from('tasks')
-          .insert(qatorlar)
           .select('id, sort_order')
-        if (vazifaXato) throw vazifaXato
+          .eq('folder_id', papkaId)
+          .is('deleted_at', null)
+          .is('parent_id', null)
 
         const xarita: Partial<Record<DarsKaliti, string>> = {}
-        for (const v of vazifalar ?? []) {
+        for (const v of borVazifalar ?? []) {
           const dars = VAZIFALI_DARSLAR[v.sort_order ?? -1]
-          if (dars) xarita[dars] = v.id
+          if (dars && !xarita[dars]) xarita[dars] = v.id
         }
+
+        // Yetishmaganlarini (yangi papka — hammasini) yaratamiz
+        const qatorlar = VAZIFALI_DARSLAR.flatMap((dars, i) =>
+          xarita[dars]
+            ? []
+            : [
+                {
+                  user_id: foydalanuvchi.id,
+                  folder_id: papkaId!,
+                  title: matnlar.vazifalar[dars as keyof typeof matnlar.vazifalar].nom,
+                  description: matnlar.vazifalar[dars as keyof typeof matnlar.vazifalar].izoh,
+                  priority: 4,
+                  progress: 0,
+                  status: 'planned',
+                  sort_order: i,
+                },
+              ]
+        )
+        if (qatorlar.length > 0) {
+          const { data: yangilar, error: vazifaXato } = await supabase
+            .from('tasks')
+            .insert(qatorlar)
+            .select('id, sort_order')
+          if (vazifaXato) throw vazifaXato
+          for (const v of yangilar ?? []) {
+            const dars = VAZIFALI_DARSLAR[v.sort_order ?? -1]
+            if (dars) xarita[dars] = v.id
+          }
+        }
+        const papka = { id: papkaId }
 
         saqla({ maqsad, papkaId: papka.id, vazifalar: xarita })
         await Promise.all([

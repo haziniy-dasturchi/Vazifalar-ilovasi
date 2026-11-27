@@ -63,6 +63,10 @@ export const DARSLAR: DarsKaliti[] = [
   'kechki',
 ]
 
+/** Mashq papkasining belgisi va uch tildagi nomi — uni qayta topish uchun */
+export const MASHQ_PAPKA_BELGISI = 'goya'
+export const MASHQ_PAPKA_NOMLARI = ['Tanishuv', 'Знакомство', 'Getting started']
+
 /** Mashq papkasida o'z vazifasi bor darslar */
 export const VAZIFALI_DARSLAR: DarsKaliti[] = ['bajar', 'sana', 'muhim', 'takror']
 
