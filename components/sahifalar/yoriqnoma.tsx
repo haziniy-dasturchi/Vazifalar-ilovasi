@@ -24,7 +24,7 @@ import {
 import { Sahifa } from '@/components/app/sahifa'
 import { useT } from '@/components/app/til-provayder'
 import { useTanishuv } from '@/components/tanishuv/tanishuv-provayder'
-import { panelFaol } from '@/lib/tanishuv'
+import { panelFaol, tabrikKorilgan } from '@/lib/tanishuv'
 
 /**
  * To'liq yo'riqnoma.
@@ -563,7 +563,7 @@ function TanishuvKartasi() {
   const tanishuv = useTanishuv()
   if (!tanishuv) return null
   const { holat, saqla, qaytaBoshlash } = tanishuv
-  const davomEtsaBoladi = Boolean(holat?.papkaId && !holat.tugadi && holat.yopilgan)
+  const davomEtsaBoladi = Boolean(holat?.papkaId && !tabrikKorilgan(holat) && holat.yopilgan)
 
   return (
     <div className="mb-6 flex flex-col gap-4 rounded-2xl border-2 border-amber-300/60 bg-amber-400/10 p-5 sm:flex-row sm:items-center">

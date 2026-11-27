@@ -51,17 +51,25 @@ export type DarsKaliti =
   | 'yangi'
   | 'papka'
   | 'kechki'
+  | 'boshlash'
+  | 'loyiha'
+  | 'topshiriq'
+  | 'hisobot'
+  | 'sozlama'
 
-/** Tartib muhim: oson → qiyin, har biri oldingisiga tayanadi */
-export const DARSLAR: DarsKaliti[] = [
-  'bajar',
-  'sana',
-  'muhim',
-  'takror',
-  'yangi',
-  'papka',
-  'kechki',
-]
+/**
+ * 1-bob: asoslar. Tartib muhim: oson → qiyin, har biri oldingisiga
+ * tayanadi.
+ */
+export const BOB1: DarsKaliti[] = ['bajar', 'sana', 'muhim', 'takror', 'yangi', 'papka', 'kechki']
+
+/**
+ * 2-bob: kuchli imkoniyatlar — asoslarni bilgan odam uchun.
+ * Keyinroq qo'shilgan: 1-bobni avval tugatganlarga ham ochiladi.
+ */
+export const BOB2: DarsKaliti[] = ['boshlash', 'loyiha', 'topshiriq', 'hisobot', 'sozlama']
+
+export const DARSLAR: DarsKaliti[] = [...BOB1, ...BOB2]
 
 /** Mashq papkasining belgisi va uch tildagi nomi — uni qayta topish uchun */
 export const MASHQ_PAPKA_BELGISI = 'goya'
@@ -90,8 +98,13 @@ export type TanishuvHolati = {
   bajarilgan?: DarsKaliti[]
   /** Tanishuv paneli yopildi (odam "keyinroq" dedi yoki tugatdi) */
   yopilgan?: boolean
-  /** Hammasi bajarildi va tabrik ko'rsatildi */
+  /** Hammasi bajarildi va tabrik ko'rsatildi (eski belgi — `tugadiSoni` ga qarang) */
   tugadi?: boolean
+  /**
+   * Yakuniy tabrik ko'rilganda nechta dars bor edi. Yangi darslar
+   * qo'shilsa, bu son kichik qoladi va panel yana ochiladi.
+   */
+  tugadiSoni?: number
   /** Ko'rilgan bir martalik maslahatlar (yo'l kalitlari) */
   maslahatlar?: string[]
 }
@@ -145,6 +158,7 @@ export function birlashtir(
     kutibOlindi: a.kutibOlindi || b.kutibOlindi,
     yopilgan: a.yopilgan || b.yopilgan,
     tugadi: a.tugadi || b.tugadi,
+    tugadiSoni: Math.max(a.tugadiSoni ?? 0, b.tugadiSoni ?? 0) || undefined,
     papkaId: a.papkaId ?? b.papkaId,
     maqsad: a.maqsad ?? b.maqsad,
     maqsadlar: a.maqsadlar ?? b.maqsadlar,
@@ -162,9 +176,22 @@ export function kutibOlishKerak(holat: TanishuvHolati | null): boolean {
   return !holat.eski && !holat.kutibOlindi
 }
 
+/**
+ * Yakuniy tabrik HOZIRGI barcha darslar uchun ko'rilganmi.
+ * `tugadiSoni` paydo bo'lishidan oldin tugatganlar faqat 1-bobni
+ * ko'rgan hisoblanadi — ularga 2-bob ochiladi.
+ */
+export function tabrikKorilgan(holat: TanishuvHolati | null): boolean {
+  if (!holat) return false
+  const soni = holat.tugadiSoni ?? (holat.tugadi ? BOB1.length : 0)
+  return soni >= DARSLAR.length
+}
+
 /** Tanishuv paneli (darslar ro'yxati) ko'rinadimi */
 export function panelFaol(holat: TanishuvHolati | null): boolean {
-  return Boolean(holat?.kutibOlindi && holat.papkaId && !holat.yopilgan && !holat.tugadi)
+  return Boolean(
+    holat?.kutibOlindi && holat.papkaId && !holat.yopilgan && !tabrikKorilgan(holat)
+  )
 }
 
 // -------------------------------------------------------------

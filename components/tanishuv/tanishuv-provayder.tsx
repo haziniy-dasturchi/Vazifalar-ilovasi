@@ -17,6 +17,8 @@ import { useProfil, useProfilYangilash } from '@/lib/queries/profil'
 import { useSupabase } from '@/lib/supabase/use-supabase'
 import { kalit } from '@/lib/queries/keys'
 import { papkaYoli } from '@/lib/yollar'
+import { mavzugaObuna } from '@/lib/mavzu'
+import { tilgaObuna } from '@/lib/til-saqlash'
 import {
   DARSLAR,
   MASHQ_PAPKA_BELGISI,
@@ -35,7 +37,7 @@ import {
   type TanishuvHolati,
 } from '@/lib/tanishuv'
 import type { Json } from '@/types/database'
-import type { Folder, Task } from '@/types/vazifalar'
+import type { Folder, Section, Task } from '@/types/vazifalar'
 import { KutibOlish, type KutibOlishNatijasi } from './kutib-olish'
 import { DarslarPaneli } from './darslar-paneli'
 import { MaslahatPufagi } from './maslahat-pufagi'
@@ -48,6 +50,15 @@ type TanishuvKonteksti = {
 }
 
 const Kontekst = createContext<TanishuvKonteksti | null>(null)
+
+/** Shu kesh prefikslaridan biri yangilansa, server holati qayta so'raladi */
+const KUZATILADIGAN = ['vazifalar', 'bolimlar', 'topshiriqlar']
+
+/** Faqat ko'rib chiqish talab qiladigan darslar: yo'l → dars */
+const SAHIFA_DARSLARI: Record<string, DarsKaliti> = {
+  '/kechki-reja': 'kechki',
+  '/hisobot': 'hisobot',
+}
 
 /** Yo'riqnoma va boshqa sahifalar uchun. Provayderdan tashqarida `null` */
 export function useTanishuv() {
@@ -121,6 +132,7 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
       kutibOlindi: false,
       yopilgan: false,
       tugadi: false,
+      tugadiSoni: 0,
       papkaId: undefined,
       vazifalar: {},
       bajarilgan: [],
@@ -291,19 +303,52 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
     queryKey: tanishuvKaliti,
     enabled: faol && mashqIdlari.length > 0,
     queryFn: async () => {
-      const [mashq, ozim] = await Promise.all([
+      const dan = holat?.boshlangan ?? new Date(0).toISOString()
+      // Topshiriq jadvallari generatsiya qilingan tiplarda yo'q
+      const xom = supabase as unknown as {
+        from: (t: string) => {
+          select: (u: string) => {
+            eq: (u: string, q: string) => {
+              gte: (u: string, q: string) => {
+                limit: (n: number) => PromiseLike<{ data: unknown[] | null }>
+              }
+            }
+          }
+        }
+      }
+      const borMi = (r: { data: unknown[] | null }) => (r.data ?? []).length > 0
+      const loyihaPapkasi = qc
+        .getQueryData<Folder[]>(kalit.papkalar)
+        ?.find((p) => p.is_projects)?.id
+
+      const [mashq, ozim, boshlangan, loyiha, yuborgan, fikr] = await Promise.all([
         supabase.from('tasks').select('*').in('id', mashqIdlari).is('deleted_at', null),
         supabase
           .from('tasks')
           .select('id')
           .not('id', 'in', `(${mashqIdlari.join(',')})`)
-          .gte('created_at', holat?.boshlangan ?? new Date(0).toISOString())
+          .gte('created_at', dan)
           .is('deleted_at', null)
           .limit(1),
+        supabase.from('tasks').select('id').gte('started_at', dan).limit(1),
+        loyihaPapkasi
+          ? supabase
+              .from('sections')
+              .select('id')
+              .eq('folder_id', loyihaPapkasi)
+              .gte('created_at', dan)
+              .limit(1)
+          : Promise.resolve({ data: [] }),
+        xom.from('topshiriqlar').select('id').eq('yuboruvchi_id', foydalanuvchi.id).gte('created_at', dan).limit(1),
+        xom.from('topshiriq_izohlari').select('id').eq('muallif_id', foydalanuvchi.id).gte('created_at', dan).limit(1),
       ])
       return {
         mashq: (mashq.data ?? []) as Task[],
-        ozimQoshdim: (ozim.data ?? []).length > 0,
+        ozimQoshdim: borMi(ozim),
+        boshladim: borMi(boshlangan),
+        loyihaOchdim: borMi(loyiha as { data: unknown[] | null }),
+        // Haqiqiy topshiriq yuborgan yoki fikr yozgan — mashq shart emas
+        topshiriqYozdim: borMi(yuborgan) || borMi(fikr),
       }
     },
   })
@@ -323,6 +368,7 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
     const tekshir = () => {
       const topildi = new Map<string, Task>()
       let ozimQoshdim = serverdan.data?.ozimQoshdim ?? false
+      let boshladim = serverdan.data?.boshladim ?? false
       for (const t of serverdan.data?.mashq ?? []) topildi.set(t.id, t)
 
       for (const [, data] of qc.getQueriesData<unknown>({ queryKey: kalit.vazifalar })) {
@@ -334,6 +380,7 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
           } else if (yangimi(t.created_at)) {
             ozimQoshdim = true
           }
+          if (t.status === 'in_progress' && yangimi(t.started_at)) boshladim = true
         }
       }
 
@@ -345,6 +392,18 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
           p.id !== holat?.papkaId &&
           yangimi(p.created_at)
       )
+
+      // Loyiha = "Loyihalar" papkasidagi bo'lim
+      const loyihaPapkasi = papkalar.find((p) => p.is_projects)?.id
+      let loyihaOchdim = serverdan.data?.loyihaOchdim ?? false
+      if (loyihaPapkasi) {
+        for (const [, data] of qc.getQueriesData<unknown>({ queryKey: kalit.bolimlarPrefiks })) {
+          if (!Array.isArray(data)) continue
+          if ((data as Section[]).some((b) => b?.folder_id === loyihaPapkasi && yangimi(b.created_at))) {
+            loyihaOchdim = true
+          }
+        }
+      }
 
       const v = (d: DarsKaliti) => {
         const id = vazifaIdlari[d]
@@ -359,6 +418,9 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
       if (takror && (takror.rrule || takror.recurrence)) tayyorlar.push('takror')
       if (ozimQoshdim) tayyorlar.push('yangi')
       if (ozPapkam) tayyorlar.push('papka')
+      if (boshladim) tayyorlar.push('boshlash')
+      if (loyihaOchdim) tayyorlar.push('loyiha')
+      if (serverdan.data?.topshiriqYozdim) tayyorlar.push('topshiriq')
       darsniBelgila(tayyorlar)
     }
 
@@ -371,7 +433,7 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
       // Vazifa ro'yxati serverdan yangilansa, mashq holatini ham
       // qayta so'raymiz (bir soniyada ko'pi bilan bir marta)
       const k = hodisa.query.queryKey
-      if (k[0] === kalit.vazifalar[0] && hodisa.type === 'updated') {
+      if (KUZATILADIGAN.includes(String(k[0])) && hodisa.type === 'updated') {
         clearTimeout(serverTaymeri)
         serverTaymeri = setTimeout(
           () => qc.invalidateQueries({ queryKey: ['tanishuv', 'vazifalar'] }),
@@ -386,10 +448,25 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
     }
   }, [faol, holat?.vazifalar, holat?.boshlangan, holat?.papkaId, mashqIdlari, qc, serverdan.data, darsniBelgila])
 
-  // "Kechki reja"ni ochish darsi — sahifaga kirishning o'zi yetarli
+  // Ko'rish darslari — sahifaga kirishning o'zi yetarli
   useEffect(() => {
-    if (faol && yol.replace(/\/+$/, '') === '/kechki-reja') darsniBelgila(['kechki'])
+    if (!faol) return
+    const toza = yol.replace(/\/+$/, '')
+    const dars = SAHIFA_DARSLARI[toza]
+    if (dars) darsniBelgila([dars])
   }, [faol, yol, darsniBelgila])
+
+  // Sozlamalar darsi: mavzu yoki til o'zgartirilsa
+  useEffect(() => {
+    if (!faol) return
+    const belgila = () => darsniBelgila(['sozlama'])
+    const a = mavzugaObuna(belgila)
+    const b = tilgaObuna(belgila)
+    return () => {
+      a()
+      b()
+    }
+  }, [faol, darsniBelgila])
 
   const hammasiTayyor = faol && DARSLAR.every((d) => bajarilgan.includes(d))
 
@@ -413,6 +490,7 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
           yutuqniYop={() => setYangiYutuq(null)}
           hammasiTayyor={hammasiTayyor}
           saqla={saqla}
+          darsniBelgila={darsniBelgila}
         />
       )}
 

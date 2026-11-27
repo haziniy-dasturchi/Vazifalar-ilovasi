@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   CalendarDays,
@@ -11,18 +11,24 @@ import {
   FolderPlus,
   GraduationCap,
   Moon,
+  Palette,
+  Play,
   Plus,
   Repeat2,
+  Send,
+  BarChart3,
+  FolderKanban,
   Trophy,
   type LucideIcon,
 } from 'lucide-react'
 import { useT } from '@/components/app/til-provayder'
 import { Oyna } from '@/components/ui/oyna'
-import { usePapkaOchirish, usePapkaYaratish } from '@/lib/queries/papkalar'
+import { usePapkalar, usePapkaOchirish, usePapkaYaratish } from '@/lib/queries/papkalar'
 import { papkaYoli } from '@/lib/yollar'
-import { DARSLAR, type DarsKaliti, type Maqsad, type TanishuvHolati } from '@/lib/tanishuv'
+import { BOB1, BOB2, DARSLAR, type DarsKaliti, type Maqsad, type TanishuvHolati } from '@/lib/tanishuv'
 import type { MatnKaliti } from '@/lib/i18n'
 import { Konfetti } from './konfetti'
+import { TopshiriqMashqi } from './topshiriq-mashqi'
 
 const DARS_IKONKASI: Record<DarsKaliti, LucideIcon> = {
   bajar: CircleCheck,
@@ -32,6 +38,11 @@ const DARS_IKONKASI: Record<DarsKaliti, LucideIcon> = {
   yangi: Plus,
   papka: FolderPlus,
   kechki: Moon,
+  boshlash: Play,
+  loyiha: FolderKanban,
+  topshiriq: Send,
+  hisobot: BarChart3,
+  sozlama: Palette,
 }
 
 /** Maqsadga mos birinchi papka — "O'z papkangni och" darsi uchun */
@@ -50,33 +61,56 @@ export function DarslarPaneli({
   yutuqniYop,
   hammasiTayyor,
   saqla,
+  darsniBelgila,
 }: {
   holat: TanishuvHolati
   yangiYutuq: DarsKaliti | null
   yutuqniYop: () => void
   hammasiTayyor: boolean
   saqla: (o: Partial<TanishuvHolati>) => void
+  /** Mashq maydoni tugaganda darsni qo'lda belgilash uchun */
+  darsniBelgila: (d: DarsKaliti[]) => void
 }) {
   const t = useT()
   const router = useRouter()
   const [ochiq, setOchiq] = useState(false)
   const papkaYarat = usePapkaYaratish()
   const papkaOchir = usePapkaOchirish()
+  const { data: papkalar } = usePapkalar()
+  const [mashqOchiq, setMashqOchiq] = useState(false)
 
   const bajarilgan = holat.bajarilgan ?? []
   const soni = DARSLAR.filter((d) => bajarilgan.includes(d)).length
   const keyingi = DARSLAR.find((d) => !bajarilgan.includes(d))
   const maqsad = holat.maqsad ?? 'uy'
 
+  // 1-bob shu yutuq bilan tugadimi — maxsus maqtov uchun
+  const bob1Tugadi =
+    yangiYutuq !== null && BOB1.includes(yangiYutuq) && BOB1.every((d) => bajarilgan.includes(d))
+
+  const bor = (id?: string) => Boolean(id && papkalar?.some((p) => p.id === id))
+
   const mashqPapkasiga = () => {
     setOchiq(false)
-    if (holat.papkaId) router.push(papkaYoli(holat.papkaId))
+    // Mashq papkasi o'chirilgan bo'lishi mumkin (1-bobni tugatganda)
+    router.push(bor(holat.papkaId) ? papkaYoli(holat.papkaId!) : '/bugun')
+  }
+
+  const ket = (yol: string) => {
+    setOchiq(false)
+    router.push(yol)
   }
 
   const harakat = (d: DarsKaliti) => {
-    if (d === 'kechki') {
+    if (d === 'kechki') ket('/kechki-reja')
+    else if (d === 'hisobot') ket('/hisobot')
+    else if (d === 'sozlama') ket('/sozlamalar')
+    else if (d === 'loyiha') {
+      const loyihalar = papkalar?.find((p) => p.is_projects)
+      ket(loyihalar ? papkaYoli(loyihalar.id) : '/korish')
+    } else if (d === 'topshiriq') {
       setOchiq(false)
-      router.push('/kechki-reja')
+      setMashqOchiq(true)
     } else if (d === 'papka') {
       papkaYarat.mutate({
         name: t(`tanishuv.papkaNomi.${maqsad}` as MatnKaliti),
@@ -106,7 +140,7 @@ export function DarslarPaneli({
           <Halqa soni={soni} jami={DARSLAR.length} />
           <span className="min-w-0">
             <span className="block text-xs font-semibold text-amber-600">
-              {t('tanishuv.panel.qadam', { n: soni + 1, jami: DARSLAR.length })}
+              {t('tanishuv.panel.qadam', { n: Math.min(soni + 1, DARSLAR.length), jami: DARSLAR.length })}
             </span>
             {keyingi && (
               <span className="block truncate text-sm font-semibold text-text-strong">
@@ -134,9 +168,21 @@ export function DarslarPaneli({
               const tayyor = bajarilgan.includes(d)
               const joriy = d === keyingi
               const Ikonka = DARS_IKONKASI[d]
+              const bobBoshi = i === 0 ? 1 : i === BOB1.length ? 2 : null
+              const bob = bobBoshi === 1 ? BOB1 : BOB2
               return (
+                <Fragment key={d}>
+                {bobBoshi && (
+                  <li className={`flex items-center justify-between px-1 ${bobBoshi === 2 ? 'pt-3' : ''}`}>
+                    <span className="text-xs font-bold tracking-wide text-amber-600 uppercase">
+                      {t(`tanishuv.bob${bobBoshi}` as MatnKaliti)}
+                    </span>
+                    <span className="text-xs font-semibold text-text-faint">
+                      {bob.filter((x) => bajarilgan.includes(x)).length}/{bob.length}
+                    </span>
+                  </li>
+                )}
                 <li
-                  key={d}
                   className={`flex items-start gap-3 rounded-2xl p-3 transition ${
                     joriy ? 'bg-amber-400/10 ring-2 ring-amber-300' : 'bg-surface-muted'
                   }`}
@@ -162,7 +208,8 @@ export function DarslarPaneli({
                         })}
                       </span>
                     )}
-                    {!tayyor && joriy && (
+                    {/* 2-bob darslari bir-biriga bog'liq emas — istalganidan boshlasa bo'ladi */}
+                    {!tayyor && (joriy || BOB2.includes(d)) && (
                       <button
                         type="button"
                         onClick={() => harakat(d)}
@@ -173,12 +220,15 @@ export function DarslarPaneli({
                           ? t('tanishuv.panel.papkaOch', {
                               papka: t(`tanishuv.papkaNomi.${maqsad}` as MatnKaliti),
                             })
-                          : t('tanishuv.panel.korsat')}
+                          : d === 'topshiriq'
+                            ? t('tanishuv.panel.mashqBoshla')
+                            : t('tanishuv.panel.korsat')}
                         <ChevronRight className="size-4" aria-hidden />
                       </button>
                     )}
                   </span>
                 </li>
+                </Fragment>
               )
             })}
           </ol>
@@ -195,6 +245,13 @@ export function DarslarPaneli({
         </Oyna>
       )}
 
+      {mashqOchiq && (
+        <TopshiriqMashqi
+          yop={() => setMashqOchiq(false)}
+          tugadi={() => darsniBelgila(['topshiriq'])}
+        />
+      )}
+
       {/* Har bir dars uchun maqtov */}
       {yangiYutuq && (
         <div
@@ -209,7 +266,7 @@ export function DarslarPaneli({
             </span>
             <span>
               <span className="block text-lg font-bold">
-                {t(`tanishuv.maqtov.${soni % 4}` as MatnKaliti)}
+                {bob1Tugadi ? t('tanishuv.bob1Tugadi') : t(`tanishuv.maqtov.${soni % 4}` as MatnKaliti)}
               </span>
               <span className="block text-sm text-white/85">
                 {t('tanishuv.yutuq', {
@@ -237,7 +294,7 @@ export function DarslarPaneli({
               type="button"
               onClick={() => {
                 if (holat.papkaId) papkaOchir.mutate(holat.papkaId)
-                saqla({ tugadi: true })
+                saqla({ tugadi: true, tugadiSoni: DARSLAR.length })
                 router.push('/bugun')
               }}
               className="mt-6 w-full cursor-pointer rounded-2xl bg-brand-primary py-3.5 font-semibold text-white transition hover:bg-brand-primary-hover active:scale-[0.98]"
@@ -246,7 +303,7 @@ export function DarslarPaneli({
             </button>
             <button
               type="button"
-              onClick={() => saqla({ tugadi: true })}
+              onClick={() => saqla({ tugadi: true, tugadiSoni: DARSLAR.length })}
               className="mt-2 w-full cursor-pointer rounded-2xl py-3 text-sm font-medium text-text-muted transition hover:bg-surface-muted"
             >
               {t('tanishuv.tabrik.qoldir')}
