@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   CalendarDays,
@@ -78,6 +78,16 @@ export function DarslarPaneli({
   const papkaOchir = usePapkaOchirish()
   const { data: papkalar } = usePapkalar()
   const [mashqOchiq, setMashqOchiq] = useState(false)
+  const joriyRef = useRef<HTMLLIElement>(null)
+
+  // Ro'yxat ochilganda navbatdagi dars ko'rinadigan joyga suriladi
+  useEffect(() => {
+    if (!ochiq) return
+    const kadr = requestAnimationFrame(() =>
+      joriyRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    )
+    return () => cancelAnimationFrame(kadr)
+  }, [ochiq])
 
   const bajarilgan = holat.bajarilgan ?? []
   const soni = DARSLAR.filter((d) => bajarilgan.includes(d)).length
@@ -109,7 +119,9 @@ export function DarslarPaneli({
       const loyihalar = papkalar?.find((p) => p.is_projects)
       ket(loyihalar ? papkaYoli(loyihalar.id) : '/korish')
     } else if (d === 'topshiriq') {
-      setOchiq(false)
+      // O'yin haqiqiy Topshiriqlar sahifasi ustida ochiladi — odam
+      // bo'lim qayerdaligini ham ko'radi
+      ket('/topshiriqlar')
       setMashqOchiq(true)
     } else if (d === 'papka') {
       papkaYarat.mutate({
@@ -183,6 +195,7 @@ export function DarslarPaneli({
                   </li>
                 )}
                 <li
+                  ref={joriy ? joriyRef : undefined}
                   className={`flex items-start gap-3 rounded-2xl p-3 transition ${
                     joriy ? 'bg-amber-400/10 ring-2 ring-amber-300' : 'bg-surface-muted'
                   }`}
@@ -249,6 +262,11 @@ export function DarslarPaneli({
         <TopshiriqMashqi
           yop={() => setMashqOchiq(false)}
           tugadi={() => darsniBelgila(['topshiriq'])}
+          // "Tushunarli" — keyingi darsga: ro'yxat o'sha darsda ochiladi
+          davom={() => {
+            setMashqOchiq(false)
+            setOchiq(true)
+          }}
         />
       )}
 

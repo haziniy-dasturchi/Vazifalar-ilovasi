@@ -380,6 +380,7 @@ export const uz = {
   'offline.xato':
     '{n} ta o‘zgarish saqlanmadi. Ilovani yangilab, qayta urinib ko‘ring.',
   'offline.qaytaUrinish': 'Qayta urinish',
+  'offline.batafsil': 'Batafsil',
   // Veb'da: internetsiz faqat ko'rish mumkin, o'zgartirish bloklanadi
   // (pastdagi `offlineOyna.*`)
   'offline.faqatKorish': 'Offline rejim: faqat ko‘rish',
@@ -809,6 +810,7 @@ export const uz = {
   'tmashq.topshirish': 'Topshirish',
   'tmashq.tekshiruvda': 'Yuboruvchi tekshirmoqda…',
   'tmashq.yakun': 'Topshiriqlar shunday ishlaydi. Endi hamkasbingizga haqiqiy topshiriq yuborishingiz mumkin!',
+  'tmashq.keyingiDars': 'Tushunarli — keyingi dars',
   'tmashq.holat.kelgan': 'Yangi',
   'tmashq.holat.suhbat': 'Jarayonda',
   'tmashq.holat.topshirish': 'Jarayonda',

@@ -16,7 +16,12 @@
 import type { Til } from '@/lib/i18n'
 import type { MatnKaliti } from '@/lib/i18n'
 
-export const TANISHUV_VERSIYASI = 1
+/**
+ * 2: "Ishni boshlang" darsi v1 da noto'g'ri sezilardi (bajarilgan
+ * vazifa ham "boshlangan" hisoblanardi). v1 holatlarida bu dars bir
+ * marta bekor qilinadi — provayderga qarang.
+ */
+export const TANISHUV_VERSIYASI = 2
 
 export type Maqsad = 'oqish' | 'ish' | 'uy' | 'jamoa' | 'sogliq' | 'shaxsiy'
 export const MAQSADLAR: Maqsad[] = ['oqish', 'ish', 'uy', 'jamoa', 'sogliq', 'shaxsiy']

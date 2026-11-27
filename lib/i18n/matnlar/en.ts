@@ -366,6 +366,7 @@ export const en: Record<MatnKaliti, string> = {
   'offline.sinxronlandi': 'Synced',
   'offline.xato': '{n} changes were not saved. Reload the app and try again.',
   'offline.qaytaUrinish': 'Try again',
+  'offline.batafsil': 'Details',
   'offline.faqatKorish': 'Offline mode: view only',
 
   // ---------- "No internet" dialog (web, when trying to edit) ----------
@@ -792,6 +793,7 @@ export const en: Record<MatnKaliti, string> = {
   'tmashq.topshirish': 'Hand in',
   'tmashq.tekshiruvda': 'The sender is reviewing…',
   'tmashq.yakun': 'That’s how assignments work. Now you can send a real one to a colleague!',
+  'tmashq.keyingiDars': 'Got it — next lesson',
   'tmashq.holat.kelgan': 'New',
   'tmashq.holat.suhbat': 'In progress',
   'tmashq.holat.topshirish': 'In progress',

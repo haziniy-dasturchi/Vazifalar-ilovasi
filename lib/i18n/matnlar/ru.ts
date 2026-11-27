@@ -367,6 +367,7 @@ export const ru: Record<MatnKaliti, string> = {
   'offline.xato':
     'Не сохранено изменений: {n}. Перезагрузите приложение и попробуйте снова.',
   'offline.qaytaUrinish': 'Повторить',
+  'offline.batafsil': 'Подробнее',
   'offline.faqatKorish': 'Офлайн-режим: только просмотр',
 
   // ---------- Окно "Нет интернета" (веб, при попытке изменить) ----------
@@ -793,6 +794,7 @@ export const ru: Record<MatnKaliti, string> = {
   'tmashq.topshirish': 'Сдать',
   'tmashq.tekshiruvda': 'Отправитель проверяет…',
   'tmashq.yakun': 'Вот так работают поручения. Теперь можно отправить настоящее поручение коллеге!',
+  'tmashq.keyingiDars': 'Понятно — следующий урок',
   'tmashq.holat.kelgan': 'Новое',
   'tmashq.holat.suhbat': 'В работе',
   'tmashq.holat.topshirish': 'В работе',

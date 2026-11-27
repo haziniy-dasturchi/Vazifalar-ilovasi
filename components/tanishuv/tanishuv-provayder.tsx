@@ -140,6 +140,18 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
     })
   }, [saqla])
 
+  /*
+    v1 da "Ishni boshlang" darsi vazifani bajarishdan ham belgilanib
+    qolardi. Shunday holatlarda bu dars bir marta bekor qilinadi —
+    odam uni haqiqatan sinab ko'rsin. `saqla` versiyani yangilaydi,
+    shuning uchun bu faqat bir marta ishlaydi.
+  */
+  useEffect(() => {
+    if (!holat || (holat.v ?? 1) >= TANISHUV_VERSIYASI) return
+    if (!holat.bajarilgan?.includes('boshlash')) return
+    saqla({ bajarilgan: holat.bajarilgan.filter((d) => d !== 'boshlash') })
+  }, [holat, saqla])
+
   // ---------------------------------------------------------------
   // Mashq papkasini yaratish
   // ---------------------------------------------------------------
@@ -330,7 +342,17 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
           .gte('created_at', dan)
           .is('deleted_at', null)
           .limit(1),
-        supabase.from('tasks').select('id').gte('started_at', dan).limit(1),
+        // Faqat HOZIR jarayonda turgan vazifa: server bajarilgan
+        // vazifaga ham `started_at` yozadi (tg_tasks_touch_timestamps),
+        // shuning uchun faqat shu ustunga qarash "bajardim"ni ham
+        // "boshladim" deb hisoblardi
+        supabase
+          .from('tasks')
+          .select('id')
+          .eq('status', 'in_progress')
+          .gte('started_at', dan)
+          .is('deleted_at', null)
+          .limit(1),
         loyihaPapkasi
           ? supabase
               .from('sections')

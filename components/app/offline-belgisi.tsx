@@ -44,8 +44,16 @@ export function OfflineBelgisi() {
   // Server rad etgan yozuvlar — o'zi qayta urinmaydi, lekin yo'qolmaydi
   const xatoXabarlari = useMutationState({
     filters: { status: 'error' },
-    select: (m) => (m.state.error as Error | null)?.message ?? '',
+    // Qaysi yozuv (mutatsiya kaliti) va server nima dedi — "Batafsil"
+    // ochilganda ko'rinadi. Foydalanuvchi skrinshot yuborsa, sabab
+    // darhol aniq bo'ladi, konsol ochish shart bo'lmaydi.
+    select: (m) => {
+      const qayer = (m.options.mutationKey ?? []).slice(1).join('.') || 'mutatsiya'
+      const xato = m.state.error as { message?: string; code?: string } | null
+      return `${qayer}: ${xato?.message ?? '?'}${xato?.code ? ` (${xato.code})` : ''}`
+    },
   })
+  const [batafsil, setBatafsil] = useState(false)
   const xatolar = xatoXabarlari.length
 
   // Haqiqiy xato matni faqat konsolga — foydalanuvchi texnik tilni
@@ -114,7 +122,20 @@ export function OfflineBelgisi() {
           >
             {t('offline.qaytaUrinish')}
           </button>
+          <button
+            type="button"
+            onClick={() => setBatafsil((b) => !b)}
+            aria-expanded={batafsil}
+            className="ml-2 shrink-0 underline underline-offset-2 opacity-80"
+          >
+            {t('offline.batafsil')}
+          </button>
         </Chiziq>
+      )}
+      {xatolar > 0 && batafsil && (
+        <pre className="max-h-40 overflow-auto border-b border-danger/20 bg-danger-soft px-4 py-2 font-mono text-[11px] leading-relaxed whitespace-pre-wrap text-danger select-text">
+          {xatoXabarlari.join('\n')}
+        </pre>
       )}
     </div>
   )

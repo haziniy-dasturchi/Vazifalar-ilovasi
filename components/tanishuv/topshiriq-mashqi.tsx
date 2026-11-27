@@ -23,7 +23,16 @@ type Xabar = { kim: 'bot' | 'men'; matn: string; reaksiya?: string }
 
 const REAKSIYALAR = ['👍', '❤️', '🔥', '😂']
 
-export function TopshiriqMashqi({ yop, tugadi }: { yop: () => void; tugadi: () => void }) {
+export function TopshiriqMashqi({
+  yop,
+  tugadi,
+  davom,
+}: {
+  yop: () => void
+  tugadi: () => void
+  /** Mashq tugagach "Tushunarli" — keyingi darsga o'tish */
+  davom: () => void
+}) {
   const t = useT()
   const [qadam, setQadam] = useState<Qadam>('kelgan')
   const [radMaslahat, setRadMaslahat] = useState(false)
@@ -262,10 +271,10 @@ export function TopshiriqMashqi({ yop, tugadi }: { yop: () => void; tugadi: () =
           <p className="mt-1 text-sm text-text-muted">{t('tmashq.yakun')}</p>
           <button
             type="button"
-            onClick={yop}
+            onClick={davom}
             className="mt-3 w-full cursor-pointer rounded-xl bg-brand-primary py-2.5 font-semibold text-white transition hover:bg-brand-primary-hover"
           >
-            {t('tanishuv.tushunarli')}
+            {t('tmashq.keyingiDars')}
           </button>
         </div>
       )}
