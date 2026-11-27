@@ -67,6 +67,16 @@ export function TanishuvProvayder({ children }: { children: React.ReactNode }) {
   )
 
   /*
+    Birinchi versiya tanishuv so'rovini `vazifalar` prefiksi ostida
+    saqlagan va u IndexedDB'ga yozilib qolgan. U obyekt bo'lgani uchun
+    vazifa ro'yxatlarini kutayotgan kod unda yiqilardi. Bir marta
+    o'chirib tashlaymiz — keyingi saqlashda keshdan butunlay ketadi.
+  */
+  useEffect(() => {
+    qc.removeQueries({ queryKey: [...kalit.vazifalar, 'tanishuv'] })
+  }, [qc])
+
+  /*
     Ustun hali bazaga qo'shilmagan bo'lsa (migratsiya ishga
     tushirilmagan) hisobga yozmaymiz — aks holda har bir saqlash
     xato berib, offline navbatda osilib qolardi. Bu holatda tanishuv

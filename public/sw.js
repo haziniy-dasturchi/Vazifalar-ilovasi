@@ -7,7 +7,23 @@
 //   * Supabase API so'rovlari HECH QACHON keshlanmaydi: eski
 //     ma'lumotni yangi deb ko'rsatish xatoga olib keladi
 
-const KESH = 'samara-v3'
+// Versiya o'zgarsa brauzer yangi ishchini o'rnatadi va `activate`
+// eski keshlarni o'chiradi. v4: localhost'da eski JS yopishib qolgan
+const KESH = 'samara-v4'
+
+/**
+ * Ishlab chiqish serverida (`npm run dev`) hech narsa keshlanmaydi.
+ *
+ * Nega: dev rejimida `/_next/static/` fayl nomlarida xesh YO'Q —
+ * kod o'zgarsa ham nom o'zgarmaydi. Pastdagi "avval keshdan" qoidasi
+ * esa eski JS'ni abadiy berib turardi: tuzatilgan xato brauzerda
+ * tuzatilmagandek ko'rinardi. Productionda nomlar xeshli, u yerda
+ * bu muammo yo'q.
+ */
+const DEV_XOST =
+  self.location.hostname === 'localhost' ||
+  self.location.hostname === '127.0.0.1' ||
+  self.location.hostname.endsWith('.localhost')
 
 /** Internet yo'qligida ko'rsatiladigan zaxira sahifa */
 const ZAXIRA = '/offline.html'
@@ -42,6 +58,10 @@ const ASOSIY = [
 ]
 
 self.addEventListener('install', (event) => {
+  if (DEV_XOST) {
+    event.waitUntil(self.skipWaiting())
+    return
+  }
   event.waitUntil(
     caches
       .open(KESH)
@@ -87,6 +107,7 @@ function abadiymi(url) {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event
+  if (DEV_XOST) return
   if (request.method !== 'GET') return
 
   const url = new URL(request.url)
