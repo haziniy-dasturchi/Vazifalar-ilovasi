@@ -2,120 +2,140 @@
 
 > Bu hujjat ikki qismdan iborat: birinchisi oddiy foydalanuvchi uchun,
 > ikkinchisi — qo'lda tekshirish ro'yxati.
+>
+> **MUHIM (2026-noyabr, Capacitor qo'shilgandan keyin):** veb va ilova
+> (Android/iOS) endi internetsiz turlicha ishlaydi. Veb'da faqat
+> ko'rish, ilovada to'liq tahrirlash. Pastda ikkisi alohida tushuntirilgan.
 
 ---
 
 ## 1. Oddiy tilda: nima ishlaydi, nima yo'q
 
-### Internetsiz ishlaydi
+### Ikkisida ham internetsiz ishlaydi
 
-- **Ilova ochiladi.** Telefon yoki kompyuterda bir marta ochilgan
-  bo'lsa, keyin internetsiz ham ochilaveradi.
+- **Ilova ochiladi.** Bir marta ochilgan bo'lsa, keyin internetsiz ham
+  ochilaveradi (sahifa qobig'i veb'da service worker orqali, appda esa
+  o'rnatilgan fayllar sifatida saqlanadi).
 - **Vazifalarni ko'rish.** Oxirgi marta internet bor paytda yuklangan
   ro'yxatlar joyida turadi.
-- **Yangi vazifa qo'shish.** Qo'shilgan vazifa darhol ro'yxatda
-  ko'rinadi.
-- **Tahrirlash va o'chirish** — endigina qo'shilgan vazifani ham.
-- **Bajarildi deb belgilash**, foizini o'zgartirish.
+- **Kirgan holat saqlanadi.** Hisobdan birinchi marta kirish uchun
+  internet shart, keyin sessiya qurilmada saqlanadi — uzoq vaqt
+  (1 soatdan ko'p) internetsiz turilsa ham chiqarib yuborilmaydi.
+
+### Ilovada (Android/iOS) — qo'shimcha, TO'LIQ tahrirlash
+
+- **Yangi vazifa qo'shish, tahrirlash, o'chirish, bajarildi deb
+  belgilash** — hammasi internetsiz ham ishlaydi. O'zgarish darhol
+  ro'yxatda ko'rinadi.
 - **Takrorlanuvchi vazifa.** Bajarilsa, keyingi sanaga o'zi suriladi —
   server bilan bog'lanish shart emas.
 - **Ilovani yopib, qayta ochish.** Yuborilmagan o'zgarishlar qurilmada
   saqlanadi va yo'qolmaydi.
+- Internet qaytganda hamma o'zgarish o'zi, tartib bilan serverga
+  yuboriladi. Yuqoridagi chiziqda "N ta o'zgarish kutmoqda", so'ng
+  "Sinxronlandi ✓" ko'rinadi.
 
-Internet qaytganda hamma o'zgarish o'zi, tartib bilan serverga
-yuboriladi. Yuqoridagi chiziqda "N ta o'zgarish kutmoqda" yozuvi
-ko'rinib turadi.
+### Veb'da — FAQAT ko'rish
 
-### Internetsiz ishlamaydi — va nega
+- Vazifalarni ko'rish, sahifalar orasida yurish — ishlaydi.
+- **Hech qanday o'zgartirish yuborilmaydi.** Vazifa qo'shish, "+"
+  tugmasi, tahrirlash, belgilash, o'chirish, sudrab tashlash — birortasi
+  ham internetsiz ishlamaydi. Urinilganda do'stona oyna chiqadi:
+  "Internet aloqasi yo'q" + "Tushunarli" / "Qayta tekshirish" tugmalari.
+- Sahifa tepasida yumshoq kulrang chiziq: "Offline rejim: faqat
+  ko'rish". Internet qaytganda o'zi yo'qoladi.
+- **Nega veb'da boshqacha:** brauzer tab'i istalgan vaqt yopilib
+  ketishi mumkin — shu paytgacha "navbatda" turgan o'zgarish yo'qolib
+  ketish xavfi bor. Ilova esa alohida, doimiy jarayon sifatida ishlaydi.
+
+### Ikkisida ham internetsiz ishlamaydi — va nega
 
 - **Birinchi marta kirish.** Google orqali kirish Google serveriga
-  murojaat qiladi. Hisobga birinchi marta kirish uchun internet shart.
-  Bir marta kirgandan keyin sessiya qurilmada saqlanadi va internetsiz
-  ham ochilaveradi.
-- **Boshqa qurilmadagi o'zgarishlar.** Telefoningizda qilingan
-  o'zgarish kompyuterda faqat sinxronlashdan keyin ko'rinadi. Internet
-  yo'q paytda ilova faqat shu qurilmadagi ma'lumotni biladi.
-- **Hali bir marta ham ochilmagan sahifa.** Masalan loyiha sahifasi
-  (`/papka/...`) internet bor paytda bir marta ochilmagan bo'lsa,
-  internetsiz ochilmasligi mumkin — u qurilmada saqlanmagan.
-- **Bildirishnomalar.** Eslatma serverdan keladi, shuning uchun
-  internetsiz kelmaydi.
-- **Hisobni o'chirish, rasm yuklash, topshiriq yuborish** — bular
-  to'g'ridan-to'g'ri serverga boradi.
+  murojaat qiladi.
+- **Boshqa qurilmadagi o'zgarishlar.** Internet yo'q paytda ilova
+  faqat shu qurilmadagi ma'lumotni biladi.
+- **Hali bir marta ham ochilmagan sahifa** (masalan ochilmagan loyiha).
+- **Bildirishnomalar** — serverdan keladi.
+- **Hisobni o'chirish, rasm yuklash, boshqa odamga topshiriq yuborish**
+  — bular to'g'ridan-to'g'ri serverga boradi, na veb'da, na ilovada
+  internetsiz ishlamaydi.
 
-### iPhone va iPad (Safari) cheklovlari
+### iPhone va iPad — Safari (veb) cheklovlari
 
-- **Fon sinxronizatsiyasi yo'q.** Androidda brauzer ilova yopiq
-  bo'lsa ham o'zgarishlarni yuborib qo'yishi mumkin. iPhone'da
-  bunday imkoniyat yo'q: o'zgarishlar **ilovani qayta ochganingizda**
-  yuboriladi.
-- **Saqlash joyi tozalanib ketishi mumkin.** Safari ilova uzoq vaqt
-  (taxminan 7 hafta) ishlatilmasa saqlangan ma'lumotni o'chirib
-  yuborishi mumkin. Ilova bosh ekranga o'rnatilgan bo'lsa, bu xavf
-  ancha kamayadi — shuning uchun o'rnatib qo'yish tavsiya etiladi.
-- Ilova "doimiy saqlash" ruxsatini so'raydi; berilsa, ma'lumot
-  o'chirilmaydi.
+Veb endi faqat ko'rish rejimida ishlaydi, shuning uchun eski
+"fon sinxronizatsiyasi yo'q" muammosi endi veb'ga umuman tegishli emas
+— tahrirlash bo'lmagani uchun yo'qoladigan o'zgarish ham yo'q. iOS
+ilovasi chiqqanda (Mac/bulut build bilan) u ham Android kabi to'liq
+offline ishlaydi.
 
-### Ikki qurilmada bir vazifa o'zgartirilsa
+### Ikki qurilmada bir vazifa o'zgartirilsa (ilova ↔ ilova, yoki ilova ↔ veb onlayn paytda)
 
-Oxirgi o'zgarish ustun keladi (`updated_at` bo'yicha). Ya'ni
-telefonda soat 10:00 da, kompyuterda 11:00 da o'zgartirilgan bo'lsa,
-11:00 dagisi qoladi. Internetsiz qilingan eski o'zgarish yangisining
-ustiga yozilmaydi.
-
-O'chirish ham shu qoidaga bo'ysunadi: vazifa darhol butunlay
-o'chirilmaydi, "o'chirilgan" deb belgilanadi (`deleted_at`). Shuning
-uchun boshqa qurilmadagi o'zgarish izsiz yo'qolmaydi.
+Oxirgi o'zgarish ustun keladi (`updated_at` bo'yicha). O'chirish ham
+shu qoidaga bo'ysunadi: vazifa darhol butunlay o'chirilmaydi,
+"o'chirilgan" deb belgilanadi (`deleted_at`).
 
 ---
 
 ## 2. Qo'lda tekshirish ro'yxati
 
-Chrome DevTools → **Network** → **Offline** (yoki Application →
-Service Workers → Offline).
+### A. Veb (brauzer) — faqat ko'rish ekanini tekshirish
 
-### Tayyorgarlik
-
-1. Ilovaga kiring, bir necha vazifa va kamida bitta loyiha bo'lsin.
-2. `/jarayonda`, `/bugun`, `/kelgusi`, `/hisobot` sahifalarini bir
-   martadan oching (kesh to'lsin).
-3. DevTools → Application → Service Workers: `sw.js` **activated**
-   bo'lishi kerak.
-4. Application → Storage: "Persistent" yozuvini tekshiring.
-
-### Offline stsenariy
+Chrome DevTools → **Network** → **Offline**.
 
 | # | Qadam | Kutilgan natija |
 |---|---|---|
-| 1 | Network → Offline | Yuqorida qora chiziq: "Internet yo'q…" |
-| 2 | Yangi vazifa qo'shing | Vazifa darhol ro'yxatda; chiziqda "1 ta o'zgarish kutmoqda" |
-| 3 | O'sha vazifani oching va nomini o'zgartiring | O'zgarish darhol ko'rinadi, xato chiqmaydi |
-| 4 | O'sha vazifani o'chiring | Ro'yxatdan yo'qoladi |
-| 5 | Yana bitta vazifa qo'shib, bajarildi deb belgilang | Doira to'ladi, vazifa "bajarildi" bo'ladi |
-| 6 | Takrorlanuvchi vazifani (masalan "har kuni") bajaring | Sana keyingi kunga suriladi, vazifa yana ochiq bo'ladi |
-| 7 | Sahifani yangilang (F5) | Ilova ochiladi, barcha offline o'zgarishlar joyida, kutayotganlar soni saqlanadi |
-| 8 | Ilovani butunlay yopib, qayta oching | Xuddi shu natija |
-| 9 | Network → Online | Chiziq "sinxronlanmoqda" ga o'zgaradi, so'ng yo'qoladi |
-| 10 | Supabase → Table editor → `tasks` | Qo'shilgan vazifa bor; o'chirilganida `deleted_at` to'lgan; tahrir qilingani yangi nom bilan |
+| 1 | Ilovaga kiring, `/jarayonda`, `/bugun`, `/kelgusi` sahifalarini bir martadan oching | Kesh to'ladi |
+| 2 | Network → Offline | Tepada yumshoq kulrang chiziq: "Offline rejim: faqat ko'rish" |
+| 3 | Vazifalar ro'yxati ko'rinishda qolishi | Hech narsa yo'qolmaydi, bo'sh ekran chiqmaydi |
+| 4 | "+" tugmasi bilan yangi vazifa qo'shishga urining | So'rov ketmaydi, "Internet aloqasi yo'q" oynasi chiqadi |
+| 5 | Mavjud vazifaning checkbox'ini bosing | Hech narsa o'zgarmaydi, xuddi shu oyna chiqadi |
+| 6 | Oynada "Qayta tekshirish" ni bosing (hali offline) | "Hali ham internet topilmadi" degan kichik matn chiqadi, oyna yopilmaydi |
+| 7 | Oynani "Tushunarli" bilan yoping, Network → Online qiling | Yumshoq chiziq o'zi yo'qoladi |
+| 8 | Endi vazifa qo'shing | Odatdagidek ishlaydi |
+| 9 | DevTools → Console | Hech qanday texnik xato matni foydalanuvchiga chiqmagan bo'lishi kerak (faqat kerak bo'lsa console'da) |
 
-### Konfliktni tekshirish
+### B. Ilova (Android/iOS) — to'liq offline tekshirish
 
-1. Ikki brauzerda (yoki telefon + kompyuter) bitta hisobga kiring.
-2. A qurilmani offline qiling va vazifa nomini "A" ga o'zgartiring.
-3. B qurilmada (online) o'sha vazifani "B" ga o'zgartiring.
-4. A ni online qiling.
-5. **Kutilgan:** nom "B" bo'lib qoladi (B kechroq yozilgan), A ning
-   eski o'zgarishi ustiga yozilmaydi. A qurilmada ham bir necha
-   soniyadan keyin "B" ko'rinadi.
+Emulyator/qurilmada Wi-Fi va mobil internetni o'chiring (yoki
+Android'da "Airplane mode").
+
+| # | Qadam | Kutilgan natija |
+|---|---|---|
+| 1 | Ilovaga kiring, bir necha sahifani ochib chiqing | Kesh to'ladi |
+| 2 | Internetni o'chiring | Tepada: "Offline rejim, o'zgarishlar saqlanmoqda" |
+| 3 | Yangi vazifa qo'shing | Vazifa darhol ro'yxatda; "1 ta o'zgarish kutmoqda" |
+| 4 | O'sha vazifani tahrirlang, keyin o'chiring | Ikkisi ham darhol ko'rinadi, xato chiqmaydi |
+| 5 | Boshqa vazifani bajarildi deb belgilang | Doira to'ladi |
+| 6 | Takrorlanuvchi vazifani bajaring | Sana keyingi kunga suriladi |
+| 7 | Ilovani butunlay yopib, qayta oching (hamon offline) | Barcha o'zgarish joyida, kutayotganlar soni saqlangan |
+| 8 | Internetni yoqing | Chiziq "sinxronlanmoqda", so'ng "Sinxronlandi ✓" (2-3 soniya), keyin yo'qoladi |
+| 9 | Supabase → Table editor → `tasks` | Qo'shilgan vazifa bor; o'chirilgani `deleted_at` bilan; tahrirlangani yangi nom bilan |
+
+### C. Sessiya — uzoq muddat offline (eng muhim test)
+
+| # | Qadam | Kutilgan natija |
+|---|---|---|
+| 1 | Ilovaga kiring | Normal ishlaydi |
+| 2 | Internetni o'chiring, ilovani yopib qo'ying | — |
+| 3 | **Kamida 1 soat** kutib, internetni YOQMASDAN ilovani qayta oching | Login ekraniga TUSHMAYDI — oxirgi ko'rilgan ro'yxat chiqadi |
+| 4 | Shu holatda vazifa qo'shing | Ishlaydi, navbatga tushadi |
+| 5 | Internetni yoqing | Avval sessiya/token yangilanadi, so'ng navbatdagi o'zgarish yuboriladi — ikkisi ham yo'qolmaydi |
+
+### Konfliktni tekshirish (ixtiyoriy, ikkinchi qurilma kerak)
+
+1. Ilovada (A) offline bo'lib, vazifa nomini "A" ga o'zgartiring.
+2. Veb'da (B, onlayn) o'sha vazifani "B" ga o'zgartiring.
+3. A ni onlayn qiling.
+4. **Kutilgan:** nom "B" bo'lib qoladi (B kechroq yozilgan).
 
 ### Nimaga e'tibor berish kerak
 
-- Hech qanday "Xatolik yuz berdi" oynasi chiqmasligi kerak.
+- Hech qanday "Xatolik yuz berdi" yoki texnik (`TypeError`, `fetch`)
+  matn ekranda chiqmasligi kerak — na veb'da, na ilovada.
 - DevTools → Application → IndexedDB → `keyval-store` ichida
-  `samara-query-cache` bo'lishi kerak.
-- Offline paytda tarmoq so'rovlari (Network) qizil bo'lishi normal —
-  muhimi, interfeys ishlashda davom etadi.
+  `samara-query-cache` bo'lishi kerak (veb va ilova ikkisida ham,
+  ilovada esa `@capacitor/preferences` orqali sessiya alohida saqlanadi).
 
-> **Avtomatlashtirilgan test (Playwright)** hozircha qo'shilmadi:
-> u yangi katta bog'liqlik va alohida CI sozlamasini talab qiladi.
+> **Avtomatlashtirilgan test (Playwright)** hozircha qo'shilmadi: u
+> yangi katta bog'liqlik va alohida CI sozlamasini talab qiladi.
 > Yuqoridagi ro'yxat shu stsenariyning to'liq qo'lda varianti.

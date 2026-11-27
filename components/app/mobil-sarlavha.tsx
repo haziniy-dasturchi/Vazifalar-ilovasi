@@ -7,6 +7,7 @@ import { useFoydalanuvchi } from './foydalanuvchi'
 import { useChiqish } from './use-chiqish'
 import { useT } from './til-provayder'
 import { useProfil } from '@/lib/queries/profil'
+import { useOrqagaYopish } from '@/lib/orqaga'
 
 /** Telefon uchun yuqori panel — brend va profil menyusi */
 export function MobilSarlavha() {
@@ -15,6 +16,7 @@ export function MobilSarlavha() {
   const chiqish = useChiqish()
   const t = useT()
   const [ochiq, setOchiq] = useState(false)
+  useOrqagaYopish(ochiq, () => setOchiq(false))
 
   // Foydalanuvchi o'zi qo'ygan ism va rasm ustun turadi
   const ism = profil?.full_name?.trim() || foydalanuvchi.ism
@@ -22,7 +24,11 @@ export function MobilSarlavha() {
   const bosh = ism.trim().charAt(0).toUpperCase() || 'S'
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border-subtle bg-surface/95 px-4 py-2 backdrop-blur md:hidden">
+    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border-subtle bg-surface px-4 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 md:hidden">
+      {/* Holat paneli balandligi (safe-area) FAQAT tepaga qo'shiladi.
+          Avval `py-[calc(...+safe-area)]` edi — appda u pastga ham
+          qo'shilib, logo ostida ortiqcha bo'sh joy qolardi. Veb'da
+          safe-area 0, shuning uchun ko'rinish o'zgarmaydi. */}
       {/* Logo "Bugun" ga olib boradi — odam logoni bosganda odatda
           kunlik ro'yxatga qaytmoqchi bo'ladi */}
       <Link href="/bugun" className="flex items-center">

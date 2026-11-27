@@ -2,6 +2,9 @@ import type { MetadataRoute } from 'next'
 import { DOMEN } from '@/lib/huquqiy'
 import { TILLAR, tilPrefiksi } from '@/lib/i18n'
 
+// Mazmuni har doim bir xil — statik eksport (Capacitor build) buni talab qiladi
+export const dynamic = 'force-static'
+
 /**
  * Sayt xaritasi — faqat kirishsiz ochiladigan sahifalar.
  *

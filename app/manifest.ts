@@ -1,5 +1,8 @@
 import type { MetadataRoute } from 'next'
 
+// Mazmuni har doim bir xil — statik eksport (Capacitor build) buni talab qiladi
+export const dynamic = 'force-static'
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Samara',

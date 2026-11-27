@@ -1,7 +1,15 @@
 # Samara — loyiha holati (yangi chat uchun xulosa)
 
 > Bu fayl yangi suhbatga nusxalab tashlash uchun. Oxirgi yangilanish:
-> 2026-yil 20-noyabr.
+> 2026-yil 21-noyabr.
+
+> ⚠️ **MUHIM: hozir `main` emas, `feature/capacitor-offline`
+> branch'idasiz.** Bu branch'da Capacitor (Android/iOS app), offline
+> rejim va boshqa katta o'zgarishlar bor — hech biri `main`ga
+> qo'shilmagan, hech biri GitHub'ga push qilinmagan, commit ham
+> qilinmagan (foydalanuvchi aniq so'ramaguncha). Pastdagi "Ishlash
+> tartibi"dagi `git push origin main` qoidasi SHU branch'ga tegishli
+> emas — committing/push haqida avval so'rang.
 
 ## Loyiha
 
@@ -145,6 +153,281 @@ foydalanuvchilar yangi bo'limni ko'rmay qolardi.
 — RLS shu birinchi papkaga qarab ruxsat beradi. Yangisi yuklangach
 eskisi o'chiriladi, aks holda har almashtirish fayl qoldirardi.
 
+**Native push bildirishnoma (FCM).** Appda Web Push ishlamaydi
+(`PushManager` Capacitor WebView'da yo'q), shuning uchun
+`push_subscriptions` jadvali ikki turni saqlaydi: `platform='web'`
+(endpoint/p256dh/auth) va `platform IN ('android','ios')`
+(`fcm_token`). CHECK constraint platformaga mos ustunlar
+to'ldirilganini bazada kafolatlaydi — aks holda xato faqat
+bildirishnoma yuborish paytida ko'rinardi.
+→ Edge Function OAuth2 tokenni `jose` bilan O'ZI imzolaydi,
+`firebase-admin` SDK ishlatilmaydi (Deno muhitida ortiqcha).
+Token 1 soat keshlanadi; TUGAMAGAN so'rov ham keshlanadi, chunki
+qurilmalarga `Promise.all` bilan parallel yuboriladi va aks holda
+har biri uchun alohida OAuth2 so'rovi ketardi.
+
+---
+
+# `feature/capacitor-offline` branch'ida qilingan ishlar (2026-noyabr)
+
+Bular hammasi `main`ga hali qo'shilmagan, alohida branch'da.
+
+## 1. Capacitor — ilova (Android/iOS) qobig'i
+
+- `capacitor.config.ts`: appId `uz.samaralikun.samara`, `webDir: 'out'`,
+  `server.url` YO'Q (haqiqiy offline ishlashi uchun — sayt o'rami EMAS).
+- **TWA/PWABuilder rejasi TO'XTATILDI**, Capacitor almashtirdi
+  (`docs/play-market-qadamlar.md`, `docs/play-market.md` shunga mos
+  yangilangan).
+- `lib/platform.ts` — `ilovaNativemi()` — platformani aniqlashning
+  YAGONA joyi. Butun kodda bor-yo'g'i 4 ta joy shunga tekshiradi:
+  native Google kirish, sessiya saqlagich, offline banner matni,
+  status bar/orqaga tugmasi. Boshqa HECH QAYERDA farq yo'q — veb va
+  app bir xil kod ishlatadi.
+- `scripts/build-capacitor.mjs` — `npm run build:app`: `middleware.ts`
+  va `app/auth/callback`ni vaqtincha chetga olib statik eksport
+  qiladi (ular appga kerak emas, middleware umuman ishlamaydi static
+  export'da). `next.config.ts`da `trailingSlash: true` ShART —
+  aks holda appda sahifalar orasida yurish ishlamaydi (Next statik
+  eksportda `/bugun/index.html` yaratadi, lekin havolalar "/" siz
+  bo'ladi — Capacitor buni hal qila olmay, boshidagi sahifaga
+  qaytarib yuborardi). Bu **real xato edi, tuzatildi**.
+- `app/(ilova)/papka/[id]/page.tsx` — `generateStaticParams()` bitta
+  zaxira yo'l qaytaradi, haqiqiy ID `useParams()` orqali client
+  tomonda olinadi (real papka ID'lari build vaqtida noma'lum).
+- `app/kirish/page.tsx` — `searchParams` server o'qishi olib
+  tashlandi (statik eksportda ishlamaydi), `useSearchParams()` +
+  Suspense'ga ko'chirildi.
+- Native Google kirish: `lib/google-kirish.ts`, `@capgo/capacitor-social-login`.
+  Nonce TO'G'RI ishlatilgan (Google'ga xashlangan, Supabase'ga xom).
+  Google Cloud Console'da **Android OAuth client allaqachon
+  yaratilgan** ("Samara Android debug", debug SHA-1 bilan — Vazifalar
+  loyihasi, `haziniyilmmaskani2025@gmail.com` hisobida). **Telefonda
+  sinaldi — ishladi.**
+- Sessiya: `@capacitor/preferences` (appda), kuki (veb'da) —
+  `lib/supabase/client.ts`.
+- `@capacitor/network` — `onlineManager`ga ulangan
+  (`components/app/native-bootstrap.tsx`) — WebView'da
+  `navigator.onLine` ishonchsiz bo'lgani uchun.
+- Status bar, Android orqaga tugmasi, safe-area — hammasi
+  `native-bootstrap.tsx` + CSS `env(safe-area-inset-*)`.
+- Ikonka/splash — `assets/icon.svg` (brend belgisidan, xavfsiz hudud
+  bilan qayta ishlangan) + `@capacitor/assets`.
+
+## 2. Offline rejim
+
+- **Appda**: to'liq (allaqachon TanStack mutatsiya-navbat arxitekturasi
+  bor edi, shunchaki tasdiqlandi va kuchaytirildi).
+- **Veb'da**: offline'da FAQAT ko'rish. `lib/queries/outbox-mutatsiya.ts`
+  (`useOutboxMutation`) — barcha vazifa/papka/bo'lim/profil
+  mutatsiyalari shu orqali o'tadi (11 joy). Veb+offline bo'lsa so'rov
+  UMUMAN yuborilmaydi, `components/app/offline-tahrirlash-oynasi.tsx`
+  ochiladi.
+- `components/app/offline-belgisi.tsx` qayta yozildi: qora/qizil
+  o'rniga yumshoq kulrang, platforma bo'yicha matn farqlanadi.
+- **MUHIM XATO TOPILDI VA TUZATILDI:** vazifa holati (boshlash/rejaga
+  qaytarish) o'zgarganda "Bugun/Jarayonda/Kelgusi/Ertaga" ro'yxatlariga
+  qo'shilmas/chiqarilmas edi (`keshdaYangila` faqat MAVJUD yozuvni
+  yangilardi, ro'yxatga qo'shish/chiqarishni bilmasdi). Onlayn paytda
+  sezilmasdi (darhol qayta yuklanardi), offline'da ochiq ko'rinardi.
+  `lib/queries/vazifalar.ts`dagi `royxatlarniKochir()` funksiyasi hal
+  qildi. **Telefonda tasdiqlandi — ishlayapti.**
+- `docs/offline.md` to'liq qayta yozildi (A/B/C bo'lim: veb, app,
+  uzoq muddat offline sessiya testi).
+
+## 3. Native push bildirishnoma (FCM) — BAJARILDI
+
+Firebase loyihasi: **`samara-88f9a`** (`haziniyilmmaskani2025@gmail.com`
+hisobida, Spark/bepul reja). Android ilova `uz.samaralikun.samara`
+nomi bilan ro'yxatdan o'tgan.
+
+- `@capacitor/push-notifications` o'rnatildi,
+  `android/app/google-services.json` joylashtirildi (gradle allaqachon
+  shu fayl bo'lsa plaginni qo'llaydigan qilib sozlangan edi).
+- `AndroidManifest.xml` ga `POST_NOTIFICATIONS` qo'shildi. Plagin bu
+  ruxsatni Java kodida so'raydi, lekin o'z manifestida e'lon
+  QILMAYDI — busiz Android 13+ da ruxsat oynasi umuman chiqmasdi.
+- Migratsiya `20261121100000_fcm_push.sql` — **production'ga
+  qo'llangan** (21-noyabr). `platform` + `fcm_token` ustunlari,
+  eski ustunlar nullable, CHECK constraint, `fcm_token` uchun
+  qisman noyoblik indeksi.
+  → Ikkala RPC (`kutilayotgan_eslatmalar`, `kutilayotgan_topshiriqlar`)
+  DROP+CREATE qilindi (RETURNS TABLE o'zgargani uchun). **Bu ACL'ni
+  tashlab yuboradi**, shuning uchun `service_role` ga EXECUTE
+  qaytadan berildi — busiz Edge Function "permission denied" olardi.
+- `lib/bildirishnoma.ts` — platformaga qarab ajraladi. Appda token
+  `register()` dan QAYTMAYDI, `'registration'` hodisasi orqali
+  keladi — shuning uchun promise bilan o'ralgan va
+  `@capacitor/preferences` da saqlanadi (brauzerdagi kabi
+  `getSubscription()` yo'q, aks holda holatni bilish uchun har safar
+  foydalanuvchiga ruxsat oynasi ko'rsatilardi).
+- `native-bootstrap.tsx` — bildirishnoma bosilganda `data.yol`
+  bo'yicha o'tadi (`/bugun` yoki `/topshiriqlar`).
+- Edge Function **deploy qilingan**, sir `FIREBASE_SERVICE_ACCOUNT`
+  Supabase'ga qo'shilgan (JSON nusxasi `.secrets/` da).
+
+**Tekshirilgani:** OAuth2 zanjiri haqiqiy service account bilan
+sinaldi — token olindi (200), FCM API uni qabul qildi va faqat soxta
+qurilma tokenidan shikoyat qildi (`INVALID_ARGUMENT`). RPC imzolari
+va `service_role` ruxsatlari bazada tasdiqlandi. `tsc`, `next build`,
+139 test, `build:app` — hammasi o'tdi.
+
+**Tekshirilmagani:** haqiqiy telefonga bildirishnoma YETIB BORISHI.
+
+## 4. Bajarishni bekor qilish — BAJARILDI (24-noyabr)
+
+"Bugun bajarildi" dagi vazifani doirasini qayta bosib ochiq ishlarga
+qaytarish. Oddiy vazifada bu avval ham ishlardi, TAKRORLANUVCHIDA esa
+doira umuman o'chirib qo'yilgandi: bajarilgan zahoti server uni
+keyingi sanaga suradi va holati "done" bo'lib qolmaydi.
+
+- Migratsiya `20261124090000_bajarishni_bekor.sql` — **qo'llangan**.
+  Yangi ustun `tasks.prev_due_date` (surishdan oldingi sana) va yangi
+  `undo_complete_task()` RPC. Eski `uncomplete_task` o'z joyida
+  qoldirildi — telefon keshidagi eski JS uni chaqirishi mumkin.
+- Bekor qilinganda jurnaldagi `completed` yozuvi O'CHIRILADI. Nega:
+  bu tugma "adashib bosdim" uchun — aks holda hisobotda o'sha kun
+  "bajarilgan" bo'lib qolaverardi, "Bugun" sahifasi esa vazifani
+  ham ochiq ro'yxatda, ham bajarilganlar orasida ikki marta
+  ko'rsatardi (u sahifa aynan shu yozuvga qarab ishlaydi).
+- Eski yozuvlarda (`prev_due_date` bo'sh) oxirgi "bajarildi"
+  hodisasining kuniga qaytariladi.
+- **TOPILDI:** production'dagi `tg_tasks_progress_sync` triggeri
+  repo'dagi migratsiyalardan farq qilardi — bazada qo'lda tuzatilgan,
+  fayli yozilmagan. Lokal PGlite sinovi shu sababli eski, buzuq
+  variantni sinardi. Jonli variant endi migratsiyaga ko'chirildi
+  (production uchun o'zgarish yo'q).
+
+**Tekshirilgani:** PGlite'da 12 ta yangi tekshiruv (surish, orqaga
+qaytish, muddat siljishi, hodisa o'chishi, eski yozuv, takroriy
+chaqiruv), `tsc`, `next build`, 139 test, `build:app`.
+
+**Tekshirilmagani:** interfeysda bosib ko'rish (kirish parolini
+Claude kirita olmaydi).
+
+**Ma'lum kamchilik:** bekor qilinganda subtasklar "planned" bo'lib
+qolaveradi — bajarishdan oldin qaysilari belgilangani saqlanmaydi.
+
+## 4b. Topshiriqlar, 1-bosqich — BAJARILDI (24-noyabr)
+
+Maqsad: rahbar xodimlarga topshiriq berib, bajarilishini shu ilovada
+nazorat qilsin.
+
+- Migratsiya `20261124150000_topshiriq_tekshiruv.sql` — **production'ga
+  qo'llangan** (Management API, bitta tranzaksiyada).
+- Yangi holat `tekshiruvda`: kutilmoqda → qabul → tekshiruvda →
+  bajarildi; yuboruvchi `topshiriqni_qaytarish` bilan sabab yozib
+  qaytaradi (ijrochi vazifasi yana `in_progress` bo'ladi).
+  Ijrochi `topshiriqni_topshirish` (natija izohi bilan) yoki vazifani
+  ro'yxatida tugatadi — trigger ikkalasida bir xil ishlaydi.
+- `tekshirish` ustuni: har topshiriqda yuboruvchi tanlaydi (sukut:
+  true). Eski 6 ta qatorga `false` qo'yildi — yarim yo'lda oqim
+  o'zgarmasin.
+- `muddat_vaqt` (soat), qabulda `izoh` va soat ham vazifaga ko'chadi.
+- `topshiriq_kontaktlari()` — ism faqat `topshiriq_tafsilotlari`
+  qoidasi bo'yicha (men yozgan odam ismi u qabul qilgandan keyin).
+- `kutilayotgan_topshiriqlar()` ga `fcm_push` da tushib qolgan
+  `qabul_ochirgan_at is null` sharti qaytarildi.
+- Interfeys: kontakt chiplari, Telegram taklif havolasi, holat
+  filtrlari (Kechikkan bilan), menyu belgisi = kutilayotgan kelganlar
+  + tekshiruvdagi yuborilganlar.
+
+**Tekshirilgani:** PGlite'da 13 ta yangi tekshiruv, `tsc`, 139 test,
+production'da ustunlar/CHECK/RPC ruxsatlari.
+
+**Tekshirilmagani:** interfeysda bosib ko'rish; Android'da taklif
+tugmasi (WebView'da `navigator.share` bo'lmasa t.me havolasi ochiladi).
+
+## 4c. Topshiriqlar, 2-3-bosqich — BAJARILDI (24-noyabr)
+
+main'ga `abc4eb0` (Vercel'da jonli). Faqat topshiriqlar fayllari
+ko'chirilgan — Capacitor/offline ishi bu branch'da qolgan.
+
+- Migratsiya `20261125090000_topshiriq_jamoa.sql` — **production'ga
+  qo'llangan**. Jamoalar (havola kodi bilan, rahbar/a'zo),
+  `profiles.taklif_kodi` + `kontaktlar` (shaxsiy taklif), izohlar
+  (`topshiriq_izohlari`, RLS), yopiq bucket `topshiriq-fayllar`
+  (10 MB), `topshiriq_tarixi` (trigger), `topshiriq_xabarlari`
+  navbati, `guruh_id`, `takror`, `baho`, `avto_qabul`.
+- Jamoa ichida `tg_topshiriq_avto_qabul` darhol qabul qiladi;
+  `topshiriq_yozsa_boladimi` jamoadoshga doim ruxsat beradi.
+- Trigger nomi `topshiriq_0_hodisa` — ATAYLAB "0": Postgres
+  triggerlarni nom tartibida ishlatadi, "yuborildi" yozuvi
+  avtomatik qabuldan oldin tushishi kerak.
+- Edge Function `eslatma-yuborish` **joylangan**: uchinchi ish —
+  `topshiriq_muddat_xabarlari()` (2 soat qolganda / o'tganda) va
+  navbatdagi xabarlarni yuborish. Birinchi ishga tushishda 5 xabar
+  yetkazildi.
+- Middleware `keyin` endi so'rov qismini ham saqlaydi
+  (`?jamoa=`/`?taklif=` kirishdan keyin yo'qolmasin); auth
+  callback'da `//` ochiq yo'naltirish yopildi.
+- PGlite sinovi endi `set role authenticated` bilan RLS'ni ham
+  tekshiradi (stub'ga Supabase'dagi default privileges qo'shildi).
+
+**Tekshirilgani:** PGlite'da 31 yangi holat, production'da
+jadvallar/RLS/ruxsatlar, tsc, 143 test, next build, interfeys
+namunaviy ma'lumot bilan (vaqtinchalik `app/sinov-topshiriq`,
+o'chirildi), debug APK yig'ildi.
+
+**Tekshirilmagani:** haqiqiy ikki hisob bilan butun oqim; fayl
+yuklash Storage'da; Android'da ulashish tugmasi.
+
+**Keyingi:** release (imzolangan) build; ilovada havolalar ilovani
+ochishi uchun `assetlinks` (ANDROID_SHA256).
+
+## 4d. Topshiriqlar: qayta dizayn va soddalashtirish — BAJARILDI (24-noyabr)
+
+main'ga `9738c89` (Vercel'da jonli). Foydalanuvchi talabi.
+
+- Migratsiya `20261125120000_topshiriq_soddalash.sql` — **production'ga
+  qo'llangan**. Qabul/rad bosqichi YO'Q: `tg_topshiriq_avto_qabul`
+  hammaga (ro'yxatdan o'tmaganlar — Kiruvchi papkasi yaratilganda,
+  `folders` triggeri). `boshlanish` -> `tasks.due_date`, `muddat` ->
+  `tasks.deadline`. `topshiriqni_tahrirlash` (ijrochi vazifasini ham
+  yangilaydi). `topshiriq_korilgan` + `topshiriq_yangiliklari()` —
+  o'qilmagan xabarlar. Spam: begonadan ochiq topshiriqlar <= 20.
+  `kutilayotgan_topshiriq_xabarlari()` endi `topshiriq_id` qaytaradi —
+  push bosilsa `/topshiriq?id=` ochiladi (Edge Function joylangan).
+- Interfeys: `components/topshiriq/` — karta (UstozCRM naqshi), holat
+  ranglari (`holat.ts`), alohida sahifa `/topshiriq?id=` (ID so'rov
+  qismida — statik eksport uchun), chat (rasm/video/fayl/ovoz —
+  MediaRecorder; AndroidManifest'ga RECORD_AUDIO), sana oralig'i
+  kalendari (`components/ui/oraliq-kalendar.tsx`), taklif oynasi
+  (Telegram / nusxa / boshqa — `navigator.share` ayrim joyda chiqmasdi).
+- Jamoa UI olib tashlandi (baza qismi qoldi).
+
+**Tekshirilmagani:** ikki haqiqiy hisob bilan; ovozli xabar telefonda.
+
+**Diqqat:** 24-noyabrda `node_modules/vitest` ichida bitta bayt
+buzilgan edi (0x0A -> 0x8A, bit almashishi) — tiklandi. Takrorlansa,
+disk/xotirani tekshirish kerak.
+
+## 5. Hali qilinmagan / ma'lum kamchiliklar
+
+- iOS push — kod tayyor, lekin APNs kaliti (Apple Developer a'zoligi)
+  va Firebase'da iOS ilova sozlanmagan. Mac ham yo'q.
+- iOS — faqat fayl tuzilishi, Mac yo'qligi sababli build/test
+  qilinmagan.
+- Android Gradle haqiqiy kompilyatsiyasi avtomatik tekshirilmagan edi
+  (JDK yo'q edi bu muhitda), lekin foydalanuvchi o'z Android
+  Studio'sida muvaffaqiyatli build+run qildi.
+- ESLint sozlanmagan (`next lint` interaktiv so'rov beradi) —
+  loyihada hech qachon sozlanmagan, bu ishga aloqasi yo'q.
+
+---
+
+# Native push (FCM) — tegishli fayllar
+
+- `lib/bildirishnoma.ts` — mijoz kodi. Veb → Web Push, app → FCM.
+- `supabase/migrations/20261121100000_fcm_push.sql` — `platform`/`fcm_token`.
+- `supabase/functions/eslatma-yuborish/index.ts` — ikkala yo'l
+  (`bittaYubor()` platformaga qarab ajratadi).
+- `components/app/native-bootstrap.tsx` — bildirishnoma bosilishi.
+- `components/app/bildirishnoma-eslatmasi.tsx` — "yoqish" taklifi UI'si.
+
+**Keyingi qadam:** telefonda sinash — Sozlamalar → Bildirishnoma →
+yoqish, so'ng vazifaga yaqin vaqt qo'yib, ilovani YOPIB kutish.
+
 ---
 
 # Hozirgi vazifa: Play Market'ga chiqarish
@@ -221,8 +504,14 @@ tekshiriladi.
 
 `.secrets/` papkasida (`.gitignore` da, GitHub'ga tushmaydi):
 `supabase-token.txt` (Management API, hozir ishlayapti),
-`anon-key.txt`, `google-client-*.txt`.
-VAPID maxfiy kaliti faqat Supabase sirlarida.
+`anon-key.txt`, `google-client-*.txt`,
+`firebase-service-account.json` (FCM yuborish kaliti).
+VAPID maxfiy kaliti va `FIREBASE_SERVICE_ACCOUNT` faqat Supabase
+sirlarida.
+
+`android/app/google-services.json` repo ICHIDA — unda faqat ommaviy
+klient sozlamalari bor (Firebase buni normal deb hisoblaydi), maxfiy
+kalit emas.
 
 **Claude foydalanuvchining parolini kiritib hisobga kira olmaydi** —
 bu qat'iy chegara. Kerak bo'lsa foydalanuvchi token beradi.

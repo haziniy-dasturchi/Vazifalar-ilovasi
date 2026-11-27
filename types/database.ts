@@ -183,27 +183,33 @@ export type Database = {
       }
       push_subscriptions: {
         Row: {
-          auth: string
+          auth: string | null
           created_at: string
-          endpoint: string
+          endpoint: string | null
+          fcm_token: string | null
           id: string
-          p256dh: string
+          p256dh: string | null
+          platform: string
           user_id: string
         }
         Insert: {
-          auth: string
+          auth?: string | null
           created_at?: string
-          endpoint: string
+          endpoint?: string | null
+          fcm_token?: string | null
           id?: string
-          p256dh: string
+          p256dh?: string | null
+          platform?: string
           user_id: string
         }
         Update: {
-          auth?: string
+          auth?: string | null
           created_at?: string
-          endpoint?: string
+          endpoint?: string | null
+          fcm_token?: string | null
           id?: string
-          p256dh?: string
+          p256dh?: string | null
+          platform?: string
           user_id?: string
         }
         Relationships: []
@@ -372,6 +378,7 @@ export type Database = {
           id: string
           notified_at: string | null
           parent_id: string | null
+          prev_due_date: string | null
           priority: number
           progress: number
           recurrence: string | null
@@ -398,6 +405,7 @@ export type Database = {
           id?: string
           notified_at?: string | null
           parent_id?: string | null
+          prev_due_date?: string | null
           priority?: number
           progress?: number
           recurrence?: string | null
@@ -424,6 +432,7 @@ export type Database = {
           id?: string
           notified_at?: string | null
           parent_id?: string | null
+          prev_due_date?: string | null
           priority?: number
           progress?: number
           recurrence?: string | null
@@ -467,6 +476,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      fcm_tokenni_saqlash: {
+        Args: { p_platform: string; p_token: string }
+        Returns: undefined
+      }
       complete_task: {
         Args: { include_subtasks?: boolean; p_next_due?: string | null; task_id: string }
         Returns: {
@@ -481,6 +494,7 @@ export type Database = {
           id: string
           notified_at: string | null
           parent_id: string | null
+          prev_due_date: string | null
           priority: number
           progress: number
           recurrence: string | null
@@ -518,9 +532,11 @@ export type Database = {
       kutilayotgan_eslatmalar: {
         Args: never
         Returns: {
-          auth: string
-          endpoint: string
-          p256dh: string
+          auth: string | null
+          endpoint: string | null
+          fcm_token: string | null
+          p256dh: string | null
+          platform: string
           sarlavha: string
           task_id: string
           user_id: string
@@ -541,6 +557,7 @@ export type Database = {
           id: string
           notified_at: string | null
           parent_id: string | null
+          prev_due_date: string | null
           priority: number
           progress: number
           recurrence: string | null
@@ -580,6 +597,7 @@ export type Database = {
           id: string
           notified_at: string | null
           parent_id: string | null
+          prev_due_date: string | null
           priority: number
           progress: number
           recurrence: string | null
@@ -615,6 +633,43 @@ export type Database = {
           id: string
           notified_at: string | null
           parent_id: string | null
+          prev_due_date: string | null
+          priority: number
+          progress: number
+          recurrence: string | null
+          rrule: string | null
+          rrule_from_completion: boolean
+          rrule_start: string | null
+          section_id: string | null
+          sort_order: number
+          started_at: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tasks"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      undo_complete_task: {
+        Args: { task_id: string }
+        Returns: {
+          completed_at: string | null
+          created_at: string
+          deadline: string | null
+          deleted_at: string | null
+          description: string | null
+          due_date: string | null
+          due_time: string | null
+          folder_id: string
+          id: string
+          notified_at: string | null
+          parent_id: string | null
+          prev_due_date: string | null
           priority: number
           progress: number
           recurrence: string | null

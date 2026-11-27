@@ -308,6 +308,13 @@
     display: var(--qorongi-korinish);
   }
 
+  /* Appda (Capacitor) chizilmaydigan veb-qismlar, masalan reklama
+     bosh sahifasi. `data-native` ni app/layout.tsx dagi skript
+     hidratsiyadan oldin qo'yadi — shuning uchun bir lahza ham ko'rinmaydi */
+  [data-native] .native-yashir {
+    display: none;
+  }
+
   /* Kartochka va panellar uchun yumshoq soya.
      Qorong'i mavzuda `--soya-kuch` oshadi — aks holda soya
      ko'rinmay qoladi va yuzalar bir-biridan ajralmaydi. */

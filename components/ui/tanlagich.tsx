@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, ChevronDown } from 'lucide-react'
+import { useOrqagaYopish } from '@/lib/orqaga'
 
 export type TanlovVarianti = {
   qiymat: string
@@ -38,6 +39,7 @@ export function Tanlagich({
   placeholder?: string
 }) {
   const [ochiq, setOchiq] = useState(false)
+  useOrqagaYopish(ochiq, () => setOchiq(false))
   const [koord, setKoord] = useState<{
     top: number
     left: number

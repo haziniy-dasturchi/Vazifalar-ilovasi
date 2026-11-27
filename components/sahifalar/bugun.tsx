@@ -5,10 +5,12 @@ import { Guruh, Sahifa } from '@/components/app/sahifa'
 import { BoshHolat, XatoHolati, Yuklanmoqda } from '@/components/ui/holatlar'
 import { VazifaQatori } from '@/components/vazifa/vazifa-qatori'
 import { InlineQoshish } from '@/components/vazifa/inline-qoshish'
+import { KechikkanlarniKochirish } from '@/components/vazifa/kechikkanlarni-kochirish'
 import { useBugungiVazifalar } from '@/lib/queries/vazifalar'
 import { usePapkalar } from '@/lib/queries/papkalar'
 import { useBolimNomlari } from '@/lib/queries/bolimlar'
 import { bugunISO, sarlavhaSana } from '@/lib/sana'
+import { BugunTopshiriqXulosasi } from '@/components/topshiriq/hisobot'
 import { bugungiBajarilganlar, iyerarxiya, saralash, subtasklar } from '@/lib/vazifa-yordam'
 
 export function BugunKorinishi() {
@@ -32,10 +34,7 @@ export function BugunKorinishi() {
   const bugungi = saralash(
     otalar.filter((v) => v.status !== 'done' && v.due_date === bugun)
   )
-  const { bajarilgan, takrorBajarilganIdlari } = bugungiBajarilganlar(
-    otalar,
-    bugun
-  )
+  const { bajarilgan } = bugungiBajarilganlar(otalar, bugun)
 
   const hammasiBosh =
     kechikkan.length === 0 && bugungi.length === 0 && bajarilgan.length === 0
@@ -50,13 +49,14 @@ export function BugunKorinishi() {
         papkaNomi={papka?.name}
         papkaRangi={papka?.color}
         bolimNomi={v.section_id ? bolimNomlari.get(v.section_id) : undefined}
-        qaytarishMumkinEmas={takrorBajarilganIdlari.has(v.id)}
       />
     )
   }
 
   return (
     <Sahifa sarlavha="Bugun" tavsif={sarlavhaSana()}>
+      {/* Topshiriqlardan mendan harakat kutayotganlari (bo'lmasa — ko'rinmaydi) */}
+      <BugunTopshiriqXulosasi />
       {isPending ? (
         <Yuklanmoqda />
       ) : isError ? (
@@ -70,7 +70,12 @@ export function BugunKorinishi() {
       ) : (
         <>
           {kechikkan.length > 0 && (
-            <Guruh sarlavha="Kechikkan" soni={kechikkan.length} rang="#dc2626">
+            <Guruh
+              sarlavha="Kechikkan"
+              soni={kechikkan.length}
+              rang="#dc2626"
+              amal={<KechikkanlarniKochirish idlar={kechikkan.map((v) => v.id)} />}
+            >
               <ul className="space-y-2">{kechikkan.map(qator)}</ul>
             </Guruh>
           )}

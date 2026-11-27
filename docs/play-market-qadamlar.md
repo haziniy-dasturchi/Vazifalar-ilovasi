@@ -139,44 +139,41 @@ Ikkita katakchani belgilang → **«Create app»**
 
 ---
 
-# 5-QADAM — Android paketini yaratish (PWABuilder)
+# 5-QADAM — AAB faylni yasash (Capacitor, Android Studio)
 
-> ⏱ 15 daqiqa · bepul
-
-1. [pwabuilder.com](https://www.pwabuilder.com) ni oching
-2. Yozing: `https://samarali-kun.uz` → **«Start»**
-3. **«Package for stores»** → **«Android»**
-4. **«All settings»** ni ochib tekshiring:
-
-   | Maydon | Qiymat |
-   |---|---|
-   | Package ID | `uz.samaralikun.samara` |
-   | App name | `Samara` |
-   | Short name | `Samara` |
-   | Start URL | `/jarayonda` |
-   | Display mode | `standalone` |
-   | Signing key | **Create new** |
-
-5. **«Download package»**
-
-ZIP ichida: `app-release-bundle.aab`, `signing.keystore`,
-`signing-key-info.txt`, `assetlinks.json`.
-
-> ## ⚠️ KALITNI YO'QOTMANG
+> ⏱ 40 daqiqa (birinchi marta — Android Studio o'rnatish bilan) · bepul
 >
-> `signing.keystore` va `signing-key-info.txt` — ilovangizning kaliti.
-> Yo'qotsangiz, ilovani **boshqa hech qachon yangilay olmaysiz**.
+> **MUHIM: bu loyiha PWABuilder/TWA orqali EMAS, Capacitor orqali
+> chiqariladi** — sayt shunchaki "o'ralmagan", ilova internetsiz ham
+> to'liq ishlaydi. To'liq qadamma-qadam yo'riqnoma alohida faylda:
 >
-> **Hozir:** ZIP'ni Google Drive'ga ham, flesh diskka ham nusxalang.
+> **[DEPLOY_GUIDE_UZ.md](../DEPLOY_GUIDE_UZ.md)** — 1, 2 va 3-qismlarni
+> bajaring (Android Studio o'rnatish → sinov APK → imzolangan AAB).
 
-**✋ Menga `assetlinks.json` ichidagi matnni yoki SHA-256 barmoq izini
-yuboring.**
+Natijada sizda shu fayl bo'ladi:
+```
+android\app\release\app-release.aab
+```
+
+va **o'zingiz yaratgan** keystore (`DEPLOY_GUIDE_UZ.md` 3-qismida
+tushuntirilgan — PWABuilder emas, siz Android Studio orqali
+yaratasiz, `.secrets\samara-release.jks`).
+
+> ## ⚠️ KEYSTORE'NI YO'QOTMANG
+>
+> Bu fayl va parol — ilovangizning kaliti. Yo'qotsangiz, ilovani
+> **boshqa hech qachon yangilay olmaysiz**. Zaxira nusxa olish haqida
+> `DEPLOY_GUIDE_UZ.md` 3-qismida batafsil yozilgan.
 
 ---
 
-# 6-QADAM — Barmoq izini ulash
+# 6-QADAM — Digital Asset Links (hozircha kerak emas)
 
-**Buni men qilaman.** Sizdan faqat 5-qadamdagi barmoq izi kerak.
+TWA'da bu qadam shart edi (sayt bilan ilova orasidagi "ishonch"ni
+tasdiqlash uchun). Capacitor'da ilova statik fayllardan quriladi —
+saytga bog'lanish shart emas, shuning uchun bu qadam **o'tkazib
+yuboriladi**. (`.well-known/assetlinks.json` sayt kodida qolgan —
+kelajakda chuqur havolalar (deep link) kerak bo'lsa ishlatiladi.)
 
 ---
 
@@ -253,7 +250,7 @@ yoshli talabalar, oila a'zolari, do'stlar.
 ## 9.2 Sinovni yaratish
 
 1. **Testing → Closed testing → «Create new release»**
-2. `app-release-bundle.aab` ni yuklang
+2. `app-release.aab` ni yuklang
 3. Release name: `1.0.0`, Release notes: `Birinchi versiya`
 4. **«Save»** → **«Review release»** → **«Start rollout»**
 
@@ -320,8 +317,8 @@ Natija emailga keladi. Rad etilsa — sababni menga yuboring.
 | 0. Hisob turini tanlash | **Siz** | 5 daq |
 | 1–3. Hisob, to'lov, tasdiqlash | **Siz** | 30 daq + 1–3 kun |
 | 4. Ilova yaratish | **Siz** | 10 daq |
-| 5. Paket | **Siz** | 15 daq |
-| 6. Barmoq izi | **Men** | 5 daq |
+| 5. AAB yasash (Android Studio) | **Siz** | 40 daq (birinchi marta) |
+| 6. Digital Asset Links | — (kerak emas) | — |
 | 7. Do'kon sahifasi | **Siz** | 30 daq |
 | 8. Anketalar | **Siz** | 30 daq |
 | 9. Yopiq sinov | **Siz** | 20 daq + **14 kun** |

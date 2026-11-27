@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Bildirishnoma panelidagi kichik ikonka (status bar). Android uni faqat
+  alfa kanal bo'yicha OQ rangda chizadi — rangli ilova ikonkasi bu yerda
+  oq kvadrat bo'lib ko'rinardi. Shuning uchun alohida bir rangli vektor:
+  doira ichida belgi (Samara logosidagi kabi).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M12,2.5a9.5,9.5 0,1 1,0 19a9.5,9.5 0,1 1,0 -19zM16.95,8.6l-1.4,-1.4l-5.05,5.05l-2.05,-2.05l-1.4,1.4l3.45,3.45z" />
+</vector>

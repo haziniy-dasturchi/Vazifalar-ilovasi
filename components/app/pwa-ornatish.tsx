@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Download, Share } from 'lucide-react'
 import { Oyna } from '@/components/ui/oyna'
+import { ilovaNativemi } from '@/lib/platform'
 
 /** Standart DOM tiplarida hali yo'q (yangi, tajribaviy brauzer hodisasi) */
 interface OrnatishTaklifi extends Event {
@@ -100,6 +101,29 @@ export function PwaOrnatish() {
   const [ornatilmoqda, setOrnatilmoqda] = useState(false)
 
   useEffect(() => {
+    /*
+      Appda (Capacitor) Service Worker ham, "o'rnatish" taklifi ham
+      kerak emas: fayllar allaqachon telefonda (APK ichida). Aksincha,
+      SW zarar qiladi — u `/korish` kabi yo'llarni keshlaydi, Capacitor
+      esa slashsiz yo'l uchun bosh sahifani beradi; natijada keshdan
+      noto'g'ri sahifa yoki yangilanishdan keyin eski JS chiqib, oq
+      ekran bo'lardi. Avvalgi versiyalarda o'rnatilgan SW va keshlar
+      shu yerda o'chiriladi.
+    */
+    if (ilovaNativemi()) {
+      navigator.serviceWorker
+        ?.getRegistrations()
+        .then((royxat) => Promise.all(royxat.map((r) => r.unregister())))
+        .catch(() => {})
+      if ('caches' in window) {
+        caches
+          .keys()
+          .then((k) => Promise.all(k.map((nom) => caches.delete(nom))))
+          .catch(() => {})
+      }
+      return
+    }
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {
         // Ro'yxatdan o'tmasa ham ilova ishlayveradi

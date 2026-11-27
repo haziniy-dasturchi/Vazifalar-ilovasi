@@ -246,7 +246,10 @@ export async function updateSession(request: NextRequest) {
   if (!kirgan && !isPublic(pathname)) {
     const url = request.nextUrl.clone()
     url.pathname = '/kirish'
-    url.searchParams.set('keyin', pathname)
+    // So'rov qismi ham saqlanadi: taklif havolasi (`?jamoa=`,
+    // `?taklif=`) kirishdan keyin yo'qolib qolmasin
+    url.search = ''
+    url.searchParams.set('keyin', pathname + request.nextUrl.search)
     return NextResponse.redirect(url)
   }
 

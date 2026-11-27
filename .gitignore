@@ -11,6 +11,11 @@ next-env.d.ts
 # Maxfiy qiymatlar — hech qachon git ga tushmasin
 .secrets/
 
+# Android imzolash kaliti — qayerda yaratilgan bo'lsa ham (DEPLOY_GUIDE_UZ.md)
+*.jks
+*.keystore
+key.properties
+
 # Muhit o'zgaruvchilari
 .env
 .env.local

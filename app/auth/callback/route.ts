@@ -8,7 +8,13 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const keyin = searchParams.get('keyin') ?? '/jarayonda'
+  // Faqat o'z saytimizdagi yo'l: "//boshqa-sayt.uz" kabi qiymat
+  // foydalanuvchini begona saytga olib ketmasin (ochiq yo'naltirish)
+  const soralgan = searchParams.get('keyin') ?? ''
+  const keyin =
+    soralgan.startsWith('/') && !soralgan.startsWith('//') && !soralgan.startsWith('/\\')
+      ? soralgan
+      : '/jarayonda'
 
   if (!code) {
     return NextResponse.redirect(`${origin}/kirish?xato=kod_yoq`)

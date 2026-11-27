@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import {
   Archive,
   ChevronDown,
@@ -41,9 +41,21 @@ import {
 } from '@/lib/loyiha-guruhlari'
 import { iyerarxiya, saralash, subtasklar } from '@/lib/vazifa-yordam'
 import type { MatnKaliti } from '@/lib/i18n'
+import { PAPKA_ZAXIRA_ID } from '@/lib/yollar'
 import type { Section, Task } from '@/types/vazifalar'
+import { useOrqagaYopish } from '@/lib/orqaga'
 
-export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
+/**
+ * `id` sahifadan PROP sifatida emas, shu yerda olinadi. Veb'da u
+ * manzilning o'zida (`/papka/<id>`). Appda (Capacitor statik eksporti)
+ * build paytida faqat `/papka/_/` sahifasi bor, shuning uchun ID
+ * so'rov parametrida keladi: `/papka/_/?id=<id>` (lib/yollar.ts).
+ */
+export function PapkaKorinishi() {
+  const { id: yolId } = useParams<{ id: string }>()
+  const soroqId = useSearchParams().get('id')
+  // Appda: `/papka/_/?id=<id>` (izoh: lib/yollar.ts)
+  const papkaId = yolId === PAPKA_ZAXIRA_ID ? (soroqId ?? '') : yolId
   const router = useRouter()
   const { korsat } = useToast()
   // Hook erta `return` dan OLDIN chaqirilishi shart — papka
@@ -64,6 +76,7 @@ export function PapkaKorinishi({ papkaId }: { papkaId: string }) {
   const bolimYaratish = useBolimYaratish(papkaId)
 
   const [menyuOchiq, setMenyuOchiq] = useState(false)
+  useOrqagaYopish(menyuOchiq, () => setMenyuOchiq(false))
   const [tahrirOchiq, setTahrirOchiq] = useState(false)
   const [ochirishOchiq, setOchirishOchiq] = useState(false)
   const [yangiBolim, setYangiBolim] = useState(false)
@@ -593,6 +606,7 @@ function BolimBloki({
   const { korsat } = useToast()
 
   const [menyuOchiq, setMenyuOchiq] = useState(false)
+  useOrqagaYopish(menyuOchiq, () => setMenyuOchiq(false))
   const [tahrir, setTahrir] = useState(false)
   const [nom, setNom] = useState(bolim.name)
   const [ochirishOchiq, setOchirishOchiq] = useState(false)

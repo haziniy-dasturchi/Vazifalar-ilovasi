@@ -1,25 +1,16 @@
 import type { Metadata } from 'next'
-import { KirishTugmalari } from '@/components/auth/kirish-tugmalari'
+import { Suspense } from 'react'
+import { KirishTugmalari, KirishXatosi } from '@/components/auth/kirish-tugmalari'
+import { NativeDarvoza } from '@/components/app/native-darvoza'
 
 export const metadata: Metadata = {
   title: 'Kirish',
 }
 
-const XATOLAR: Record<string, string> = {
-  kod_yoq: 'Kirish yakunlanmadi. Qayta urinib ko‘ring.',
-  sessiya: 'Kirish yakunlanmadi. Qayta urinib ko‘ring.',
-}
-
-export default async function KirishSahifasi({
-  searchParams,
-}: {
-  searchParams: Promise<{ keyin?: string; xato?: string }>
-}) {
-  const { keyin, xato } = await searchParams
-  const xatoMatni = xato ? (XATOLAR[xato] ?? XATOLAR.sessiya) : null
-
+export default function KirishSahifasi() {
   return (
-    <main className="flex min-h-dvh flex-col bg-surface px-6 py-10">
+    <main className="flex min-h-dvh flex-col bg-surface px-6 pt-[calc(2.5rem+env(safe-area-inset-top))] pb-[calc(2.5rem+env(safe-area-inset-bottom))]">
+      <NativeDarvoza joy="kirish" />
       <div className="flex flex-1 flex-col items-center justify-center">
         <div className="w-full max-w-sm text-center">
           <h1 className="sr-only">Samara</h1>
@@ -48,17 +39,19 @@ export default async function KirishSahifasi({
             Hamma uchun bepul.
           </p>
 
-          {xatoMatni && (
-            <p
-              role="alert"
-              className="mt-6 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger"
-            >
-              {xatoMatni}
-            </p>
-          )}
+          {/*
+            `useSearchParams()` ishlatadigan qismlar Suspense ichida
+            bo'lishi shart — aks holda butun sahifa statik eksportda
+            "dynamic = error" sifatida belgilanib, build yiqiladi.
+          */}
+          <Suspense fallback={null}>
+            <KirishXatosi />
+          </Suspense>
 
           <div className="mt-9">
-            <KirishTugmalari keyin={keyin} />
+            <Suspense fallback={null}>
+              <KirishTugmalari />
+            </Suspense>
           </div>
 
           <p className="mt-5 text-sm text-text-faint">

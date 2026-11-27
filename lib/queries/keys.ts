@@ -32,6 +32,7 @@ export const kalit = {
   topshiriqTafsilotlari: () => ['topshiriqlar', 'tafsilotlar', 'v2'] as const,
   /** Kim menga yoza oladi: ruxsat va bloklar */
   topshiriqRuxsatlari: () => ['topshiriqlar', 'ruxsatlar'] as const,
+  topshiriqKontaktlari: () => ['topshiriqlar', 'kontaktlar'] as const,
   hisobot: (boshlanish: string, tugash: string) =>
     ['vazifalar', 'hisobot', boshlanish, tugash] as const,
   foizJurnali: (boshlanish: string, tugash: string) =>

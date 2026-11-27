@@ -25,3 +25,10 @@ export const DOMEN = 'https://samarali-kun.uz'
 export const YANGILANDI = '20-noyabr, 2026'
 
 export const ILOVA_NOMI = 'Samara'
+
+/**
+ * Play Store'dagi ilova havolasi. Ilova hali chop etilmagani uchun
+ * bo'sh — "internetsiz ishlash uchun yuklab oling" havolasi shu
+ * qiymat bo'lganda ko'rinadi (`offline-tahrirlash-oynasi.tsx`).
+ */
+export const PLAY_STORE_HAVOLASI = ''

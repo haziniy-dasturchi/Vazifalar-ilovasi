@@ -7,6 +7,7 @@ import { useFoydalanuvchi } from './foydalanuvchi'
 import { useChiqish } from './use-chiqish'
 import { useT } from './til-provayder'
 import { useProfil } from '@/lib/queries/profil'
+import { useOrqagaYopish } from '@/lib/orqaga'
 
 export function ProfilMenyu() {
   const foydalanuvchi = useFoydalanuvchi()
@@ -14,6 +15,7 @@ export function ProfilMenyu() {
   const chiqish = useChiqish()
   const t = useT()
   const [ochiq, setOchiq] = useState(false)
+  useOrqagaYopish(ochiq, () => setOchiq(false))
 
   // Foydalanuvchi o'zi qo'ygan ism va rasm ustun turadi
   const ism = profil?.full_name?.trim() || foydalanuvchi.ism

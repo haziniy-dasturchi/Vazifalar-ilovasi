@@ -1,8 +1,10 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSupabase } from '@/lib/supabase/use-supabase'
+import { saqlanganSessiyaFoydalanuvchisi } from '@/lib/supabase/client'
 import { kalit } from './keys'
+import { useOutboxMutation } from './outbox-mutatsiya'
 import { MUTATSIYA, type ProfilOzgarishi } from './mutatsiya-sozlamalari'
 import type { Foydalanuvchi } from '@/components/app/foydalanuvchi'
 import type { Profile } from '@/types/vazifalar'
@@ -29,7 +31,9 @@ export function useFoydalanuvchiSorovi() {
         data: { session },
       } = await supabase.auth.getSession()
 
-      const user = session?.user
+      // Appda oflayn + muddati o'tgan token holatida getSession() null
+      // qaytaradi — saqlangan sessiyadan o'qiymiz (izoh: client.ts)
+      const user = session?.user ?? (await saqlanganSessiyaFoydalanuvchisi())
       if (!user) throw new Error('Sessiya topilmadi')
 
       const meta = (user.user_metadata ?? {}) as Record<string, string | undefined>
@@ -72,7 +76,7 @@ export function useProfil() {
 export function useProfilYangilash() {
   const qc = useQueryClient()
 
-  return useMutation({
+  return useOutboxMutation({
     mutationKey: MUTATSIYA.profilYangilash,
 
     // Sozlamalar darhol ko'rinishi kerak — tugmani bosgan odam

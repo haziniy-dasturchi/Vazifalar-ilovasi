@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { Plus } from 'lucide-react'
 import { FoydalanuvchiProvider } from './foydalanuvchi'
 import { YonPanel } from './yon-panel'
@@ -14,11 +15,19 @@ import { useFoydalanuvchiSorovi, useProfil } from '@/lib/queries/profil'
 import { useAsosiyRoyxatlarniOldindanYuklash } from '@/lib/queries/vazifalar'
 import { MAVZU_KALITI, mavzuniOrnat } from '@/lib/mavzu'
 import type { Theme } from '@/types/vazifalar'
+import { ilovaNativemi } from '@/lib/platform'
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const [qoshishOchiq, setQoshishOchiq] = useState(false)
-  const { data: foydalanuvchi } = useFoydalanuvchiSorovi()
+  const { data: foydalanuvchi, isError: sessiyaYoq } = useFoydalanuvchiSorovi()
   const { data: profil } = useProfil()
+  const router = useRouter()
+
+  // Appda middleware yo'q: sessiya haqiqatan yo'q bo'lsa (chiqilgan
+  // yoki refresh token bekor qilingan) bo'sh ekran o'rniga kirishga
+  useEffect(() => {
+    if (sessiyaYoq && ilovaNativemi()) router.replace('/kirish')
+  }, [sessiyaYoq, router])
 
   /**
    * Yangi qurilmada mavzuni hisobdan tiklash.
@@ -50,7 +59,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <FoydalanuvchiProvider qiymat={foydalanuvchi}>
       <TilProvayder profilTili={profil?.lang}>
         <div className="flex min-h-dvh">
-          <YonPanel />
+          {/* YonPanel `useSearchParams` ishlatadi (appdagi papka manzili) */}
+          <Suspense fallback={null}>
+            <YonPanel />
+          </Suspense>
 
           <div className="min-w-0 flex-1 pb-24 md:pb-0">
             <MobilSarlavha />
@@ -79,6 +91,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
  */
 function QoshishTugmasi({ onClick }: { onClick: () => void }) {
   const t = useT()
+  const yol = usePathname()
+  // Topshiriqlarda bu tugma keraksiz va xalaqit beradi: u yerda o'z
+  // "Yuborish" tugmasi bor, chatda esa yuborish tugmasi ustiga tushardi
+  if (yol.startsWith('/topshiriq')) return null
   return (
     <button
       type="button"
