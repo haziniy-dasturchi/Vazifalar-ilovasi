@@ -33,6 +33,7 @@ import {
 } from '@/lib/queries/topshiriq-jamoa'
 import { bugunISO, isoGa, toliqSana } from '@/lib/sana'
 import { kechikkanmi } from '@/lib/topshiriq-yordam'
+import type { TopshiriqIzohi } from '@/types/vazifalar'
 import { CHAT_FONI, ChatXabarlari, ChatYozuvchi, PILL } from './chat'
 import {
   Avatar,
@@ -70,6 +71,10 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
   const [blokOchiq, setBlokOchiq] = useState(false)
   // "Bajarildi" tasodifan bosilib ketmasin — avval so'raymiz
   const [bajardimOchiq, setBajardimOchiq] = useState(false)
+  // Qaysi xabarga javob yozilyapti (Telegram'dagi "Reply")
+  const [javob, setJavob] = useState<TopshiriqIzohi | null>(null)
+  // Boshqa topshiriqqa o'tilsa — eski iqtibos qolib ketmasin
+  useEffect(() => setJavob(null), [id])
 
   const topshiriq = [...(yuborilgan.data ?? []), ...(kelgan.data ?? [])].find((x) => x.id === id)
   const tafsilot = (Array.isArray(tafsilotlar) ? tafsilotlar : []).find((x) => x.topshiriq_id === id)
@@ -301,7 +306,13 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
           <div className="my-3 flex justify-center">
             <span className={PILL}>{t('tk.muhokamaBoshlandi')}</span>
           </div>
-          <ChatXabarlari xabarlar={xabarlar} tarix={tarix} qarshiIsm={qarshi} qarshiKalit={qarshiKalit} />
+          <ChatXabarlari
+            xabarlar={xabarlar}
+            tarix={tarix}
+            qarshiIsm={qarshi}
+            qarshiKalit={qarshiKalit}
+            onJavob={setJavob}
+          />
 
           {!meniki && tafsilot?.qarshi_email && (
             <div className="mt-6 flex justify-center">
@@ -321,7 +332,15 @@ export function TopshiriqSahifasi({ id }: { id: string | null }) {
       {/* Yozish maydoni */}
       <div className="shrink-0 px-2 pt-1 pb-[calc(0.5rem+env(safe-area-inset-bottom))] sm:px-4 md:pb-4">
         <div className="mx-auto max-w-2xl">
-          <ChatYozuvchi topshiriqId={topshiriq.id} />
+          <ChatYozuvchi
+            topshiriqId={topshiriq.id}
+            // Javob berilayotgan xabar o'chirilsa — iqtibos ham yo'qoladi
+            javob={javob && xabarlar.some((x) => x.id === javob.id) ? javob : null}
+            javobIsm={javob?.muallif_id === menId ? t('tj.siz') : qarshi}
+            javobKalit={qarshiKalit}
+            javobMeniki={javob?.muallif_id === menId}
+            javobBekor={() => setJavob(null)}
+          />
         </div>
       </div>
 

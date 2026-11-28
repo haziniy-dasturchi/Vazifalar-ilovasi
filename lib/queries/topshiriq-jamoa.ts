@@ -265,7 +265,16 @@ export function useIzohQoshish(topshiriqId: string) {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ matn, fayl }: { matn: string; fayl?: File | null }) => {
+    mutationFn: async ({
+      matn,
+      fayl,
+      javobId,
+    }: {
+      matn: string
+      fayl?: File | null
+      /** Qaysi xabarga javob (Reply) */
+      javobId?: string | null
+    }) => {
       let fayliga: Record<string, unknown> = {}
       if (fayl) {
         if (fayl.size > FAYL_CHEGARASI) throw new Error('fayl-katta')
@@ -283,14 +292,20 @@ export function useIzohQoshish(topshiriqId: string) {
           fayl_turi: fayl.type || null,
         }
       }
-      const { error } = await xom(supabase)
-        .from('topshiriq_izohlari')
-        .insert({
-          topshiriq_id: topshiriqId,
-          muallif_id: menId,
-          matn: matn.trim() || null,
-          ...fayliga,
-        })
+      const yozuv = {
+        topshiriq_id: topshiriqId,
+        muallif_id: menId,
+        matn: matn.trim() || null,
+        ...fayliga,
+      }
+      const jadval = () => xom(supabase).from('topshiriq_izohlari')
+      let { error } = await jadval().insert(
+        javobId ? { ...yozuv, javob_izoh_id: javobId } : yozuv
+      )
+      // Javob ustuni hali yo'q bazada (migratsiya qo'llanmagan) yoki asl
+      // xabar shu orada o'chirilgan — xabarning o'zi yo'qolmasin, oddiy
+      // xabar bo'lib ketadi
+      if (error && javobId) ({ error } = await jadval().insert(yozuv))
       if (error) {
         // Izoh yozilmadi — yuklangan fayl yetim qolmasin
         if (typeof fayliga.fayl_yoli === 'string') {

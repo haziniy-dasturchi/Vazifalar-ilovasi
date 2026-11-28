@@ -192,6 +192,8 @@ export type TopshiriqIzohi = {
   fayl_hajmi: number | null
   fayl_turi: string | null
   created_at: string
+  /** Qaysi xabarga javob (Telegram'dagi "Reply"); eski bazada bo'lmaydi */
+  javob_izoh_id?: string | null
   /** Reaksiyalar (migratsiya qo'llanmagan bazada bo'lmaydi) */
   reaksiyalar?: IzohReaksiyasi[]
 }

@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
+  Copy,
   FileText,
   Mic,
   Paperclip,
+  Reply,
   Send,
   SmilePlus,
   Square,
@@ -84,6 +86,40 @@ const mahalliyKun = (iso: string) => {
 const hajm = (b: number | null) =>
   !b ? '' : b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1048576).toFixed(1)} MB`
 
+/** Xabarning qisqa ko'rinishi — javob iqtibosi uchun (Telegram kabi) */
+function qisqaMatn(x: TopshiriqIzohi, t: ReturnType<typeof useT>): string {
+  if (x.matn) return x.matn.replace(/\s+/g, ' ')
+  const turi = x.fayl_turi ?? ''
+  if (turi.startsWith('audio/')) return t('tk.ovozliXabar')
+  if (turi.startsWith('image/')) return t('tk.rasm')
+  if (turi.startsWith('video/')) return t('tk.video')
+  return x.fayl_nomi ?? ''
+}
+
+/** Javob iqtibosining rangi: menikimi — brend, aks holda ikkinchi tomon rangi */
+const iqtibosRangi = (meniki: boolean, kalit: string) =>
+  meniki ? 'var(--brand-accent)' : avatarRangi(kalit)
+
+/**
+ * Iqtibos: chap chiziq, ism va xabarning bir qatori. Pufak ichida ham,
+ * yozish maydoni ustida ham bir xil ko'rinadi.
+ */
+function Iqtibos({ ism, matn, rang }: { ism: string; matn: string; rang: string }) {
+  return (
+    <span
+      className="flex min-w-0 flex-col rounded-lg border-l-[3px] py-0.5 pr-2 pl-2 text-left text-sm leading-snug"
+      style={{ borderColor: rang, backgroundColor: `color-mix(in srgb, ${rang} 12%, transparent)` }}
+    >
+      {ism && (
+        <span className="truncate font-semibold" style={{ color: rang }}>
+          {ism}
+        </span>
+      )}
+      <span className={`truncate text-text-muted ${ism ? '' : 'italic'}`}>{matn}</span>
+    </span>
+  )
+}
+
 type Yozuv =
   | { tur: 'hodisa'; vaqt: string; h: TopshiriqHodisasi }
   | { tur: 'xabar'; vaqt: string; x: TopshiriqIzohi }
@@ -100,15 +136,32 @@ export function ChatXabarlari({
   tarix,
   qarshiIsm,
   qarshiKalit,
+  onJavob,
 }: {
   xabarlar: TopshiriqIzohi[]
   tarix: TopshiriqHodisasi[]
   qarshiIsm: string
   qarshiKalit: string
+  /** "Javob berish" tanlanganda — yozish maydoniga iqtibos qo'yiladi */
+  onJavob: (x: TopshiriqIzohi) => void
 }) {
   const t = useT()
   const { id: menId } = useFoydalanuvchi()
   const oxiri = useRef<HTMLDivElement>(null)
+  const boyicha = useMemo(() => new Map(xabarlar.map((x) => [x.id, x])), [xabarlar])
+
+  // Iqtibos bosilganda asl xabarga o'tib, uni bir lahza yoritamiz
+  const [yongan, setYongan] = useState<string | null>(null)
+  const yonishTaymer = useRef<number | null>(null)
+  function aslgaOt(id: string) {
+    document.getElementById(`izoh-${id}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    setYongan(id)
+    if (yonishTaymer.current) window.clearTimeout(yonishTaymer.current)
+    yonishTaymer.current = window.setTimeout(() => setYongan(null), 1600)
+  }
+  useEffect(() => () => {
+    if (yonishTaymer.current) window.clearTimeout(yonishTaymer.current)
+  }, [])
 
   const yozuvlar = useMemo<Yozuv[]>(
     () =>
@@ -184,6 +237,15 @@ export function ChatXabarlari({
                 kalit={qarshiKalit}
                 birinchi={!davomi}
                 oxirgi={!birGuruh(y, keyingi)}
+                asl={
+                  y.x.javob_izoh_id
+                    ? (boyicha.get(y.x.javob_izoh_id) ?? null)
+                    : undefined
+                }
+                aslIsmi={(a) => kim(a.muallif_id)}
+                yongan={yongan === y.x.id}
+                onJavob={() => onJavob(y.x)}
+                aslgaOt={aslgaOt}
               />
             )}
           </div>
@@ -213,6 +275,11 @@ function XabarPufagi({
   kalit,
   birinchi,
   oxirgi,
+  asl,
+  aslIsmi,
+  yongan,
+  onJavob,
+  aslgaOt,
 }: {
   x: TopshiriqIzohi
   meniki: boolean
@@ -221,8 +288,16 @@ function XabarPufagi({
   kalit: string
   birinchi: boolean
   oxirgi: boolean
+  /** Javob berilgan xabar: undefined — javob emas, null — asl o'chirilgan */
+  asl: TopshiriqIzohi | null | undefined
+  aslIsmi: (a: TopshiriqIzohi) => string
+  /** Iqtibos orqali shu xabarga o'tilganda bir lahza yoritiladi */
+  yongan: boolean
+  onJavob: () => void
+  aslgaOt: (id: string) => void
 }) {
   const t = useT()
+  const { korsat } = useToast()
   const onlayn = useOnlaynmi()
   const ochirish = useIzohOchirish(x.topshiriq_id)
   const turi = x.fayl_turi ?? ''
@@ -258,11 +333,74 @@ function XabarPufagi({
     return () => document.removeEventListener('pointerdown', yop)
   }, [tanlov])
 
+  // Telefonda xabarni chapga surish — javob berish (Telegram kabi)
+  const [surish, setSurish] = useState(0)
+  const tegish = useRef<{ x: number; y: number; gorizontal: boolean | null } | null>(null)
+  const SURISH_CHEGARASI = 56
+
+  function javobBer() {
+    setTanlov(false)
+    onJavob()
+  }
+
+  async function nusxala() {
+    setTanlov(false)
+    if (!x.matn) return
+    try {
+      await navigator.clipboard.writeText(x.matn)
+      korsat({ matn: t('tk.matnNusxalandi'), tone: 'muvaffaqiyat' })
+    } catch {
+      korsat({ matn: t('umumiy.bajarilmadi'), tone: 'xato' })
+    }
+  }
+
   // "Dum" faqat guruhdagi oxirgi pufakda — avatar tomonga qaragan burchak
   const burchak = oxirgi ? (meniki ? 'rounded-br-md' : 'rounded-bl-md') : ''
+  const MENYU_BAND =
+    'flex min-h-10 w-full items-center gap-3 px-3.5 text-left text-[0.9375rem] text-text-strong transition hover:bg-surface-muted'
 
   return (
-    <div className={`flex items-end gap-2 ${meniki ? 'justify-end pl-12' : 'justify-start pr-12'}`}>
+    <div
+      id={`izoh-${x.id}`}
+      onTouchStart={(e) => {
+        const b = e.touches[0]
+        tegish.current = { x: b.clientX, y: b.clientY, gorizontal: null }
+      }}
+      onTouchMove={(e) => {
+        const s = tegish.current
+        if (!s) return
+        const b = e.touches[0]
+        const dx = b.clientX - s.x
+        const dy = b.clientY - s.y
+        // Yo'nalish birinchi siljishda aniqlanadi: tik bo'lsa — oddiy aylantirish
+        if (s.gorizontal === null && Math.abs(dx) + Math.abs(dy) > 8) {
+          s.gorizontal = Math.abs(dx) > Math.abs(dy) * 1.5
+        }
+        if (s.gorizontal) setSurish(Math.max(-80, Math.min(0, dx)))
+      }}
+      onTouchEnd={() => {
+        if (surish <= -SURISH_CHEGARASI) javobBer()
+        setSurish(0)
+        tegish.current = null
+      }}
+      onTouchCancel={() => {
+        setSurish(0)
+        tegish.current = null
+      }}
+      className={`relative -mx-2 flex items-end gap-2 rounded-xl px-2 transition-colors duration-700 ${
+        yongan ? 'bg-brand-primary/15' : ''
+      } ${meniki ? 'justify-end pl-14' : 'justify-start pr-14'}`}
+    >
+      {/* Surilganda o'ng chetda chiqadigan "javob" belgisi */}
+      {surish < 0 && (
+        <span
+          aria-hidden
+          className="absolute top-1/2 right-1 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-brand-primary/75 text-white transition-transform"
+          style={{ transform: `translateY(-50%) scale(${Math.min(1, -surish / SURISH_CHEGARASI)})` }}
+        >
+          <Reply className="size-4" />
+        </span>
+      )}
       {!meniki && (
         <span className="w-8 shrink-0">{oxirgi && <Avatar ism={ism} kalit={kalit} katta />}</span>
       )}
@@ -281,8 +419,47 @@ function XabarPufagi({
         className={`group relative min-w-0 max-w-full cursor-pointer rounded-2xl px-3 py-1.5 text-text-strong shadow-sm select-text sm:max-w-[80%] ${burchak} ${
           meniki ? '' : 'bg-surface'
         }`}
-        style={meniki ? { backgroundColor: MENIKI_FON } : undefined}
+        style={{
+          ...(meniki ? { backgroundColor: MENIKI_FON } : null),
+          transform: surish ? `translateX(${surish}px)` : undefined,
+          transition: surish ? 'none' : 'transform 0.2s',
+        }}
       >
+        {tanlov && (
+          // Telegram'dagidek: reaksiyalar ustida, amallar menyusi ostida
+          <div
+            role="menu"
+            aria-label={t('tk.javobBerish')}
+            className={`absolute top-full z-20 mt-1.5 w-56 overflow-hidden rounded-xl bg-surface py-1 shadow-float ${
+              meniki ? 'right-0' : 'left-0'
+            }`}
+          >
+            <button type="button" role="menuitem" onClick={javobBer} className={MENYU_BAND}>
+              <Reply className="size-5 text-text-muted" aria-hidden />
+              {t('tk.javobBerish')}
+            </button>
+            {x.matn && (
+              <button type="button" role="menuitem" onClick={nusxala} className={MENYU_BAND}>
+                <Copy className="size-5 text-text-muted" aria-hidden />
+                {t('tk.matnNusxalash')}
+              </button>
+            )}
+            {meniki && onlayn && (
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setTanlov(false)
+                  ochirish.mutate(x)
+                }}
+                className={`${MENYU_BAND} text-danger`}
+              >
+                <Trash2 className="size-5" aria-hidden />
+                {t('umumiy.ochirish')}
+              </button>
+            )}
+          </div>
+        )}
         {tanlov && (
           <div
             role="menu"
@@ -314,6 +491,26 @@ function XabarPufagi({
             {ism}
           </p>
         )}
+
+        {/* Qaysi xabarga javob — bosilsa asl xabarga o'tadi */}
+        {asl !== undefined &&
+          (asl ? (
+            <button
+              type="button"
+              onClick={() => aslgaOt(asl.id)}
+              className="mt-0.5 mb-1 flex min-h-0 w-full max-w-full"
+            >
+              <Iqtibos
+                ism={aslIsmi(asl)}
+                matn={qisqaMatn(asl, t)}
+                rang={iqtibosRangi(asl.muallif_id === menId, kalit)}
+              />
+            </button>
+          ) : (
+            <span className="mt-0.5 mb-1 flex">
+              <Iqtibos ism="" matn={t('tk.xabarOchirilgan')} rang="var(--text-faint)" />
+            </span>
+          ))}
 
         {x.fayl_yoli && rasm && havola && (
           <a href={havola} target="_blank" rel="noopener noreferrer" className="my-1 block">
@@ -354,6 +551,15 @@ function XabarPufagi({
             </p>
           )}
           <span className="flex shrink-0 items-center gap-1.5 pb-0.5 text-[11px] text-text-faint">
+            <button
+              type="button"
+              onClick={javobBer}
+              aria-label={t('tk.javobBerish')}
+              title={t('tk.javobBerish')}
+              className="hidden min-h-0 rounded p-0.5 opacity-0 transition group-hover:opacity-100 focus:opacity-100 md:block"
+            >
+              <Reply className="size-3.5" aria-hidden />
+            </button>
             <button
               type="button"
               onClick={() => setTanlov((v) => !v)}
@@ -468,7 +674,23 @@ const DOIRA_TUGMA =
   'flex size-12 min-h-0 shrink-0 items-center justify-center rounded-full bg-brand-primary text-white shadow-card transition hover:bg-brand-primary-hover active:scale-95 disabled:opacity-40'
 
 /** Xabar yozish maydoni: matn, fayl/rasm, ovozli xabar */
-export function ChatYozuvchi({ topshiriqId }: { topshiriqId: string }) {
+export function ChatYozuvchi({
+  topshiriqId,
+  javob,
+  javobIsm,
+  javobKalit,
+  javobMeniki,
+  javobBekor,
+}: {
+  topshiriqId: string
+  /** Qaysi xabarga javob yozilyapti (Reply) */
+  javob: TopshiriqIzohi | null
+  javobIsm: string
+  /** Iqtibos rangi uchun — ikkinchi tomon kaliti */
+  javobKalit: string
+  javobMeniki: boolean
+  javobBekor: () => void
+}) {
   const t = useT()
   const { korsat } = useToast()
   const onlayn = useOnlaynmi()
@@ -476,13 +698,20 @@ export function ChatYozuvchi({ topshiriqId }: { topshiriqId: string }) {
   const [matn, setMatn] = useState('')
   const [fayl, setFayl] = useState<File | null>(null)
   const input = useRef<HTMLInputElement>(null)
+  const maydon = useRef<HTMLTextAreaElement>(null)
+
+  // "Javob berish" bosilganda — darhol yozishga tayyor
+  useEffect(() => {
+    if (javob) maydon.current?.focus()
+  }, [javob])
 
   async function yubor(f: File | null = fayl, m = matn) {
     if ((!m.trim() && !f) || qoshish.isPending) return
     try {
-      await qoshish.mutateAsync({ matn: m, fayl: f })
+      await qoshish.mutateAsync({ matn: m, fayl: f, javobId: javob?.id ?? null })
       setMatn('')
       setFayl(null)
+      javobBekor()
     } catch (e) {
       korsat({
         matn: e instanceof Error && e.message === 'fayl-katta' ? t('tj.faylKatta') : t('umumiy.bajarilmadi'),
@@ -522,6 +751,27 @@ export function ChatYozuvchi({ topshiriqId }: { topshiriqId: string }) {
   return (
     <div className="flex items-end gap-2">
       <div className="min-w-0 flex-1 rounded-3xl bg-surface shadow-card">
+        {javob && (
+          <div className="flex items-center gap-2 pt-2 pr-1 pl-3">
+            <Reply className="size-5 shrink-0 text-brand-accent" aria-hidden />
+            <span className="flex min-w-0 flex-1">
+              <Iqtibos
+                ism={t('tk.javobKimga', { kim: javobIsm })}
+                matn={qisqaMatn(javob, t)}
+                rang={iqtibosRangi(javobMeniki, javobKalit)}
+              />
+            </span>
+            <button
+              type="button"
+              onClick={javobBekor}
+              aria-label={t('tk.javobBekor')}
+              title={t('tk.javobBekor')}
+              className="flex size-9 min-h-0 shrink-0 items-center justify-center rounded-full text-text-faint transition hover:bg-surface-muted hover:text-text-strong"
+            >
+              <X className="size-4" aria-hidden />
+            </button>
+          </div>
+        )}
         {fayl && (
           <div className="mx-2 mt-2 flex items-center gap-2 rounded-2xl bg-surface-muted px-3 py-2 text-sm">
             <FileText className="size-5 shrink-0 text-brand-onsoft" aria-hidden />
@@ -543,6 +793,8 @@ export function ChatYozuvchi({ topshiriqId }: { topshiriqId: string }) {
               qiymat={matn}
               onChange={setMatn}
               onEnter={() => yubor()}
+              onEscape={javob ? javobBekor : undefined}
+              maydonRef={maydon}
               placeholder={onlayn ? t('tk.xabarJoy') : t('tj.offlineIzoh')}
               ariaLabel={t('tk.xabarJoy')}
               maxLength={4000}
