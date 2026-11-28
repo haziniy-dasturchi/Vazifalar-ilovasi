@@ -1,8 +1,8 @@
 /**
  * "Loyihani qo'llab-quvvatlash" sahifasidagi o'zgaruvchan ma'lumotlar.
  *
- * Hammasi shu yerda — yangi xarajat yoki to'lov usuli qo'shilsa,
- * sahifa kodiga tegmasdan shu faylni tahrirlash kifoya.
+ * To'lov tizimlari (Payme/Click) sozlamasi bu yerda emas — muhit
+ * o'zgaruvchilarida (`lib/xayriya.ts`, `.env.example`).
  *
  * Summalar ataylab yo'q: maqsad — odamga qanday xarajatlar borligini
  * tushuntirish, hisobot berish emas. Kurs va tariflar o'zgarganda
@@ -12,55 +12,16 @@
 export type Xarajat = {
   /** Odam tushunadigan nom: "Server", "Domen" */
   nom: string
-  /** Bu nima uchun kerak — texnik so'zlarsiz */
+  /** Bir necha so'zda — nima uchun kerak */
   izoh: string
-  davr: 'oy' | 'yil' | 'bir marta'
 }
 
 export const XARAJATLAR: Xarajat[] = [
-  {
-    nom: 'Server va ma’lumotlar bazasi',
-    izoh: 'Vazifalaringiz, papkalaringiz va muhokamalar saqlanadigan joy. Telefon yo‘qolsa ham ma’lumotingiz shu yerda butun turadi.',
-    davr: 'oy',
-  },
-  {
-    nom: 'Sayt xostingi',
-    izoh: 'samarali-kun.uz saytini kecha-kunduz ishlab turishini ta’minlaydi.',
-    davr: 'oy',
-  },
-  {
-    nom: 'Domen (samarali-kun.uz)',
-    izoh: 'Sayt manzili. Har yili uzaytirib turiladi, aks holda sayt ochilmay qoladi.',
-    davr: 'yil',
-  },
-  {
-    nom: 'Google Play hisobi',
-    izoh: 'Ilovani Play Market’ga joylash uchun Google’ga to‘lanadi.',
-    davr: 'bir marta',
-  },
-  {
-    nom: 'Apple dasturchi hisobi',
-    izoh: 'iPhone uchun App Store’ga chiqish uchun.',
-    davr: 'yil',
-  },
+  { nom: 'Server', izoh: 'ma’lumotlaringiz saqlanadigan joy' },
+  { nom: 'Domen', izoh: 'samarali-kun.uz manzili' },
+  { nom: 'Xosting', izoh: 'sayt kecha-kunduz ishlashi uchun' },
+  { nom: 'Play Market va App Store', izoh: 'ilovani do‘konlarga joylash' },
 ]
-
-export type TolovUsuli = {
-  nom: string
-  /** Karta raqami yoki qisqa izoh — nusxa olish tugmasi bilan ko'rsatiladi */
-  qiymat?: string
-  /** Payme/Click/Tirikchilik kabi to'lov sahifasi havolasi */
-  havola?: string
-}
-
-/**
- * TO'LDIRILSIN: to'lov usullari. Bo'sh qolganlari ko'rsatilmaydi.
- *
- * Misol:
- *   { nom: 'Payme', havola: 'https://payme.uz/...' },
- *   { nom: 'Humo karta', qiymat: '9860 0000 0000 0000', },
- */
-export const TOLOV_USULLARI: TolovUsuli[] = []
 
 /**
  * Android/iOS ilovasi ichida to'lov usullari ko'rsatilsinmi.

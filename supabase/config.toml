@@ -65,3 +65,11 @@ secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
 # Bo'sh bo'lsa Supabase o'zining callback manzilini ishlatadi
 redirect_uri = ""
 skip_nonce_check = false
+
+# Payme va Click Supabase tokeni yubormaydi — ular o'z usulida
+# (Basic auth / MD5 imzo) tekshiriladi, shuning uchun JWT o'chiq.
+[functions.payme]
+verify_jwt = false
+
+[functions.click]
+verify_jwt = false

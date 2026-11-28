@@ -15,6 +15,8 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.test.ts'],
+    // Edge funksiyalarning sof mantig'i (Payme/Click) ham — u
+    // platformaga bog'liq emas, Node'da ham ishlaydi
+    include: ['lib/**/*.test.ts', 'supabase/functions/_shared/**/*.test.ts'],
   },
 })
