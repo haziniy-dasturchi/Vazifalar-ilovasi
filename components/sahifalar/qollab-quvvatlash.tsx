@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Heart, MessageSquare, Share2, Star } from 'lucide-react'
 import { Sahifa } from '@/components/app/sahifa'
 import { XayriyaBolimi } from '@/components/qollab/xayriya-bolimi'
+import { KartaBolimi } from '@/components/qollab/karta-bolimi'
 import { havolaniUlash } from '@/components/topshiriq/jamoa-bolimi'
 import { ALOQA_EMAIL, DOMEN, ILOVA_NOMI, PLAY_STORE_HAVOLASI } from '@/lib/huquqiy'
 import { ilovaNativemi } from '@/lib/platform'
@@ -63,6 +64,7 @@ export function QollabQuvvatlashMazmuni() {
 
       {/* To'lov — darhol ko'rinadigan joyda, asosiy xabardan keyin */}
       {tolovKorinadi && <XayriyaBolimi />}
+      {tolovKorinadi && <KartaBolimi />}
 
       {/* Xarajatlar — ataylab summasiz: maqsad hisobot emas, odamga
           ilova bepul emasligini qisqa tushuntirish */}

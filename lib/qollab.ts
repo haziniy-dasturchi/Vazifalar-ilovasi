@@ -24,6 +24,24 @@ export const XARAJATLAR: Xarajat[] = [
 ]
 
 /**
+ * VAQTINCHA: karta raqami orqali qo'llab-quvvatlash.
+ *
+ * Payme/Click merchant ulanguncha. Odam raqamni nusxalab, o'z bank
+ * ilovasidan o'tkazadi. `raqam` bo'sh bo'lsa bo'lim ko'rinmaydi.
+ *
+ * TO'LDIRILSIN (o'zingiz, chatga yozmasdan):
+ *   raqam: '9860 0000 0000 0000'   — 16 raqam, bo'sh joy ixtiyoriy
+ *   egasi: 'AZIZBEK X.'            — kartadagi ism, odam to'g'ri
+ *                                    kartaga o'tkazayotganini bilsin
+ *
+ * DIQQAT: bu raqam saytda hammaga ko'rinadi.
+ */
+export const KARTA: { raqam: string; egasi: string } = {
+  raqam: '',
+  egasi: '',
+}
+
+/**
  * Android/iOS ilovasi ichida to'lov usullari ko'rsatilsinmi.
  *
  * Sukut bo'yicha YO'Q: Google Play va App Store qoidalariga ko'ra
