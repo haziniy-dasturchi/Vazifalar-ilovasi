@@ -30,3 +30,7 @@ supabase/.branches/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Firebase kalitlari — git'ga kirmasin
+android/app/google-services.json
+ios/App/App/GoogleService-Info.plist
