@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Archive, LogOut, Settings } from 'lucide-react'
+import { Archive, Heart, LogOut, Settings } from 'lucide-react'
 import { useFoydalanuvchi } from './foydalanuvchi'
 import { useChiqish } from './use-chiqish'
 import { useT } from './til-provayder'
@@ -51,7 +51,16 @@ export function MobilSarlavha() {
         />
       </Link>
 
-      <div className="relative">
+      <div className="relative flex items-center gap-1">
+        {/* Telefonda pastki menyu to'la — qo'llab-quvvatlash shu
+            yerda, profil yonida doim ko'rinib turadi */}
+        <Link
+          href="/qollab-quvvatlash"
+          aria-label={t('nav.qollab')}
+          className="flex size-11 min-h-0 items-center justify-center rounded-full text-rose-500 transition hover:bg-surface-muted"
+        >
+          <Heart className="size-5" aria-hidden />
+        </Link>
         <button
           type="button"
           onClick={() => setOchiq((v) => !v)}
@@ -109,6 +118,14 @@ export function MobilSarlavha() {
               >
                 <Archive className="size-4" aria-hidden />
                 {t('nav.arxiv')}
+              </Link>
+              <Link
+                href="/qollab-quvvatlash"
+                onClick={() => setOchiq(false)}
+                className="flex min-h-touch items-center gap-3 px-4 text-sm text-text-strong transition hover:bg-surface-muted"
+              >
+                <Heart className="size-4 text-rose-500" aria-hidden />
+                {t('nav.qollab')}
               </Link>
               <button
                 type="button"

@@ -98,6 +98,7 @@ export const ru: Record<MatnKaliti, string> = {
   'nav.chiqish': 'Выйти',
   'nav.profilMenyusi': 'Меню профиля',
   'nav.asosiyBolimlar': 'Основные разделы',
+  'nav.qollab': 'Поддержать проект',
 
   // ---------- Задача ----------
   'vazifa.yangi': 'Новая задача',

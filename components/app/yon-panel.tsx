@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import { Plus, Send } from 'lucide-react'
+import { Heart, Plus, Send } from 'lucide-react'
 import { ProfilMenyu } from './profil-menyu'
 import { useT } from './til-provayder'
 import { useBolimTartibi } from '@/lib/queries/bolim-tartibi'
@@ -201,6 +201,23 @@ export function YonPanel() {
           <ul className="space-y-1">{oddiyPapkalar.map(papkaQatori)}</ul>
         )}
       </nav>
+
+      {/* Qo'llab-quvvatlash — doim ko'rinib turadi, lekin ko'zga
+          tashlanmaydigan, papkalardan ajralgan joyda */}
+      <div className="shrink-0 px-3 pb-2">
+        <Link
+          href="/qollab-quvvatlash"
+          aria-current={yol === '/qollab-quvvatlash' ? 'page' : undefined}
+          className={`flex min-h-touch items-center gap-3 rounded-xl px-3 text-sm transition ${
+            yol === '/qollab-quvvatlash'
+              ? 'bg-brand-soft font-semibold text-brand-onsoft'
+              : 'text-text-muted hover:bg-surface-muted hover:text-text-strong'
+          }`}
+        >
+          <Heart className="size-5 shrink-0 text-rose-500" aria-hidden />
+          <span className="truncate">{t('nav.qollab')}</span>
+        </Link>
+      </div>
 
       <ProfilMenyu />
 

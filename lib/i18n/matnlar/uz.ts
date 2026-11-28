@@ -106,6 +106,7 @@ export const uz = {
   'nav.chiqish': 'Chiqish',
   'nav.profilMenyusi': 'Profil menyusi',
   'nav.asosiyBolimlar': 'Asosiy bo‘limlar',
+  'nav.qollab': 'Loyihani qo‘llab-quvvatlash',
 
   // ---------- Vazifa ----------
   'vazifa.yangi': 'Yangi vazifa',

@@ -98,6 +98,7 @@ export const en: Record<MatnKaliti, string> = {
   'nav.chiqish': 'Sign out',
   'nav.profilMenyusi': 'Profile menu',
   'nav.asosiyBolimlar': 'Main sections',
+  'nav.qollab': 'Support the project',
 
   // ---------- Task ----------
   'vazifa.yangi': 'New task',
