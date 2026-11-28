@@ -53,15 +53,94 @@ export const PILL =
 /** O'zimning xabarim foni: brend yashilining och tusi (Telegram'dagidek) */
 const MENIKI_FON = 'color-mix(in srgb, var(--brand-accent) 20%, var(--surface))'
 
-/** Oltita reaksiya — tartibi tanlov oynasida ham, xabar ostida ham shu */
-const REAKSIYALAR: { tur: ReaksiyaTuri; emoji: string; kalit: MatnKaliti }[] = [
-  { tur: 'zor', emoji: '👍', kalit: 'tk.reaksiya.zor' },
-  { tur: 'qarsak', emoji: '👏', kalit: 'tk.reaksiya.qarsak' },
-  { tur: 'jilmayish', emoji: '😁', kalit: 'tk.reaksiya.jilmayish' },
-  { tur: 'qahqah', emoji: '😂', kalit: 'tk.reaksiya.qahqah' },
-  { tur: 'xafa', emoji: '😢', kalit: 'tk.reaksiya.xafa' },
-  { tur: 'kelishuv', emoji: '🤝', kalit: 'tk.reaksiya.kelishuv' },
+/**
+ * Oltita reaksiya — tartibi tanlov oynasida ham, xabar ostida ham shu.
+ * `kod` — public/emoji/ dagi Noto emoji fayli (Unicode kodi).
+ */
+const REAKSIYALAR: { tur: ReaksiyaTuri; emoji: string; kod: string; kalit: MatnKaliti }[] = [
+  { tur: 'zor', emoji: '👍', kod: '1f44d', kalit: 'tk.reaksiya.zor' },
+  { tur: 'qarsak', emoji: '👏', kod: '1f44f', kalit: 'tk.reaksiya.qarsak' },
+  { tur: 'jilmayish', emoji: '😁', kod: '1f601', kalit: 'tk.reaksiya.jilmayish' },
+  { tur: 'qahqah', emoji: '😂', kod: '1f602', kalit: 'tk.reaksiya.qahqah' },
+  { tur: 'xafa', emoji: '😢', kod: '1f622', kalit: 'tk.reaksiya.xafa' },
+  { tur: 'kelishuv', emoji: '🤝', kod: '1f91d', kalit: 'tk.reaksiya.kelishuv' },
 ]
+
+/**
+ * Reaksiya emojisi — Telegram'dagidek hamma qurilmada bir xil, chiroyli
+ * (tizim shriftiga bog'liq emas). `jonli` bo'lsa animatsiya o'ynaydi.
+ * Rasm yuklanmasa (masalan, eski kesh) — oddiy emoji belgisi qoladi.
+ */
+function Emoji({
+  r,
+  jonli = false,
+  className = '',
+}: {
+  r: (typeof REAKSIYALAR)[number]
+  jonli?: boolean
+  className?: string
+}) {
+  const [xato, setXato] = useState(false)
+  if (xato) return <span className={`leading-none ${className}`}>{r.emoji}</span>
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- statik eksport, kichik mahalliy fayl
+    <img
+      src={`/emoji/${r.kod}.${jonli ? 'webp' : 'svg'}`}
+      alt={r.emoji}
+      draggable={false}
+      onError={() => setXato(true)}
+      className={`pointer-events-none select-none ${className}`}
+    />
+  )
+}
+
+/**
+ * Tanlov oynasidagi bitta emoji: ketma-ket "otilib" chiqadi, ustiga
+ * kelinganda kattalashib jonlanadi (Telegram'dagidek).
+ */
+function TanlovEmojisi({
+  r,
+  tartib,
+  tanlangan,
+  yorliq,
+  onClick,
+}: {
+  r: (typeof REAKSIYALAR)[number]
+  tartib: number
+  tanlangan: boolean
+  yorliq: string
+  onClick: () => void
+}) {
+  const [faol, setFaol] = useState(false)
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      onPointerEnter={() => setFaol(true)}
+      onPointerLeave={() => setFaol(false)}
+      onFocus={() => setFaol(true)}
+      onBlur={() => setFaol(false)}
+      aria-label={yorliq}
+      title={yorliq}
+      className={`flex size-11 min-h-0 items-center justify-center rounded-full transition-transform duration-150 hover:scale-125 active:scale-95 ${
+        tanlangan ? 'bg-brand-soft' : ''
+      }`}
+    >
+      <span className="reaksiya-chiqish flex" style={{ animationDelay: `${tartib * 35}ms` }}>
+        <Emoji r={r} jonli={faol} className="size-8" />
+      </span>
+    </button>
+  )
+}
+
+/** Tanlov ochilganda jonli fayllarni oldindan yuklab qo'yamiz — hover kechikmasin */
+let jonlilarYuklandi = false
+function jonlilarniYukla() {
+  if (jonlilarYuklandi || typeof window === 'undefined') return
+  jonlilarYuklandi = true
+  for (const r of REAKSIYALAR) new Image().src = `/emoji/${r.kod}.webp`
+}
 
 const HODISA: Record<string, MatnKaliti> = {
   yuborildi: 'tk.hodisa.yuborildi',
@@ -316,16 +395,30 @@ function XabarPufagi({
     son: (x.reaksiyalar ?? []).filter((y) => y.reaksiya === r.tur).length,
   })).filter((r) => r.son > 0)
 
+  // Yangi qo'yilgan reaksiya xabar ostida bir lahza "jonlanadi" (Telegram kabi)
+  const [jonlanayotgan, setJonlanayotgan] = useState<ReaksiyaTuri | null>(null)
+  const jonTaymer = useRef<number | null>(null)
+  useEffect(() => () => {
+    if (jonTaymer.current) window.clearTimeout(jonTaymer.current)
+  }, [])
+
   function bos(tur: ReaksiyaTuri) {
     setTanlov(false)
     if (!onlayn) return
     // O'sha reaksiyani qayta bosish — olib tashlash (Telegram kabi)
-    reaksiya.mutate({ izohId: x.id, reaksiya: meningReaksiyam === tur ? null : tur })
+    const olibTashlash = meningReaksiyam === tur
+    reaksiya.mutate({ izohId: x.id, reaksiya: olibTashlash ? null : tur })
+    if (!olibTashlash) {
+      setJonlanayotgan(tur)
+      if (jonTaymer.current) window.clearTimeout(jonTaymer.current)
+      jonTaymer.current = window.setTimeout(() => setJonlanayotgan(null), 2500)
+    }
   }
 
   // Tanlov oynasi tashqariga bosilganda yopiladi
   useEffect(() => {
     if (!tanlov) return
+    jonlilarniYukla()
     const yop = (e: PointerEvent) => {
       if (!pufak.current?.contains(e.target as Node)) setTanlov(false)
     }
@@ -468,20 +561,15 @@ function XabarPufagi({
               meniki ? 'right-0' : 'left-0'
             }`}
           >
-            {REAKSIYALAR.map((r) => (
-              <button
+            {REAKSIYALAR.map((r, i) => (
+              <TanlovEmojisi
                 key={r.tur}
-                type="button"
-                role="menuitem"
+                r={r}
+                tartib={i}
+                tanlangan={meningReaksiyam === r.tur}
+                yorliq={t(r.kalit)}
                 onClick={() => bos(r.tur)}
-                aria-label={t(r.kalit)}
-                title={t(r.kalit)}
-                className={`flex size-10 min-h-0 items-center justify-center rounded-full text-[1.375rem] transition hover:scale-125 hover:bg-surface-muted ${
-                  meningReaksiyam === r.tur ? 'bg-brand-soft' : ''
-                }`}
-              >
-                {r.emoji}
-              </button>
+              />
             ))}
           </div>
         )}
@@ -601,7 +689,7 @@ function XabarPufagi({
                     tanlangan ? 'bg-brand-primary text-white' : 'bg-brand-soft text-brand-onsoft hover:brightness-95'
                   }`}
                 >
-                  <span className="text-base leading-none">{r.emoji}</span>
+                  <Emoji r={r} jonli={jonlanayotgan === r.tur} className="size-5" />
                   {r.son}
                 </button>
               )

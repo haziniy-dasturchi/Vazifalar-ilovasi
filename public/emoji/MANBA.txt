@@ -1,0 +1,3 @@
+Reaksiya emojilari: Google Noto Emoji (https://github.com/googlefonts/noto-emoji)
+SVG — Apache License 2.0; jonli (animated) WebP — Noto Animated Emoji, CC BY 4.0.
+Jonli fayllar 96x96 ga kichraytirilgan.
