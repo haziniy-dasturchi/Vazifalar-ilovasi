@@ -1,12 +1,12 @@
 /**
  * "Loyihani qo'llab-quvvatlash" sahifasidagi o'zgaruvchan ma'lumotlar.
  *
- * Hammasi shu yerda — narx o'zgarsa yoki yangi to'lov usuli
- * qo'shilsa, sahifa kodiga tegmasdan shu faylni tahrirlash kifoya.
+ * Hammasi shu yerda — yangi xarajat yoki to'lov usuli qo'shilsa,
+ * sahifa kodiga tegmasdan shu faylni tahrirlash kifoya.
  *
- * TASDIQLANSIN: pastdagi summalar TAXMINIY (dollar ~12 800 so'm
- * hisobida). Haqiqiy to'lovlaringizga moslab yangilang — odamlar
- * bu raqamlarga ishonadi, shuning uchun ular rost bo'lishi shart.
+ * Summalar ataylab yo'q: maqsad — odamga qanday xarajatlar borligini
+ * tushuntirish, hisobot berish emas. Kurs va tariflar o'zgarganda
+ * eskirib qoladigan raqamlarni kuzatib borish ham shart bo'lmaydi.
  */
 
 export type Xarajat = {
@@ -14,8 +14,6 @@ export type Xarajat = {
   nom: string
   /** Bu nima uchun kerak — texnik so'zlarsiz */
   izoh: string
-  /** So'mda */
-  summa: number
   davr: 'oy' | 'yil' | 'bir marta'
 }
 
@@ -23,43 +21,29 @@ export const XARAJATLAR: Xarajat[] = [
   {
     nom: 'Server va ma’lumotlar bazasi',
     izoh: 'Vazifalaringiz, papkalaringiz va muhokamalar saqlanadigan joy. Telefon yo‘qolsa ham ma’lumotingiz shu yerda butun turadi.',
-    summa: 320_000,
     davr: 'oy',
   },
   {
     nom: 'Sayt xostingi',
     izoh: 'samarali-kun.uz saytini kecha-kunduz ishlab turishini ta’minlaydi.',
-    summa: 255_000,
     davr: 'oy',
   },
   {
     nom: 'Domen (samarali-kun.uz)',
     izoh: 'Sayt manzili. Har yili uzaytirib turiladi, aks holda sayt ochilmay qoladi.',
-    summa: 120_000,
     davr: 'yil',
   },
   {
     nom: 'Google Play hisobi',
     izoh: 'Ilovani Play Market’ga joylash uchun Google’ga to‘lanadi.',
-    summa: 320_000,
     davr: 'bir marta',
   },
   {
     nom: 'Apple dasturchi hisobi',
-    izoh: 'iPhone uchun App Store’ga chiqish uchun. Har yili to‘lanadi.',
-    summa: 1_270_000,
+    izoh: 'iPhone uchun App Store’ga chiqish uchun.',
     davr: 'yil',
   },
 ]
-
-/** Oylik ekvivalent: yillik — 12 ga bo'linadi, bir martalik hisobga kirmaydi */
-export function oylikJami(xarajatlar: Xarajat[] = XARAJATLAR): number {
-  return xarajatlar.reduce((jami, x) => {
-    if (x.davr === 'oy') return jami + x.summa
-    if (x.davr === 'yil') return jami + Math.round(x.summa / 12)
-    return jami
-  }, 0)
-}
 
 export type TolovUsuli = {
   nom: string

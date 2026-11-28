@@ -442,6 +442,7 @@ export const uz = {
   'topshiriq.bosibTuring': 'Tanlash uchun kartani bosib turing',
 
   'sozlamalar.tab.yoriqnoma': 'Yo‘riqnoma',
+  'sozlamalar.tab.qollab': 'Qo‘llab-quvvatlash',
 
   'topshiriq.taqiqlangan': 'Bu odamga hozir topshiriq yubora olmaysiz',
   'topshiriq.taqiqlanganKim': 'Bu manzilga hozir topshiriq yubora olmaysiz: {kim}. Uni ro‘yxatdan olib tashlang.',

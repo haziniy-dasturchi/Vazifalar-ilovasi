@@ -425,6 +425,7 @@ export const en: Record<MatnKaliti, string> = {
   'topshiriq.bosibTuring': 'Press and hold a card to select it',
 
   'sozlamalar.tab.yoriqnoma': 'Guide',
+  'sozlamalar.tab.qollab': 'Support',
 
   'topshiriq.taqiqlangan': 'You cannot send assignments to this person right now',
   'topshiriq.taqiqlanganKim': 'You can’t send an assignment to {kim} right now. Remove it from the list.',

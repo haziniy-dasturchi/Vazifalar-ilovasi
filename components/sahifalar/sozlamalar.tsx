@@ -4,6 +4,7 @@ import { useState } from 'react'
 import {
   Bell,
   BookOpen,
+  Heart,
   PanelsTopLeft,
   Settings2,
   Sun,
@@ -17,6 +18,7 @@ import { KorinishBolimi } from '@/components/app/sozlamalar/korinish-bolimi'
 import { YonPanelBolimi } from '@/components/app/sozlamalar/yon-panel-bolimi'
 import { BildirishnomaBolimi } from '@/components/app/sozlamalar/bildirishnoma-bolimi'
 import { YoriqnomaMazmuni } from '@/components/sahifalar/yoriqnoma'
+import { QollabQuvvatlashMazmuni } from '@/components/sahifalar/qollab-quvvatlash'
 import { useProfil } from '@/lib/queries/profil'
 import { useT } from '@/components/app/til-provayder'
 import type { MatnKaliti } from '@/lib/i18n'
@@ -35,6 +37,9 @@ const BOLIMLAR = [
   // ketgandi, yo'riqnoma esa kundalik ish emas — kamdan-kam
   // ochiladi va sozlamalar yonida turgani tabiiyroq
   { kalit: 'yoriqnoma', nom: 'sozlamalar.tab.yoriqnoma', ikonka: BookOpen },
+  // Yon paneldagi havoladan tashqari shu yerda ham — odam "ilova
+  // haqida"gi narsalarni odatda sozlamalardan qidiradi
+  { kalit: 'qollab', nom: 'sozlamalar.tab.qollab', ikonka: Heart },
 ] as const satisfies readonly {
   kalit: string
   nom: MatnKaliti
@@ -102,6 +107,7 @@ export function SozlamalarKorinishi() {
               {faol === 'yon-panel' && <YonPanelBolimi />}
               {faol === 'bildirishnoma' && <BildirishnomaBolimi />}
               {faol === 'yoriqnoma' && <YoriqnomaMazmuni />}
+              {faol === 'qollab' && <QollabQuvvatlashMazmuni />}
             </>
           )}
         </div>

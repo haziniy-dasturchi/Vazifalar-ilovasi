@@ -426,6 +426,7 @@ export const ru: Record<MatnKaliti, string> = {
   'topshiriq.bosibTuring': 'Нажмите и удерживайте карточку, чтобы выбрать',
 
   'sozlamalar.tab.yoriqnoma': 'Инструкция',
+  'sozlamalar.tab.qollab': 'Поддержать',
 
   'topshiriq.taqiqlangan': 'Сейчас вы не можете отправлять поручения этому человеку',
   'topshiriq.taqiqlanganKim': 'Сейчас нельзя отправить поручение: {kim}. Уберите этот адрес из списка.',
